@@ -196,21 +196,27 @@
           run-dev-all = pkgs.writeShellApplication {
             name = "run-dev-all";
             runtimeInputs = [
-              pkgs.process-compose
+              pkgs.coreutils
               run-dev-backend
               run-dev-frontend
               run-dev-infra
             ];
             text = ''
               ${bootstrap}
-              export PATH="${
-                lib.makeBinPath [
-                  run-dev-backend
-                  run-dev-frontend
-                  run-dev-infra
-                ]
-              }:$PATH"
-              exec process-compose -f "$MSDOME_ROOT/nix/process-compose.yml" "$@"
+              run-dev-infra
+              run-dev-backend &
+              backend_pid=$!
+              run-dev-frontend &
+              frontend_pid=$!
+
+              cleanup() {
+                trap - EXIT INT TERM
+                kill "$backend_pid" "$frontend_pid" 2>/dev/null || true
+                wait "$backend_pid" "$frontend_pid" 2>/dev/null || true
+                run-dev-infra --down
+              }
+              trap cleanup EXIT INT TERM
+              wait "$backend_pid" "$frontend_pid"
             '';
           };
         };
@@ -471,7 +477,6 @@
               pkgs.git
               pkgs.docker-client
               pkgs.docker-compose
-              pkgs.process-compose
               scripts.run-dev-all
               scripts.run-dev-infra
               scripts.run-dev-backend
