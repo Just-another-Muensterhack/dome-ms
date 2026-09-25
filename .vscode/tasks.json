@@ -23,6 +23,18 @@
                 "clear": true
             },
             "problemMatcher": []
+        },
+        {
+            "label": "testdata: seed user test2",
+            "detail": "Creates websites and domains for test2 via the API (with and without relations, incl. a soft deleted website). Needs the dev server on :8000, safe to rerun.",
+            "type": "shell",
+            "command": "bash .devcontainer/scripts/seed-testdata.sh",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true
+            },
+            "problemMatcher": []
         }
     ],
     "inputs": [
