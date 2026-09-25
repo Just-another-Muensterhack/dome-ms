@@ -241,6 +241,22 @@ class WebsiteBuilderService:
         content.is_active = True  # ty: ignore[invalid-assignment]
         return content
 
+    @transaction.atomic
+    def delete_content(self, content_id: UUID) -> None:
+        """Delete the version and its HTML file. The active version can only be deleted if it is the only one, so a
+        website with versions always keeps an active one."""
+        content = self.get_content(content_id)
+        self._lock_website(content.website_id)  # ty: ignore[unresolved-attribute]
+        # re-read under the lock, the version may have been activated in the meantime
+        content = WebsiteContent.objects.get(pk=content.pk)  # ty: ignore[unresolved-attribute]
+        others = WebsiteContent.objects.filter(website_id=content.website_id).exclude(pk=content.pk)  # ty: ignore[unresolved-attribute]
+        if content.is_active and others.exists():
+            raise ValidationError("The active version can not be deleted, activate another version first.")
+        html = content.html
+        content.delete()
+        # remove the file only once the row is gone for good, a rollback keeps both
+        transaction.on_commit(lambda: html.storage.delete(html.name))
+
     # Internals
 
     def _contents(self) -> QuerySet[WebsiteContent]:  # ty: ignore[invalid-type-form]

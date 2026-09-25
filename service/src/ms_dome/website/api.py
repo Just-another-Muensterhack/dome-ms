@@ -53,3 +53,10 @@ def edit_content(request: HttpRequest, content_id: UUID, payload: WebsiteContent
 def activate_content(request: HttpRequest, content_id: UUID):
     """Make a version the active one of its website, the previously active version is deactivated."""
     return WebsiteBuilderService(request.auth).activate_content(content_id)  # ty: ignore[unresolved-attribute]
+
+
+@website_builder.delete("/{content_id}", response={204: None, 404: ErrorOut, 422: ErrorOut})
+def delete_content(request: HttpRequest, content_id: UUID):
+    """Delete a version and its HTML file, the active version only if it is the website's last one."""
+    WebsiteBuilderService(request.auth).delete_content(content_id)  # ty: ignore[unresolved-attribute]
+    return 204, None
