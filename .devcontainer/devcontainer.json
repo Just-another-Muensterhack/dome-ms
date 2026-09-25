@@ -1,5 +1,5 @@
 {
-	"name": "Python 3.14 Project",
+	"name": "DomeMS Backend",
 	"service": "python",
 	"remoteUser": "vscode",
 	"workspaceFolder": "/workspaces",
@@ -42,7 +42,8 @@
 				"tamasfe.even-better-toml",
 				"redhat.vscode-yaml",
 				"esbenp.prettier-vscode",
-				"eamodio.gitlens"
+				"eamodio.gitlens",
+				"anthropic.claude-code"
 			]
 		}
 	}

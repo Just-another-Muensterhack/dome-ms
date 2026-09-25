@@ -1,6 +1,6 @@
 [project]
-name = "project_name"  # TODO
-description = "Template for python project"  # TODO
+name = "ms-dome"  # TODO
+description = "Backend for MSDome"  # TODO
 version = "0.0.1"
 license = "MIT"  # TODO
 authors = [
@@ -17,17 +17,18 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 requires-python = ">=3.14"
+dependencies = [
+    "django>=6.1.1",
+    "django-ninja>=1.7.0",
+    "psycopg[binary]>=3.3.5",
+]
 
 [project.urls]
-homepage = "https://github.com/Paul-B98/python-project-template"  # TODO
-repository = "https://github.com/Paul-B98/python-project-template"  # TODO
-changelog = "https://github.com/Paul-B98/python-project-template/releases"  # TODO
-issues = "https://github.com/Paul-B98/python-project-template/issues"  # TODO
-documentation = "https://github.com/Paul-B98/python-project-template/wiki"  # TODO
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+homepage = "https://github.com/Just-another-Muensterhack/dome-ms-backend"  # TODO
+repository = "https://github.com/Just-another-Muensterhack/dome-ms-backend"  # TODO
+changelog = "https://github.com/Just-another-Muensterhack/dome-ms-backend/releases"  # TODO
+issues = "https://github.com/Just-another-Muensterhack/dome-ms-backend/issues"  # TODO
+documentation = "https://github.com/Just-another-Muensterhack/dome-ms-backend/wiki"  # TODO
 
 [dependency-groups]
 dev = [
