@@ -1,0 +1,88 @@
+{
+  "@@locale": "en-US",
+  "appName": "dome",
+  "navAll": "All",
+  "navDashboard": "Dashboard",
+  "navWebsites": "Websites",
+  "navDomains": "Domains",
+  "settings": "Settings",
+  "add": "Add",
+  "addWebsite": "Add website",
+  "addDomain": "Add domain",
+  "cancel": "Cancel",
+  "name": "Name",
+  "description": "Description",
+  "tags": "Tags",
+  "tagsPlaceholder": "Comma-separated",
+  "wildcard": "Wildcard",
+  "website": "Website",
+  "noWebsite": "No website",
+  "loadingAccount": "Loading account",
+  "accountUnavailable": "Account is unavailable.",
+  "language": "Language",
+  "theme": "Theme",
+  "loadingDomains": "Loading domains",
+  "domainsUnavailable": "Domains are unavailable.",
+  "noDomainsOwned": "You do not own any domains.",
+  "loadingWebsites": "Loading websites",
+  "websitesUnavailable": "Websites are unavailable.",
+  "noWebsitesOwned": "You do not own any websites.",
+  "noDomains": "No domains",
+  "moreCount": "+{count} more",
+  "@moreCount": {
+    "placeholders": {
+      "count": { "type": "string" }
+    }
+  },
+  "domainsFor": "Domains for {name}",
+  "@domainsFor": {
+    "placeholders": {
+      "name": { "type": "string" }
+    }
+  },
+  "searchDomains": "Search domains",
+  "searchDomainsFor": "Search domains for {name}",
+  "@searchDomainsFor": {
+    "placeholders": {
+      "name": { "type": "string" }
+    }
+  },
+  "noDomainsMatchSearch": "No domains match that search.",
+  "analytics": "Analytics",
+  "dns": "DNS",
+  "editor": "Editor",
+  "loadingAnalytics": "Loading analytics",
+  "analyticsUnavailable": "Analytics are unavailable.",
+  "visitorsByCountry": "Visitors by country",
+  "visitorsLastDay": "Visitors in the last 24 hours",
+  "blockedRequestsLastDay": "Blocked requests in the last 24 hours",
+  "visitorsDuringLastDay": "Visitors during the last 24 hours",
+  "blockedRequestsDuringLastDay": "Blocked requests during the last 24 hours",
+  "analyticsFor": "Analytics for {name}",
+  "@analyticsFor": {
+    "placeholders": {
+      "name": { "type": "string" }
+    }
+  },
+  "verified": "Verified",
+  "unverified": "Unverified",
+  "custom": "Custom",
+  "searchByName": "Search by name",
+  "searchWebsitesByName": "Search websites by name",
+  "noWebsitesMatchName": "No websites match that name.",
+  "onboardingTitle": "How do you want to start?",
+  "onboardingCreateWebsite": "Create a website",
+  "onboardingRecommended": "Recommended",
+  "onboardingCreateWebsiteDescription": "Create a new website with AI and host it here directly.",
+  "onboardingMoveWebsite": "Move a website",
+  "onboardingExpert": "Expert",
+  "onboardingMoveWebsiteDescription": "If you have a domain and a website, you can proxy it through our server.",
+  "noDeployments": "No deployments",
+  "deploymentUrlsFor": "Deployment URLs for {name}",
+  "@deploymentUrlsFor": {
+    "placeholders": {
+      "name": { "type": "string" }
+    }
+  },
+  "others": "Others"
+}

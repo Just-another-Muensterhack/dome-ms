@@ -1,0 +1,88 @@
+{
+  "@@locale": "de-DE",
+  "appName": "dome",
+  "navAll": "Alle",
+  "navDashboard": "Dashboard",
+  "navWebsites": "Websites",
+  "navDomains": "Domains",
+  "settings": "Einstellungen",
+  "add": "Hinzufügen",
+  "addWebsite": "Website hinzufügen",
+  "addDomain": "Domain hinzufügen",
+  "cancel": "Abbrechen",
+  "name": "Name",
+  "description": "Beschreibung",
+  "tags": "Tags",
+  "tagsPlaceholder": "Durch Komma getrennt",
+  "wildcard": "Wildcard",
+  "website": "Website",
+  "noWebsite": "Keine Website",
+  "loadingAccount": "Konto wird geladen",
+  "accountUnavailable": "Konto ist nicht verfügbar.",
+  "language": "Sprache",
+  "theme": "Darstellung",
+  "loadingDomains": "Domains werden geladen",
+  "domainsUnavailable": "Domains sind nicht verfügbar.",
+  "noDomainsOwned": "Sie besitzen keine Domains.",
+  "loadingWebsites": "Websites werden geladen",
+  "websitesUnavailable": "Websites sind nicht verfügbar.",
+  "noWebsitesOwned": "Sie besitzen keine Websites.",
+  "noDomains": "Keine Domains",
+  "moreCount": "+{count} weitere",
+  "@moreCount": {
+    "placeholders": {
+      "count": { "type": "string" }
+    }
+  },
+  "domainsFor": "Domains für {name}",
+  "@domainsFor": {
+    "placeholders": {
+      "name": { "type": "string" }
+    }
+  },
+  "searchDomains": "Domains suchen",
+  "searchDomainsFor": "Domains für {name} suchen",
+  "@searchDomainsFor": {
+    "placeholders": {
+      "name": { "type": "string" }
+    }
+  },
+  "noDomainsMatchSearch": "Keine Domains passen zu dieser Suche.",
+  "analytics": "Analysen",
+  "dns": "DNS",
+  "editor": "Editor",
+  "loadingAnalytics": "Analysen werden geladen",
+  "analyticsUnavailable": "Analysen sind nicht verfügbar.",
+  "visitorsByCountry": "Besucher nach Land",
+  "visitorsLastDay": "Besucher in den letzten 24 Stunden",
+  "blockedRequestsLastDay": "Blockierte Anfragen in den letzten 24 Stunden",
+  "visitorsDuringLastDay": "Besucher während der letzten 24 Stunden",
+  "blockedRequestsDuringLastDay": "Blockierte Anfragen während der letzten 24 Stunden",
+  "analyticsFor": "Analysen für {name}",
+  "@analyticsFor": {
+    "placeholders": {
+      "name": { "type": "string" }
+    }
+  },
+  "verified": "Verifiziert",
+  "unverified": "Nicht verifiziert",
+  "custom": "Benutzerdefiniert",
+  "searchByName": "Nach Namen suchen",
+  "searchWebsitesByName": "Websites nach Namen suchen",
+  "noWebsitesMatchName": "Keine Websites passen zu diesem Namen.",
+  "onboardingTitle": "Wie möchten Sie starten?",
+  "onboardingCreateWebsite": "Website erstellen",
+  "onboardingRecommended": "Empfohlen",
+  "onboardingCreateWebsiteDescription": "Erstellen Sie eine neue Website mit KI und hosten Sie sie direkt hier.",
+  "onboardingMoveWebsite": "Website umziehen",
+  "onboardingExpert": "Experte",
+  "onboardingMoveWebsiteDescription": "Wenn Sie eine Domain und eine Website haben, können Sie sie über unseren Server weiterleiten.",
+  "noDeployments": "Keine Deployments",
+  "deploymentUrlsFor": "Deployment-URLs für {name}",
+  "@deploymentUrlsFor": {
+    "placeholders": {
+      "name": { "type": "string" }
+    }
+  },
+  "others": "Weitere"
+}

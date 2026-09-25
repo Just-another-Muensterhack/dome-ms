@@ -1,0 +1,14 @@
+@theme {
+  --color-primary: #143f33;
+  --color-on-primary: #cfe937;
+  --color-primary-hover: #002c21;
+}
+
+@layer base {
+  /* dark theme */
+  @variant dark {
+    --color-primary: #143f33;
+    --color-on-primary: #cfe937;
+    --color-primary-hover: #002c21;
+  }
+}
