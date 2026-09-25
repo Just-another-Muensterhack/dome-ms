@@ -7,7 +7,7 @@ from core.models import Domain, Website
 class DomainInlineFormSet(BaseInlineFormSet):
     """Inline domains always belong to the owner of their website.
 
-    The owner is set before validation, so `Domain.clean` checks the domains against the (possibly changed) owner.
+    The owner is set before validation, so `Domain.clean` checks new domains against the website's owner.
     """
 
     def _construct_form(self, i, **kwargs):
@@ -31,14 +31,19 @@ class WebsiteAdmin(admin.ModelAdmin):
     list_filter = ("deleted", "created_at")
     search_fields = ("name", "description", "owner__username", "owner__email")
     autocomplete_fields = ("owner",)
-    readonly_fields = ("id", "created_at", "updated_at", "deleted_at")
+    readonly_fields = ("id", "created_at", "updated_at", "deleted", "deleted_at")
     fields = ("id", "name", "owner", "description", "tags", "deleted", "deleted_at", "created_at", "updated_at")
     inlines = (DomainInline,)
+    actions = ("soft_delete",)
 
-    def save_related(self, request, form, formsets, change):
-        super().save_related(request, form, formsets, change)
-        # unchanged inline rows are not saved, move them over to a new owner as well
-        form.instance.domains.exclude(owner=form.instance.owner).update(owner=form.instance.owner)
+    def get_readonly_fields(self, request, obj=None):
+        # the owner is fixed once created, so a website and its domains always share it
+        return (*self.readonly_fields, "owner") if obj else self.readonly_fields
+
+    @admin.action(description="Soft delete selected websites")
+    def soft_delete(self, request, queryset):
+        for website in queryset.filter(deleted=False):
+            website.soft_delete()
 
 
 @admin.register(Domain)
@@ -50,3 +55,6 @@ class DomainAdmin(admin.ModelAdmin):
     readonly_fields = ("id", "created_at", "updated_at")
     fields = ("id", "name", "wildcard", "owner", "website", "created_at", "updated_at")
     list_select_related = ("owner", "website")
+
+    def get_readonly_fields(self, request, obj=None):
+        return (*self.readonly_fields, "owner") if obj else self.readonly_fields

@@ -22,6 +22,7 @@ dependencies = [
     "django-ninja>=1.7.0",
     "gunicorn>=26.2.0",
     "mozilla-django-oidc>=5.0.2",
+    "prometheus-client>=0.25.0",
     "psycopg[binary]>=3.3.5",
     "pyjwt[crypto]>=2.14.0",
 ]

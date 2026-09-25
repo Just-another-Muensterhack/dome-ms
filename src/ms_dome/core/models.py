@@ -3,7 +3,8 @@ from uuid import uuid4
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, transaction
+from django.db.models import Q
 from django.utils import timezone
 
 # A single DNS label: 1-63 chars, alphanumerics and hyphens, no leading / trailing hyphen
@@ -31,7 +32,22 @@ def normalize_domain_name(name: str) -> str:
     return name
 
 
+class DomainQuerySet(models.QuerySet):
+    def visible_to(self, user: User) -> "DomainQuerySet":
+        """Domains the user may access: superusers see all, everybody else only their own."""
+        return self if user.is_superuser else self.filter(owner=user)
+
+
+class WebsiteQuerySet(models.QuerySet):
+    def visible_to(self, user: User) -> "WebsiteQuerySet":
+        """Websites the user may access: superusers see all, everybody else only their own. Soft deleted ones are hidden."""
+        qs = self.filter(deleted=False)
+        return qs if user.is_superuser else qs.filter(owner=user)
+
+
 class Domain(models.Model):
+    objects = models.Manager.from_queryset(DomainQuerySet)()
+
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="domains")
     name = models.CharField(max_length=255, unique=True)
@@ -62,15 +78,28 @@ class Domain(models.Model):
 
 
 class Website(models.Model):
+    objects = models.Manager.from_queryset(WebsiteQuerySet)()
+
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="websites")
     tags = models.JSONField(default=list, blank=True)
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
     deleted = models.BooleanField(default=False)
+
+    class Meta:
+        constraints = [
+            # names are per owner, a soft deleted website frees its name
+            models.UniqueConstraint(
+                fields=["owner", "name"],
+                condition=Q(deleted=False),
+                name="unique_active_website_name_per_owner",
+                violation_error_message="You already have a website with this name.",
+            ),
+        ]
 
     def __str__(self):
         return self.name
@@ -91,7 +120,10 @@ class Website(models.Model):
         elif not self.deleted:
             self.deleted_at = None  # ty: ignore[invalid-assignment]
 
+    @transaction.atomic
     def soft_delete(self) -> None:
+        """Hide the website and release its domains, they stay with the owner but are no longer attached."""
         self.deleted = True  # ty: ignore[invalid-assignment]
         self.deleted_at = timezone.now()
         self.save(update_fields=["deleted", "deleted_at", "updated_at"])
+        self.domains.update(website=None, updated_at=timezone.now())  # ty: ignore[unresolved-attribute]

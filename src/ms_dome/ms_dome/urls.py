@@ -16,8 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.utils.module_loading import autodiscover_modules
 
 from ms_dome.api import api
+
+# every app registers its routers on `api` when its `api` module is imported
+autodiscover_modules("api")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
