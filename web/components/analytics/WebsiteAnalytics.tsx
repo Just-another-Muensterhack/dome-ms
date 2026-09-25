@@ -43,7 +43,7 @@ export const WebsiteAnalytics = ({
       )}
       {data && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <section className="rounded-lg bg-white p-4 flex-col-4">
+          <section className="rounded-lg bg-surface-variant p-4 flex-col-4 text-on-surface">
             <h2 className="typography-title-md">{translation('visitorsByCountry')}</h2>
             <VisitorRing
               segments={segments}
@@ -51,7 +51,7 @@ export const WebsiteAnalytics = ({
               label={translation('visitorsByCountry')}
             />
           </section>
-          <section className="rounded-lg bg-white p-4 flex-col-4">
+          <section className="rounded-lg bg-surface-variant p-4 flex-col-4 text-on-surface">
             <h2 className="typography-title-md">{translation('visitorsLastDay')}</h2>
             <p className="typography-title-lg">{visitorsLastDay}</p>
             <VisitorTimeline
@@ -60,7 +60,7 @@ export const WebsiteAnalytics = ({
               label={translation('visitorsDuringLastDay')}
             />
           </section>
-          <section className="rounded-lg bg-white p-4 flex-col-4">
+          <section className="rounded-lg bg-surface-variant p-4 flex-col-4 text-on-surface">
             <h2 className="typography-title-md">{translation('blockedRequestsLastDay')}</h2>
             <p className="typography-title-lg">{blockedLastDay}</p>
             <VisitorTimeline

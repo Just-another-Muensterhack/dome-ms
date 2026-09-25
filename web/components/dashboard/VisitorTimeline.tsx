@@ -67,7 +67,7 @@ export const VisitorTimeline = ({
         y1={baseline}
         x2={width - padding.right}
         y2={baseline}
-        stroke="#d7d7dc"
+        className="stroke-neutral"
       />
       {area && <path d={area} fill={color} opacity="0.2" />}
       <polyline
@@ -94,7 +94,7 @@ export const VisitorTimeline = ({
           y={height - 8}
           textAnchor="middle"
           fontSize="12"
-          fill="#6b6d76"
+          className="fill-description"
         >
           {formatHour(tick)}
         </text>

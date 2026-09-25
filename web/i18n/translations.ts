@@ -29,7 +29,9 @@ export type DomeTranslationEntries = {
   'dns': string,
   'domainsFor': (values: { name: string }) => string,
   'domainsUnavailable': string,
+  'editDomain': string,
   'editor': string,
+  'editWebsite': string,
   'invalidIpAddress': string,
   'ipAddress': string,
   'landingHeadline': string,
@@ -59,6 +61,7 @@ export type DomeTranslationEntries = {
   'noDomainsMatchSearch': string,
   'noDomainsOwned': string,
   'noWebsite': string,
+  'noWebsites': string,
   'noWebsitesMatchName': string,
   'noWebsitesOwned': string,
   'onboardingAddressDescription': (values: { domain: string }) => string,
@@ -76,6 +79,7 @@ export type DomeTranslationEntries = {
   'onboardingWebsiteDescription': (values: { domain: string }) => string,
   'onboardingWebsiteTitle': string,
   'others': string,
+  'save': string,
   'searchByName': string,
   'searchDomains': string,
   'searchDomainsFor': (values: { name: string }) => string,
@@ -122,7 +126,9 @@ export const domeTranslation: Translation<DomeTranslationLocales, Partial<DomeTr
       return `Domains für ${name}`
     },
     'domainsUnavailable': `Domains sind nicht verfügbar.`,
+    'editDomain': `Domain bearbeiten`,
     'editor': `Editor`,
+    'editWebsite': `Website bearbeiten`,
     'invalidIpAddress': `Geben Sie eine gültige IP-Adresse ein.`,
     'ipAddress': `IP-Adresse`,
     'landingHeadline': `Das Cloudflare für Münster — nur dass es den Münsteranern gehört.`,
@@ -154,6 +160,7 @@ export const domeTranslation: Translation<DomeTranslationLocales, Partial<DomeTr
     'noDomainsMatchSearch': `Keine Domains passen zu dieser Suche.`,
     'noDomainsOwned': `Sie besitzen keine Domains.`,
     'noWebsite': `Keine Website`,
+    'noWebsites': `Keine Websites`,
     'noWebsitesMatchName': `Keine Websites passen zu diesem Namen.`,
     'noWebsitesOwned': `Sie besitzen keine Websites.`,
     'onboardingAddressDescription': ({ domain }): string => {
@@ -175,6 +182,7 @@ export const domeTranslation: Translation<DomeTranslationLocales, Partial<DomeTr
     },
     'onboardingWebsiteTitle': `Website erstellen`,
     'others': `Weitere`,
+    'save': `Speichern`,
     'searchByName': `Nach Namen suchen`,
     'searchDomains': `Domains suchen`,
     'searchDomainsFor': ({ name }): string => {
@@ -221,7 +229,9 @@ export const domeTranslation: Translation<DomeTranslationLocales, Partial<DomeTr
       return `Domains for ${name}`
     },
     'domainsUnavailable': `Domains are unavailable.`,
+    'editDomain': `Edit domain`,
     'editor': `Editor`,
+    'editWebsite': `Edit website`,
     'invalidIpAddress': `Enter a valid IP address.`,
     'ipAddress': `IP address`,
     'landingHeadline': `The Cloudflare for Münster — owned by the people of Münster.`,
@@ -253,6 +263,7 @@ export const domeTranslation: Translation<DomeTranslationLocales, Partial<DomeTr
     'noDomainsMatchSearch': `No domains match that search.`,
     'noDomainsOwned': `You do not own any domains.`,
     'noWebsite': `No website`,
+    'noWebsites': `No websites`,
     'noWebsitesMatchName': `No websites match that name.`,
     'noWebsitesOwned': `You do not own any websites.`,
     'onboardingAddressDescription': ({ domain }): string => {
@@ -274,6 +285,7 @@ export const domeTranslation: Translation<DomeTranslationLocales, Partial<DomeTr
     },
     'onboardingWebsiteTitle': `Create the website`,
     'others': `Others`,
+    'save': `Save`,
     'searchByName': `Search by name`,
     'searchDomains': `Search domains`,
     'searchDomainsFor': ({ name }): string => {

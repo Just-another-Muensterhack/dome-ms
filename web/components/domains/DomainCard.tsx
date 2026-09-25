@@ -1,9 +1,12 @@
-import Link from 'next/link'
-import { Card, Chip } from '@helpwave/hightide'
+import { useState } from 'react'
+import { Card, Chip, IconButton } from '@helpwave/hightide'
+import { PencilIcon } from 'lucide-react'
 import { useWebsites } from '@/api/website'
 import type { Domain } from '@/api/types/domain'
+import { EditDomainDialog } from '@/components/domains/EditDomainDialog'
 import { useDomeTranslation } from '@/i18n/useDomeTranslation'
 import { domainLabel } from '@/utils/domains'
+import Link from 'next/link'
 
 type DomainCardProps = {
   domain: Domain,
@@ -14,6 +17,7 @@ export const DomainCard = ({
 }: DomainCardProps) => {
   const translation = useDomeTranslation()
   const websites = useWebsites()
+  const [isEditOpen, setIsEditOpen] = useState(false)
   const website = domain.website_id
     ? websites.data?.find((item) => item.id === domain.website_id)
     : undefined
@@ -22,10 +26,21 @@ export const DomainCard = ({
     <Card
       id={domain.id}
       title={<span className="block truncate">{domainLabel(domain)}</span>}
-      className="h-full [&_.card-header]:min-h-0 [&_.card-header]:items-start"
+      className="relative h-full [&_.card-header]:min-h-0 [&_.card-header]:items-start"
+      trailing={(
+        <IconButton
+          size="sm"
+          color="primary"
+          coloringStyle="text"
+          className="relative z-10"
+          tooltip={translation('editDomain')}
+          onClick={() => setIsEditOpen(true)}
+        >
+          <PencilIcon className="size-5" />
+        </IconButton>
+      )}
     >
-      <div className="flex flex-wrap gap-2">
-        {website ? (
+      {website ? (
           <Link
             href={`/website/${website.id}`}
             className="typography-body text-primary hover:underline"
@@ -38,16 +53,22 @@ export const DomainCard = ({
               {website.name}
             </Chip>
           </Link>
-        ) : (
-          <Chip
-            color="neutral"
-            coloringStyle="tonal"
-            size="sm"
-          >
-            {translation('custom')}
-          </Chip>
-        )}
-      </div>
+      ) : (
+        <Chip
+          color="neutral"
+          coloringStyle="tonal"
+          size="sm"
+        >
+          {translation('custom')}
+        </Chip>
+      )}
+      {isEditOpen && (
+        <EditDomainDialog
+          domain={domain}
+          isOpen
+          onClose={() => setIsEditOpen(false)}
+        />
+      )}
     </Card>
   )
 }

@@ -7,8 +7,8 @@
 @layer base {
   /* dark theme */
   @variant dark {
-    --color-primary: #143f33;
-    --color-on-primary: #cfe937;
-    --color-primary-hover: #002c21;
+    --color-primary: #b6ce00;
+    --color-on-primary: #143f33;
+    --color-primary-hover: #c9e22c;
   }
 }

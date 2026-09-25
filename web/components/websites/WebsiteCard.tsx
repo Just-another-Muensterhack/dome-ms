@@ -1,9 +1,12 @@
+import { useState } from 'react'
 import { useRouter } from 'next/router'
 import { Card, IconButton } from '@helpwave/hightide'
-import { ChartColumnIcon } from 'lucide-react'
+import { PencilIcon } from 'lucide-react'
 import type { Website } from '@/api/types/website'
-import { WebsiteDomainChips } from '@/components/websites/WebsiteDomainChips'
+import { AddWebsiteDialog } from '@/components/websites/AddWebsiteDialog'
 import { useDomeTranslation } from '@/i18n/useDomeTranslation'
+import { domainLabel } from '@/utils/domains'
+import { WebsiteDomainChips } from './WebsiteDomainChips'
 
 type WebsiteCardProps = {
   website: Website,
@@ -14,27 +17,49 @@ export const WebsiteCard = ({
 }: WebsiteCardProps) => {
   const router = useRouter()
   const translation = useDomeTranslation()
+  const [isEditOpen, setIsEditOpen] = useState(false)
 
   return (
     <Card
       id={website.id}
       title={website.name}
-      className="flex-col justify-start"
+      className="relative flex-col justify-start"
       trailing={(
         <IconButton
           size="sm"
           color="primary"
           coloringStyle="text"
-          tooltip={translation('analyticsFor', { name: website.name })}
-          onClick={() => {
-            void router.push(`/website/${website.id}`)
-          }}
+          className="relative z-10"
+          tooltip={translation('editWebsite')}
+          onClick={() => setIsEditOpen(true)}
         >
-          <ChartColumnIcon className="size-5" />
+          <PencilIcon className="size-5" />
         </IconButton>
       )}
     >
-      <WebsiteDomainChips websiteName={website.name} domains={website.domains} />
+      <button
+        type="button"
+        aria-label={translation('analyticsFor', { name: website.name })}
+        className="absolute inset-0 cursor-pointer"
+        onClick={() => {
+          void router.push(`/website/${website.id}`)
+        }}
+      />
+      {website.domains.length === 0 && (
+        <p className="typography-body text-description">{translation('noDomains')}</p>
+      )}
+      {website.domains.length > 0 && (
+        <div className="relative z-10 flex-col-2">
+          <WebsiteDomainChips websiteName={website.name} domains={website.domains} />
+        </div>
+      )}
+      {isEditOpen && (
+        <AddWebsiteDialog
+          website={website}
+          isOpen
+          onClose={() => setIsEditOpen(false)}
+        />
+      )}
     </Card>
   )
 }
