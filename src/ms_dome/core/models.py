@@ -38,11 +38,14 @@ class DomainQuerySet(models.QuerySet):
         return self if user.is_superuser else self.filter(owner=user)
 
 
-class WebsiteQuerySet(models.QuerySet):
-    def visible_to(self, user: User) -> "WebsiteQuerySet":
-        """Websites the user may access: superusers see all, everybody else only their own. Soft deleted ones are hidden."""
+class HostQuerySet(models.QuerySet):
+    def visible_to(self, user: User) -> "HostQuerySet":
+        """Hosts the user may access: superusers see all, everybody else only their own. Soft deleted ones are hidden."""
         qs = self.filter(deleted=False)
         return qs if user.is_superuser else qs.filter(owner=user)
+
+
+WebsiteQuerySet = WebserverQuerySet = HostQuerySet
 
 
 class Domain(models.Model):
@@ -53,8 +56,19 @@ class Domain(models.Model):
     name = models.CharField(max_length=255, unique=True)
     wildcard = models.BooleanField(default=False)
     website = models.ForeignKey("Website", on_delete=models.CASCADE, related_name="domains", null=True, blank=True)
+    webserver = models.ForeignKey("Webserver", on_delete=models.CASCADE, related_name="domains", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            # a domain points to at most one host, either a website or a webserver
+            models.CheckConstraint(
+                condition=Q(website__isnull=True) | Q(webserver__isnull=True),
+                name="domain_single_host",
+                violation_error_message="A domain can belong to either a website or a webserver, not both.",
+            ),
+        ]
 
     def __str__(self):
         return f"*.{self.name}" if self.wildcard else self.name
@@ -67,21 +81,36 @@ class Domain(models.Model):
             except ValidationError as exc:
                 errors["name"] = exc.messages
 
-        if self.website is not None:
-            if self.website.deleted:  # ty: ignore[unresolved-attribute]
-                errors["website"] = "The website has been deleted."
-            elif self.website.owner_id != self.owner_id:  # ty: ignore[unresolved-attribute]
-                errors["website"] = "The website must belong to the same owner as the domain."
+        if self.website is not None and self.webserver is not None:
+            errors["webserver"] = "A domain can belong to either a website or a webserver, not both."
+        for field in ("website", "webserver"):
+            host = getattr(self, field)
+            if host is None:
+                continue
+            if host.deleted:
+                errors[field] = f"The {field} has been deleted."
+            elif host.owner_id != self.owner_id:  # ty: ignore[unresolved-attribute]
+                errors[field] = f"The {field} must belong to the same owner as the domain."
 
         if errors:
             raise ValidationError(errors)
 
 
-class Website(models.Model):
-    objects = models.Manager.from_queryset(WebsiteQuerySet)()
+def _unique_active_name_per_owner(model_name: str) -> models.UniqueConstraint:
+    # names are per owner, a soft deleted host frees its name
+    return models.UniqueConstraint(
+        fields=["owner", "name"],
+        condition=Q(deleted=False),
+        name=f"unique_active_{model_name}_name_per_owner",
+        violation_error_message=f"You already have a {model_name} with this name.",
+    )
+
+
+class Host(models.Model):
+    """Common fields and behaviour of everything a domain can point to."""
 
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="websites")
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="%(class)ss")
     tags = models.JSONField(default=list, blank=True)
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
@@ -91,15 +120,7 @@ class Website(models.Model):
     deleted = models.BooleanField(default=False)
 
     class Meta:
-        constraints = [
-            # names are per owner, a soft deleted website frees its name
-            models.UniqueConstraint(
-                fields=["owner", "name"],
-                condition=Q(deleted=False),
-                name="unique_active_website_name_per_owner",
-                violation_error_message="You already have a website with this name.",
-            ),
-        ]
+        abstract = True
 
     def __str__(self):
         return self.name
@@ -122,8 +143,43 @@ class Website(models.Model):
 
     @transaction.atomic
     def soft_delete(self) -> None:
-        """Hide the website and release its domains, they stay with the owner but are no longer attached."""
+        """Hide the host and release its domains, they stay with the owner but are no longer attached."""
         self.deleted = True  # ty: ignore[invalid-assignment]
         self.deleted_at = timezone.now()
         self.save(update_fields=["deleted", "deleted_at", "updated_at"])
-        self.domains.update(website=None, updated_at=timezone.now())  # ty: ignore[unresolved-attribute]
+        # a domain belongs to a single host, so clearing both foreign keys only detaches it from this one
+        self.domains.update(website=None, webserver=None, updated_at=timezone.now())  # ty: ignore[unresolved-attribute]
+
+
+class Website(Host):
+    objects = models.Manager.from_queryset(WebsiteQuerySet)()
+
+    class Meta:
+        constraints = [_unique_active_name_per_owner("website")]
+
+
+class Webserver(Host):
+    objects = models.Manager.from_queryset(WebserverQuerySet)()
+
+    ipv4 = models.GenericIPAddressField(protocol="IPv4", null=True, blank=True)
+    ipv6 = models.GenericIPAddressField(protocol="IPv6", null=True, blank=True)
+    cname = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        constraints = [
+            _unique_active_name_per_owner("webserver"),
+            models.CheckConstraint(
+                condition=Q(ipv4__isnull=False) | Q(ipv6__isnull=False) | ~Q(cname=""),
+                name="webserver_has_address",
+                violation_error_message="Set at least one of IPv4, IPv6 or CNAME.",
+            ),
+        ]
+
+    def clean(self):
+        super().clean()
+        if self.cname:
+            try:
+                self.cname = normalize_domain_name(self.cname)  # ty: ignore[invalid-argument-type, invalid-assignment]
+            except ValidationError as exc:
+                raise ValidationError({"cname": exc.messages}) from exc
+        # "at least one of ipv4 / ipv6 / cname" is enforced by the `webserver_has_address` constraint
