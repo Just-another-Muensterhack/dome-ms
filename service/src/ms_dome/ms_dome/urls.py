@@ -15,15 +15,21 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.http import HttpRequest, JsonResponse
 from django.urls import include, path
 from django.utils.module_loading import autodiscover_modules
 
 from ms_dome.api import api
 
+
+def health(_request: HttpRequest) -> JsonResponse:
+    return JsonResponse({"status": "ok"})
+
 # every app registers its routers on `api` when its `api` module is imported
 autodiscover_modules("api")
 
 urlpatterns = [
+    path('health/', health),
     path('admin/', admin.site.urls),
     path('oidc/', include('mozilla_django_oidc.urls')),
     path('api/v1/', api.urls),

@@ -1,3 +1,5 @@
+import { getAccessToken } from '@/utils/auth'
+
 const apiOrigin = process.env['NEXT_PUBLIC_API_ORIGIN'] ?? 'http://localhost:8000'
 
 export class ApiError extends Error {
@@ -43,6 +45,11 @@ export const apiRequest = async <T>(path: string, init?: RequestInit): Promise<T
   headers.set('Accept', 'application/json')
   if (init?.body !== undefined && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json')
+  }
+
+  const accessToken = getAccessToken()
+  if (accessToken !== undefined && !headers.has('Authorization')) {
+    headers.set('Authorization', `Bearer ${accessToken}`)
   }
 
   const response = await fetch(`${apiOrigin}${path}`, {
