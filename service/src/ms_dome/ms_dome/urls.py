@@ -25,6 +25,7 @@ from django.views.static import serve
 from django.utils.module_loading import autodiscover_modules
 
 from ms_dome.api import api
+from ms_dome.metrics import metrics
 
 
 def health(_request: HttpRequest) -> JsonResponse:
@@ -35,6 +36,7 @@ autodiscover_modules("api")
 
 urlpatterns = [
     path('health/', health),
+    path('metrics', metrics),
     path('admin/', admin.site.urls),
     path('oidc/', include('mozilla_django_oidc.urls')),
     path('api/v1/', api.urls),
