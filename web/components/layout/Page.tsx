@@ -28,7 +28,7 @@ export const Page = ({
     {
       id: 'dashboard',
       label: translation('navDashboard'),
-      url: '/',
+      url: '/dashboard',
       icon: <Grid2X2PlusIcon className="-rotate-90 size-5" />,
     },
     {
@@ -71,7 +71,9 @@ export const Page = ({
     <AppPage
       sidebarProps={{
         header: (
-          <Link href="/" className="flex-row-1 text-primary items-center rounded-lg p-2">
+          <Link href="/dashboard" className="flex-row-2 text-primary items-center rounded-lg p-2">
+            <img src="/logo-lightmode.svg" alt="" className="h-8 w-auto shrink-0 dark:hidden" />
+            <img src="/logo-darkmode.svg" alt="" className="hidden h-8 w-auto shrink-0 dark:block" />
             <span className="typography-title-md whitespace-nowrap">{translation('appName')}</span>
           </Link>
         ),

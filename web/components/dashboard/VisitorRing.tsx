@@ -35,7 +35,7 @@ export const VisitorRing = ({
             cy={center}
             r={radius}
             fill="none"
-            stroke="#ececef"
+            className="stroke-neutral"
             strokeWidth={stroke}
           />
           {segments.map((segment, index) => {
@@ -66,6 +66,7 @@ export const VisitorRing = ({
           dominantBaseline="central"
           fontSize="22"
           fontWeight="600"
+          fill="currentColor"
         >
           {total}
         </text>

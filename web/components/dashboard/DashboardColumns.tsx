@@ -1,9 +1,12 @@
+import { useState, type ReactNode } from 'react'
 import Link from 'next/link'
-import { Expandable, LoadingAndErrorComponent } from '@helpwave/hightide'
+import { Button, Expandable, LoadingAndErrorComponent } from '@helpwave/hightide'
 import { useDomainsQuery } from '@/api/domain'
 import { useWebsites } from '@/api/website'
 import type { Domain } from '@/api/types/domain'
 import type { Website } from '@/api/types/website'
+import { AddDomainDialog } from '@/components/domains/AddDomainDialog'
+import { AddWebsiteDialog } from '@/components/websites/AddWebsiteDialog'
 import { useDomeTranslation } from '@/i18n/useDomeTranslation'
 import { domainLabel } from '@/utils/domains'
 
@@ -18,12 +21,19 @@ const domainName = (domain: Domain) => domainLabel(domain)
 const NameList = ({
   entries,
   emptyLabel,
+  emptyAction,
 }: {
   entries: NamedEntry[],
   emptyLabel: string,
+  emptyAction?: ReactNode,
 }) => {
   if (entries.length === 0) {
-    return <p className="typography-body text-description">{emptyLabel}</p>
+    return (
+      <div className="flex-col-3">
+        <p className="typography-body text-description">{emptyLabel}</p>
+        {emptyAction}
+      </div>
+    )
   }
 
   return (
@@ -46,6 +56,7 @@ const ColumnBody = ({
   errorLabel,
   entries,
   emptyLabel,
+  emptyAction,
 }: {
   isLoading: boolean,
   hasError: boolean,
@@ -53,6 +64,7 @@ const ColumnBody = ({
   errorLabel: string,
   entries: NamedEntry[],
   emptyLabel: string,
+  emptyAction?: ReactNode,
 }) => {
   return (
     <LoadingAndErrorComponent
@@ -61,7 +73,7 @@ const ColumnBody = ({
       loadingComponent={<p className="typography-body text-description">{loadingLabel}</p>}
       errorComponent={<p className="typography-body text-description">{errorLabel}</p>}
     >
-      <NameList entries={entries} emptyLabel={emptyLabel} />
+      <NameList entries={entries} emptyLabel={emptyLabel} emptyAction={emptyAction} />
     </LoadingAndErrorComponent>
   )
 }
@@ -86,12 +98,26 @@ export const DashboardColumns = () => {
   const translation = useDomeTranslation()
   const domainsQuery = useDomainsQuery()
   const websitesQuery = useWebsites()
+  const [isAddDomainOpen, setIsAddDomainOpen] = useState(false)
+  const [isAddWebsiteOpen, setIsAddWebsiteOpen] = useState(false)
   const domains = domainEntries(domainsQuery.data ?? [])
   const websites = websiteEntries(websitesQuery.data ?? [])
+  const addDomainButton = (
+    <Button type="button" className="self-start" onClick={() => setIsAddDomainOpen(true)}>
+      {translation('addDomain')}
+    </Button>
+  )
+  const addWebsiteButton = (
+    <Button type="button" className="self-start" onClick={() => setIsAddWebsiteOpen(true)}>
+      {translation('addWebsite')}
+    </Button>
+  )
 
   return (
     <div className="flex-col-4">
       <h1 className="typography-title-lg">{translation('navDashboard')}</h1>
+      <AddDomainDialog isOpen={isAddDomainOpen} onClose={() => setIsAddDomainOpen(false)} />
+      <AddWebsiteDialog isOpen={isAddWebsiteOpen} onClose={() => setIsAddWebsiteOpen(false)} />
       <div className="flex-col-4 desktop:hidden">
         <Expandable
           trigger={<span className="typography-title-md">{translation('navDomains')}</span>}
@@ -104,6 +130,7 @@ export const DashboardColumns = () => {
             errorLabel={translation('domainsUnavailable')}
             entries={domains}
             emptyLabel={translation('noDomainsOwned')}
+            emptyAction={addDomainButton}
           />
         </Expandable>
         <Expandable
@@ -117,6 +144,7 @@ export const DashboardColumns = () => {
             errorLabel={translation('websitesUnavailable')}
             entries={websites}
             emptyLabel={translation('noWebsitesOwned')}
+            emptyAction={addWebsiteButton}
           />
         </Expandable>
       </div>
@@ -130,6 +158,7 @@ export const DashboardColumns = () => {
             errorLabel={translation('domainsUnavailable')}
             entries={domains}
             emptyLabel={translation('noDomainsOwned')}
+            emptyAction={addDomainButton}
           />
         </section>
         <section className="rounded-lg bg-white p-4 flex-col-3">
@@ -141,6 +170,7 @@ export const DashboardColumns = () => {
             errorLabel={translation('websitesUnavailable')}
             entries={websites}
             emptyLabel={translation('noWebsitesOwned')}
+            emptyAction={addWebsiteButton}
           />
         </section>
       </div>

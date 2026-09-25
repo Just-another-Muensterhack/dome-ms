@@ -7,6 +7,8 @@ class MyDocument extends Document {
       <Html>
         <Head>
           <meta name="description" content={domeTranslation['en-US'].appName} />
+          <link rel="icon" href="/favicon.ico" sizes="any" />
+          <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         </Head>
         <body>
           <Main />

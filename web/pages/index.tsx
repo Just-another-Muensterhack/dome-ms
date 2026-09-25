@@ -1,16 +1,8 @@
 import type { NextPage } from 'next'
-import { DashboardColumns } from '@/components/dashboard/DashboardColumns'
-import { Page } from '@/components/layout/Page'
-import { useDomeTranslation } from '@/i18n/useDomeTranslation'
+import { LandingPage } from '@/components/landing/LandingPage'
 
-const Dashboard: NextPage = () => {
-  const translation = useDomeTranslation()
+const Home: NextPage = () => (
+  <LandingPage />
+)
 
-  return (
-    <Page pageTitle={translation('navDashboard')}>
-      <DashboardColumns />
-    </Page>
-  )
-}
-
-export default Dashboard
+export default Home
