@@ -17,10 +17,12 @@ export type WebsiteContentIn = {
 export type WebsiteContent = {
   id: string,
   website_id: string,
+  is_active: boolean,
+  source_id: string | null,
+  prompt: string,
   description: string,
   attributes: WebsiteAttributes,
   model: string,
-  html: string,
   created_at: string,
   updated_at: string,
 }

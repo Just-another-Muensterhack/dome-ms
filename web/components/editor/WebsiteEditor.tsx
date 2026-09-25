@@ -1,7 +1,15 @@
 import { useEffect, useState, type ReactNode } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { Button, Chip, Input, LoadingSpinner, Textarea } from '@helpwave/hightide'
-import { useGenerateWebsite } from '@/api/websiteBuilder'
-import type { WebsiteAttributes } from '@/api/types/websiteContent'
+import {
+  useActivateWebsiteContent,
+  useEditWebsiteContent,
+  useGenerateWebsite,
+  useWebsiteContents,
+  websiteContentsKey
+} from '@/api/websiteBuilder'
+import type { WebsiteAttributes, WebsiteContent } from '@/api/types/websiteContent'
+import { WebsiteSnapshotPreview } from '@/components/editor/WebsiteSnapshotPreview'
 import { useDomeTranslation, useLocale } from '@/i18n/useDomeTranslation'
 
 const colors = [
@@ -18,12 +26,14 @@ const colors = [
 const maxSections = 12
 const maxSectionLength = 200
 const maxDescriptionLength = 4000
+const maxPromptLength = 2000
 
 type CategoryId = 'verein' | 'unternehmen' | 'praxis' | 'gastronomie' | 'handwerk' | 'sonstiges'
 type StyleId = 'klar' | 'warm' | 'modern'
 type AddressForm = 'sie' | 'du'
 type PageLanguage = 'de' | 'en'
-type EditorStep = 'start' | 'about' | 'sections' | 'look' | 'loading' | 'preview'
+type EditorStep = 'start' | 'about' | 'sections' | 'look' | 'loading'
+type EditorPanel = 'preview' | 'create' | 'update'
 
 const steps: EditorStep[] = ['start', 'about', 'sections', 'look']
 
@@ -84,6 +94,13 @@ export const WebsiteEditor = ({
 }: WebsiteEditorProps) => {
   const translation = useDomeTranslation()
   const { locale } = useLocale()
+  const queryClient = useQueryClient()
+  const contentsQuery = useWebsiteContents(websiteId)
+  const contents = contentsQuery.data ?? []
+  const activeContent = contents.find((content) => content.is_active)
+  const [panel, setPanel] = useState<EditorPanel>('preview')
+  const [selectedId, setSelectedId] = useState<string | undefined>()
+  const [prompt, setPrompt] = useState('')
   const [step, setStep] = useState<EditorStep>('start')
   const [category, setCategory] = useState<CategoryId | ''>('')
   const [description, setDescription] = useState(initialDescription)
@@ -95,7 +112,6 @@ export const WebsiteEditor = ({
   const [style, setStyle] = useState<StyleId>('klar')
   const [addressForm, setAddressForm] = useState<AddressForm>('sie')
   const [language, setLanguage] = useState<PageLanguage>(locale.startsWith('de') ? 'de' : 'en')
-  const [mobilePreview, setMobilePreview] = useState(false)
   const [fieldError, setFieldError] = useState<string | undefined>()
   const [seeded, setSeeded] = useState(initialDescription.length > 0)
 
@@ -121,10 +137,45 @@ export const WebsiteEditor = ({
     { id: 'modern', title: translation('editorStyleModern'), info: translation('editorStyleModernInfo') },
   ]
 
+  const refreshContents = async () => {
+    await queryClient.invalidateQueries({ queryKey: websiteContentsKey(websiteId) })
+  }
+
+  const activate = useActivateWebsiteContent({
+    onSuccess: () => {
+      void refreshContents()
+    },
+  })
+
+  const showCreatedSnapshot = async (content: WebsiteContent) => {
+    setSelectedId(content.id)
+    setPrompt('')
+    setPanel('preview')
+    setStep('start')
+    await refreshContents()
+    if (!content.is_active) {
+      activate.mutate(content.id)
+    }
+  }
+
   const generate = useGenerateWebsite({
-    onSuccess: () => setStep('preview'),
+    onSuccess: (content) => {
+      void showCreatedSnapshot(content)
+    },
     onError: () => setStep('look'),
   })
+
+  const edit = useEditWebsiteContent({
+    onSuccess: (content) => {
+      void showCreatedSnapshot(content)
+    },
+  })
+
+  const selectedContent = contents.find((content) => content.id === selectedId)
+    ?? activeContent
+    ?? contents[0]
+  const previewId = selectedId ?? selectedContent?.id
+  const showCreate = panel === 'create' || (contentsQuery.isSuccess && contents.length === 0)
 
   const progress = {
     start: 0,
@@ -132,7 +183,6 @@ export const WebsiteEditor = ({
     sections: 48,
     look: 76,
     loading: 92,
-    preview: 100,
   }[step]
 
   const addSection = () => {
@@ -211,285 +261,339 @@ export const WebsiteEditor = ({
     if (previous !== undefined) {
       setFieldError(undefined)
       setStep(previous)
+      return
+    }
+    if (contents.length > 0) {
+      setFieldError(undefined)
+      setPanel('preview')
+    }
+  }
+
+  const openCreate = () => {
+    const source = selectedContent
+    if (source) {
+      const match = categories.find((item) => item.title === source.attributes.category)
+      setDescription(source.description)
+      setCategory(match?.id ?? '')
+      setLocation(source.attributes.location ?? '')
+      setPurpose(source.attributes.purpose ?? '')
+      setSections(source.attributes.sections ?? [])
+      if (source.attributes.primary_color) {
+        setColor(source.attributes.primary_color)
+      }
+      if (source.attributes.language === 'de' || source.attributes.language === 'en') {
+        setLanguage(source.attributes.language)
+      }
+    }
+    setFieldError(undefined)
+    setStep('start')
+    setPanel('create')
+  }
+
+  const chooseSnapshot = (contentId: string) => {
+    setSelectedId(contentId)
+    const next = contents.find((content) => content.id === contentId)
+    if (next && !next.is_active) {
+      activate.mutate(contentId)
     }
   }
 
   return (
     <div className="flex-col-4">
-      <div className="h-1 overflow-hidden rounded-full bg-neutral">
-        <div className="h-full bg-primary" style={{ width: `${progress}%` }} />
-      </div>
-      {step === 'start' && (
-        <section className="flex-col-4 max-w-2xl rounded-lg bg-surface-variant p-5 text-on-surface">
-          <p className="typography-label text-primary">{translation('editorKicker')}</p>
-          <h2 className="typography-title-lg">{translation('editorHeadline')}</h2>
-          <p className="typography-body text-description">{translation('editorLead')}</p>
-          <Button type="button" className="self-start" onClick={() => setStep('about')}>
-            {translation('editorStart')}
-          </Button>
-        </section>
+      {contentsQuery.isPending && (
+        <p className="typography-body text-description">{translation('editorLoadingSnapshots')}</p>
       )}
-      {step === 'about' && (
-        <section className="flex-col-4 max-w-3xl rounded-lg bg-surface-variant p-5 text-on-surface">
-          <p className="typography-label text-primary">{translation('editorStep', { step: '1', total: '3' })}</p>
-          <h2 className="typography-title-md">{translation('editorWhoTitle')}</h2>
-          {websiteName.length > 0 && (
-            <p className="typography-body text-description">{translation('editorUsesName', { name: websiteName })}</p>
+      {contentsQuery.isError && (
+        <p className="typography-body text-negative" role="alert">{translation('editorSnapshotsUnavailable')}</p>
+      )}
+      {!showCreate && previewId && (
+        <WebsiteSnapshotPreview
+          websiteId={websiteId}
+          websiteName={websiteName}
+          contents={contents}
+          selectedId={previewId}
+          onSelect={chooseSnapshot}
+          onUpdate={() => {
+            setPrompt('')
+            setPanel('update')
+          }}
+          onCreate={openCreate}
+          isActivating={activate.isPending}
+          showActions={panel === 'preview'}
+        >
+          {panel === 'update' && selectedContent && (
+            edit.isPending ? (
+              <div className="flex-col-2 items-start">
+                <LoadingSpinner />
+                <p className="typography-title-md">{translation('editorUpdatingTitle')}</p>
+                <p className="typography-body text-description">{translation('editorUpdatingWait')}</p>
+              </div>
+            ) : (
+              <div className="flex-col-2">
+                <Field label={translation('editorUpdatePromptLabel')}>
+                  <Textarea
+                    value={prompt}
+                    maxLength={maxPromptLength}
+                    rows={4}
+                    placeholder={translation('editorUpdatePromptPlaceholder')}
+                    onValueChange={setPrompt}
+                  />
+                </Field>
+                <div className="flex flex-wrap items-center gap-3">
+                  <Button type="button" color="neutral" coloringStyle="outline" onClick={() => setPanel('preview')}>
+                    {translation('cancel')}
+                  </Button>
+                  <Button
+                    type="button"
+                    disabled={prompt.trim().length === 0}
+                    onClick={() => edit.mutate({ contentId: selectedContent.id, prompt: prompt.trim() })}
+                  >
+                    {translation('editorUpdateSubmit')}
+                  </Button>
+                </div>
+              </div>
+            )
           )}
-          <fieldset className="flex-col-2">
-            <legend className="typography-label-md">
-              {translation('editorCategoryLegend')}
-              <span className="typography-body text-description"> {translation('editorRequired')}</span>
-            </legend>
-            <div className="grid grid-cols-1 gap-2 desktop:grid-cols-3" role="radiogroup">
-              {categories.map((item) => (
-                <Choice
-                  key={item.id}
-                  pressed={category === item.id}
-                  title={item.title}
-                  info={item.info}
-                  onSelect={() => {
-                    setCategory(item.id)
+        </WebsiteSnapshotPreview>
+      )}
+      {showCreate && (
+        <>
+          <div className="h-1 overflow-hidden rounded-full bg-neutral">
+            <div className="h-full bg-primary" style={{ width: `${progress}%` }} />
+          </div>
+          {step === 'start' && (
+            <section className="flex-col-4 max-w-2xl rounded-lg bg-surface-variant p-5 text-on-surface">
+              <p className="typography-label text-primary">{translation('editorKicker')}</p>
+              <h2 className="typography-title-lg">{translation('editorHeadline')}</h2>
+              <p className="typography-body text-description">{translation('editorLead')}</p>
+              <div className="flex flex-wrap items-center gap-3">
+                {contents.length > 0 && (
+                  <Button type="button" color="neutral" coloringStyle="outline" onClick={() => setPanel('preview')}>
+                    {translation('cancel')}
+                  </Button>
+                )}
+                <Button type="button" onClick={() => setStep('about')}>
+                  {translation('editorStart')}
+                </Button>
+              </div>
+            </section>
+          )}
+          {step === 'about' && (
+            <section className="flex-col-4 max-w-3xl rounded-lg bg-surface-variant p-5 text-on-surface">
+              <p className="typography-label text-primary">{translation('editorStep', { step: '1', total: '3' })}</p>
+              <h2 className="typography-title-md">{translation('editorWhoTitle')}</h2>
+              {websiteName.length > 0 && (
+                <p className="typography-body text-description">{translation('editorUsesName', { name: websiteName })}</p>
+              )}
+              <fieldset className="flex-col-2">
+                <legend className="typography-label-md">
+                  {translation('editorCategoryLegend')}
+                  <span className="typography-body text-description"> {translation('editorRequired')}</span>
+                </legend>
+                <div className="grid grid-cols-1 gap-2 desktop:grid-cols-3" role="radiogroup">
+                  {categories.map((item) => (
+                    <Choice
+                      key={item.id}
+                      pressed={category === item.id}
+                      title={item.title}
+                      info={item.info}
+                      onSelect={() => {
+                        setCategory(item.id)
+                        setFieldError(undefined)
+                      }}
+                    />
+                  ))}
+                </div>
+              </fieldset>
+              <Field label={translation('editorDescriptionLabel')} hint={translation('editorRequired')}>
+                <Textarea
+                  value={description}
+                  maxLength={maxDescriptionLength}
+                  rows={5}
+                  placeholder={translation('editorDescriptionPlaceholder')}
+                  onValueChange={(value) => {
+                    setDescription(value)
                     setFieldError(undefined)
                   }}
                 />
-              ))}
-            </div>
-          </fieldset>
-          <Field label={translation('editorDescriptionLabel')} hint={translation('editorRequired')}>
-            <Textarea
-              value={description}
-              maxLength={maxDescriptionLength}
-              rows={5}
-              placeholder={translation('editorDescriptionPlaceholder')}
-              onValueChange={(value) => {
-                setDescription(value)
-                setFieldError(undefined)
-              }}
-            />
-          </Field>
-          <Field label={translation('editorPlaceLabel')} hint={translation('editorOptional')}>
-            <Input
-              value={location}
-              maxLength={200}
-              placeholder={translation('editorPlacePlaceholder')}
-              onValueChange={setLocation}
-            />
-          </Field>
-        </section>
-      )}
-      {step === 'sections' && (
-        <section className="flex-col-4 max-w-3xl rounded-lg bg-surface-variant p-5 text-on-surface">
-          <p className="typography-label text-primary">{translation('editorStep', { step: '2', total: '3' })}</p>
-          <h2 className="typography-title-md">{translation('editorOffersTitle')}</h2>
-          <Field label={translation('editorSectionsLabel')} hint={translation('editorOptional')}>
-            <div className="flex flex-wrap items-center gap-2 rounded-lg border border-neutral p-2">
-              {sections.map((section) => (
-                <Chip key={section} color="neutral" coloringStyle="tonal" size="sm">
-                  <span className="flex-row-1 items-center">
-                    {section}
-                    <button
-                      type="button"
-                      aria-label={section}
-                      onClick={() => setSections(sections.filter((item) => item !== section))}
-                    >
+              </Field>
+              <Field label={translation('editorPlaceLabel')} hint={translation('editorOptional')}>
+                <Input
+                  value={location}
+                  maxLength={200}
+                  placeholder={translation('editorPlacePlaceholder')}
+                  onValueChange={setLocation}
+                />
+              </Field>
+            </section>
+          )}
+          {step === 'sections' && (
+            <section className="flex-col-4 max-w-3xl rounded-lg bg-surface-variant p-5 text-on-surface">
+              <p className="typography-label text-primary">{translation('editorStep', { step: '2', total: '3' })}</p>
+              <h2 className="typography-title-md">{translation('editorOffersTitle')}</h2>
+              <Field label={translation('editorSectionsLabel')} hint={translation('editorOptional')}>
+                <div className="flex flex-wrap items-center gap-2 rounded-lg border border-neutral p-2">
+                  {sections.map((section) => (
+                    <Chip key={section} color="neutral" coloringStyle="tonal" size="sm">
+                      <span className="flex-row-1 items-center">
+                        {section}
+                        <button
+                          type="button"
+                          aria-label={section}
+                          onClick={() => setSections(sections.filter((item) => item !== section))}
+                        >
                       ×
-                    </button>
-                  </span>
-                </Chip>
-              ))}
-              <Input
-                value={sectionDraft}
-                maxLength={maxSectionLength}
-                placeholder={translation('editorSectionPlaceholder')}
-                disabled={sections.length >= maxSections}
-                onValueChange={setSectionDraft}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' || event.key === ',') {
-                    event.preventDefault()
-                    addSection()
-                  }
-                }}
-                onBlur={addSection}
-              />
-            </div>
-          </Field>
-          <Field label={translation('editorPurposeLabel')} hint={translation('editorOptional')}>
-            <Textarea
-              value={purpose}
-              maxLength={200}
-              rows={3}
-              placeholder={translation('editorPurposePlaceholder')}
-              onValueChange={setPurpose}
-            />
-          </Field>
-        </section>
-      )}
-      {step === 'look' && (
-        <section className="flex-col-4 max-w-3xl rounded-lg bg-surface-variant p-5 text-on-surface">
-          <p className="typography-label text-primary">{translation('editorStep', { step: '3', total: '3' })}</p>
-          <h2 className="typography-title-md">{translation('editorLookTitle')}</h2>
-          <fieldset className="flex-col-2">
-            <legend className="typography-label-md">{translation('editorColorLegend')}</legend>
-            <div className="flex flex-wrap gap-2" role="radiogroup">
-              {colors.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  aria-label={item}
-                  aria-pressed={color === item}
-                  className="size-8 rounded-full border-2 border-transparent"
-                  style={{
-                    backgroundColor: item,
-                    outline: color === item ? '2px solid var(--color-on-surface)' : undefined,
-                  }}
-                  onClick={() => setColor(item)}
+                        </button>
+                      </span>
+                    </Chip>
+                  ))}
+                  <Input
+                    value={sectionDraft}
+                    maxLength={maxSectionLength}
+                    placeholder={translation('editorSectionPlaceholder')}
+                    disabled={sections.length >= maxSections}
+                    onValueChange={setSectionDraft}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ',') {
+                        event.preventDefault()
+                        addSection()
+                      }
+                    }}
+                    onBlur={addSection}
+                  />
+                </div>
+              </Field>
+              <Field label={translation('editorPurposeLabel')} hint={translation('editorOptional')}>
+                <Textarea
+                  value={purpose}
+                  maxLength={200}
+                  rows={3}
+                  placeholder={translation('editorPurposePlaceholder')}
+                  onValueChange={setPurpose}
                 />
-              ))}
-            </div>
-            <label className="flex-row-2 items-center typography-body">
-              {translation('editorCustomColor')}
-              <input
-                type="color"
-                value={color}
-                aria-label={translation('editorCustomColor')}
-                onChange={(event) => setColor(event.target.value)}
-              />
-            </label>
-          </fieldset>
-          <fieldset className="flex-col-2">
-            <legend className="typography-label-md">{translation('editorStyleLegend')}</legend>
-            <div className="grid grid-cols-1 gap-2 desktop:grid-cols-3" role="radiogroup">
-              {styles.map((item) => (
-                <Choice
-                  key={item.id}
-                  pressed={style === item.id}
-                  title={item.title}
-                  info={item.info}
-                  onSelect={() => setStyle(item.id)}
-                />
-              ))}
-            </div>
-          </fieldset>
-          <fieldset className="flex-col-2">
-            <legend className="typography-label-md">{translation('editorAddressLegend')}</legend>
-            <div className="flex flex-wrap gap-2" role="radiogroup">
-              <Choice
-                pressed={addressForm === 'sie'}
-                title={translation('editorFormal')}
-                onSelect={() => setAddressForm('sie')}
-              />
-              <Choice
-                pressed={addressForm === 'du'}
-                title={translation('editorInformal')}
-                onSelect={() => setAddressForm('du')}
-              />
-            </div>
-          </fieldset>
-          <fieldset className="flex-col-2">
-            <legend className="typography-label-md">{translation('editorLanguageLabel')}</legend>
-            <div className="flex flex-wrap gap-2" role="radiogroup">
-              <Choice
-                pressed={language === 'de'}
-                title={translation('editorLanguageGerman')}
-                onSelect={() => setLanguage('de')}
-              />
-              <Choice
-                pressed={language === 'en'}
-                title={translation('editorLanguageEnglish')}
-                onSelect={() => setLanguage('en')}
-              />
-            </div>
-          </fieldset>
-        </section>
-      )}
-      {step === 'loading' && (
-        <section className="flex-col-3 items-center max-w-xl rounded-lg bg-surface-variant p-8 text-on-surface">
-          <LoadingSpinner />
-          <h2 className="typography-title-md">{translation('editorGeneratingTitle')}</h2>
-          <p className="typography-body text-description">{translation('editorGeneratingWait')}</p>
-        </section>
-      )}
-      {step === 'preview' && generate.data && (
-        <section className="flex-col-4 desktop:flex-row desktop:items-start">
-          <aside className="flex-col-3 max-w-sm rounded-lg bg-surface-variant p-4 text-on-surface">
-            <h2 className="typography-title-md">{translation('editorPreviewTitle')}</h2>
-            <p className="typography-body text-description">{websiteName}</p>
-            <Button type="button" color="neutral" coloringStyle="outline" onClick={() => setStep('about')}>
-              {translation('editorEditAnswers')}
-            </Button>
-            <Button
-              type="button"
-              isProcessing={generate.isPending}
-              onClick={() => {
-                setStep('loading')
-                generate.mutate({
-                  website_id: websiteId,
-                  description: description.trim(),
-                  attributes: attributes(),
-                })
-              }}
-            >
-              {translation('editorGenerateAgain')}
-            </Button>
-          </aside>
-          <div className="flex-col-2 min-w-0 grow">
-            <div className="flex flex-wrap gap-2" role="group" aria-label={translation('editorPreviewTitle')}>
-              <Button
-                type="button"
-                size="sm"
-                color={mobilePreview ? 'neutral' : 'primary'}
-                coloringStyle={mobilePreview ? 'outline' : 'solid'}
-                aria-pressed={!mobilePreview}
-                onClick={() => setMobilePreview(false)}
-              >
-                {translation('editorDesktop')}
+              </Field>
+            </section>
+          )}
+          {step === 'look' && (
+            <section className="flex-col-4 max-w-3xl rounded-lg bg-surface-variant p-5 text-on-surface">
+              <p className="typography-label text-primary">{translation('editorStep', { step: '3', total: '3' })}</p>
+              <h2 className="typography-title-md">{translation('editorLookTitle')}</h2>
+              <fieldset className="flex-col-2">
+                <legend className="typography-label-md">{translation('editorColorLegend')}</legend>
+                <div className="flex flex-wrap gap-2" role="radiogroup">
+                  {colors.map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      aria-label={item}
+                      aria-pressed={color === item}
+                      className="size-8 rounded-full border-2 border-transparent"
+                      style={{
+                        backgroundColor: item,
+                        outline: color === item ? '2px solid var(--color-on-surface)' : undefined,
+                      }}
+                      onClick={() => setColor(item)}
+                    />
+                  ))}
+                </div>
+                <label className="flex-row-2 items-center typography-body">
+                  {translation('editorCustomColor')}
+                  <input
+                    type="color"
+                    value={color}
+                    aria-label={translation('editorCustomColor')}
+                    onChange={(event) => setColor(event.target.value)}
+                  />
+                </label>
+              </fieldset>
+              <fieldset className="flex-col-2">
+                <legend className="typography-label-md">{translation('editorStyleLegend')}</legend>
+                <div className="grid grid-cols-1 gap-2 desktop:grid-cols-3" role="radiogroup">
+                  {styles.map((item) => (
+                    <Choice
+                      key={item.id}
+                      pressed={style === item.id}
+                      title={item.title}
+                      info={item.info}
+                      onSelect={() => setStyle(item.id)}
+                    />
+                  ))}
+                </div>
+              </fieldset>
+              <fieldset className="flex-col-2">
+                <legend className="typography-label-md">{translation('editorAddressLegend')}</legend>
+                <div className="flex flex-wrap gap-2" role="radiogroup">
+                  <Choice
+                    pressed={addressForm === 'sie'}
+                    title={translation('editorFormal')}
+                    onSelect={() => setAddressForm('sie')}
+                  />
+                  <Choice
+                    pressed={addressForm === 'du'}
+                    title={translation('editorInformal')}
+                    onSelect={() => setAddressForm('du')}
+                  />
+                </div>
+              </fieldset>
+              <fieldset className="flex-col-2">
+                <legend className="typography-label-md">{translation('editorLanguageLabel')}</legend>
+                <div className="flex flex-wrap gap-2" role="radiogroup">
+                  <Choice
+                    pressed={language === 'de'}
+                    title={translation('editorLanguageGerman')}
+                    onSelect={() => setLanguage('de')}
+                  />
+                  <Choice
+                    pressed={language === 'en'}
+                    title={translation('editorLanguageEnglish')}
+                    onSelect={() => setLanguage('en')}
+                  />
+                </div>
+              </fieldset>
+            </section>
+          )}
+          {step === 'loading' && (
+            <section className="flex-col-3 items-center max-w-xl rounded-lg bg-surface-variant p-8 text-on-surface">
+              <LoadingSpinner />
+              <h2 className="typography-title-md">{translation('editorGeneratingTitle')}</h2>
+              <p className="typography-body text-description">{translation('editorGeneratingWait')}</p>
+            </section>
+          )}
+          {fieldError && (
+            <p className="typography-body text-negative" role="alert">{fieldError}</p>
+          )}
+          {generate.isError && step !== 'loading' && (
+            <p className="typography-body text-negative" role="alert">
+              {generate.error.message || translation('editorGenerationFailed')}
+            </p>
+          )}
+          {(step === 'about' || step === 'sections' || step === 'look') && (
+            <div className="flex flex-wrap items-center gap-3">
+              <Button type="button" color="neutral" coloringStyle="outline" onClick={goBack}>
+                {translation('back')}
               </Button>
-              <Button
-                type="button"
-                size="sm"
-                color={mobilePreview ? 'primary' : 'neutral'}
-                coloringStyle={mobilePreview ? 'solid' : 'outline'}
-                aria-pressed={mobilePreview}
-                onClick={() => setMobilePreview(true)}
-              >
-                {translation('editorMobile')}
+              <span className="grow" />
+              {step !== 'about' && (
+                <Button type="button" color="neutral" coloringStyle="text" onClick={() => goForward(false)}>
+                  {translation('editorSkip')}
+                </Button>
+              )}
+              <Button type="button" onClick={() => goForward(true)}>
+                {step === 'look' ? translation('editorCreateSite') : translation('continue')}
               </Button>
             </div>
-            <div className={mobilePreview ? 'mx-auto w-full max-w-sm' : 'w-full'}>
-              <iframe
-                title={translation('editorPreviewFrame')}
-                sandbox=""
-                srcDoc={generate.data.html}
-                className="h-[36rem] w-full rounded-lg border border-neutral bg-white"
-              />
-            </div>
-          </div>
-        </section>
+          )}
+        </>
       )}
-      {fieldError && (
-        <p className="typography-body text-negative" role="alert">{fieldError}</p>
-      )}
-      {generate.isError && step !== 'loading' && (
+      {edit.isError && (
         <p className="typography-body text-negative" role="alert">
-          {generate.error.message || translation('editorGenerationFailed')}
+          {edit.error.message || translation('editorUpdateFailed')}
         </p>
       )}
-      {(step === 'about' || step === 'sections' || step === 'look') && (
-        <div className="flex flex-wrap items-center gap-3">
-          <Button type="button" color="neutral" coloringStyle="outline" onClick={goBack}>
-            {translation('back')}
-          </Button>
-          <span className="grow" />
-          {step !== 'about' && (
-            <Button type="button" color="neutral" coloringStyle="text" onClick={() => goForward(false)}>
-              {translation('editorSkip')}
-            </Button>
-          )}
-          <Button type="button" onClick={() => goForward(true)}>
-            {step === 'look' ? translation('editorCreateSite') : translation('continue')}
-          </Button>
-        </div>
+      {activate.isError && (
+        <p className="typography-body text-negative" role="alert">
+          {activate.error.message || translation('editorActivateFailed')}
+        </p>
       )}
     </div>
   )

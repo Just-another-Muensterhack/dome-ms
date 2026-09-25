@@ -60,7 +60,7 @@ export const LandingPage = () => {
         )}
         <div className="grid grid-cols-1 gap-4 desktop:grid-cols-3">
           {features.map((feature) => (
-            <section key={feature.title} className="flex flex-col gap-2 rounded-xl border border-neutral p-5">
+            <section key={feature.title} className="flex flex-col gap-2 rounded-xl bg-surface p-5 text-on-surface">
               <h2 className="typography-title-sm">{feature.title}</h2>
               <p className="typography-body text-description">{feature.body}</p>
             </section>
