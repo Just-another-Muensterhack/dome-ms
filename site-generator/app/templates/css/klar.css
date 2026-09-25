@@ -1,0 +1,118 @@
+/* ========= Stil "klar": Werkbank =========
+   Dunkler Einstieg und Abschluss, heller Arbeitsteil. Sichtbares Raster, Haarlinien als
+   Struktur, Ziffern als Gestaltung. Fotos laufen als Duoton durch die Markenfarbe. */
+
+.stil-klar {
+  --kopf-grund: var(--d-papier);
+  --kopf-tinte: var(--d-tinte);
+}
+.stil-klar body {
+  background: var(--d-papier);
+}
+
+/* Raster als Stimme: zwölf Spalten, kaum sichtbar, ab großen Bildschirmen */
+@media (min-width: 1100px) {
+  .stil-klar section > .bahn {
+    background-image: repeating-linear-gradient(
+      to right,
+      color-mix(in oklch, var(--linie) 32%, transparent) 0 1px,
+      transparent 1px calc((100% - 2 * var(--rand)) / 12)
+    );
+    background-origin: content-box;
+    background-clip: content-box;
+    padding-block: 0;
+  }
+}
+
+/* Weicher Übergang von der dunklen Bühne in den hellen Arbeitsteil */
+.stil-klar .hero + .kapitel::before,
+.stil-klar .hero + .laufband + .kapitel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: clamp(70px, 11vh, 130px);
+  background: linear-gradient(to bottom, var(--d-papier), var(--h-papier));
+  pointer-events: none;
+}
+.stil-klar .hero + .kapitel > .bahn {
+  position: relative;
+}
+
+.stil-klar .hero__titel {
+  font-weight: 800;
+}
+.stil-klar .hero__titel .zeile:last-child > span {
+  color: var(--akzent);
+}
+.stil-klar .aktion {
+  border-radius: 0;
+}
+.stil-klar .zone-hero .aktion--still {
+  color: var(--tinte);
+}
+
+.stil-klar .bild-rahmen {
+  background: var(--marke);
+  overflow: hidden;
+}
+.stil-klar .bild-rahmen img {
+  filter: grayscale(1) contrast(1.08);
+  mix-blend-mode: luminosity;
+  opacity: 0.92;
+  transition:
+    filter 0.9s var(--ease),
+    mix-blend-mode 0.9s,
+    opacity 0.9s var(--ease),
+    transform 1.4s var(--ease);
+}
+.stil-klar .bild-rahmen:hover img {
+  filter: none;
+  mix-blend-mode: normal;
+  opacity: 1;
+  transform: scale(1.02);
+}
+
+.stil-klar .eintrag {
+  padding-right: 2rem;
+}
+.stil-klar .eintrag + .eintrag {
+  padding-left: 0;
+}
+@media (min-width: 900px) {
+  .stil-klar .liste {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .stil-klar .eintrag {
+    padding: 2rem 2.25rem 2.5rem 0;
+    border-right: 1px solid var(--linie);
+  }
+  .stil-klar .eintrag:nth-child(3n) {
+    border-right: 0;
+  }
+  .stil-klar .eintrag:nth-child(3n + 2),
+  .stil-klar .eintrag:nth-child(3n) {
+    padding-left: 2.25rem;
+  }
+}
+.stil-klar .eintrag .nummer {
+  font-size: 0.78rem;
+}
+.stil-klar .schritte li {
+  border-top-width: 1px;
+  border-top-color: var(--linie);
+}
+.stil-klar .schritte .nummer {
+  font-size: 2.6rem;
+  font-family: var(--sans);
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  color: var(--tinte);
+  line-height: 1;
+}
+.stil-klar .these em {
+  font-style: normal;
+  color: var(--akzent);
+}
+.stil-klar .kontakt__titel {
+  max-width: 16ch;
+}
