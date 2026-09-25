@@ -1,15 +1,19 @@
 import type { PropsWithChildren } from 'react'
 import { useLayoutEffect, useState } from 'react'
-import { useRouter } from 'next/router'
 import { useDomainsQuery } from '@/api/domain'
 import { useWebsites } from '@/api/website'
 import { OnboardingScreen } from '@/components/onboarding/OnboardingScreen'
 import { readOnboardingTimestamp, writeOnboardingTimestamp } from '@/utils/onboarding'
 
+const stampOnboarding = (): string => {
+  const timestamp = new Date().toISOString()
+  writeOnboardingTimestamp(timestamp)
+  return timestamp
+}
+
 export const OnboardingGate = ({
   children,
 }: PropsWithChildren) => {
-  const router = useRouter()
   const websites = useWebsites()
   const domains = useDomainsQuery()
   const [onboardingTimestamp, setOnboardingTimestamp] = useState<string | null | undefined>(undefined)
@@ -18,25 +22,37 @@ export const OnboardingGate = ({
     setOnboardingTimestamp(readOnboardingTimestamp())
   }, [])
 
-  const hasNoWebsites = websites.isSuccess && websites.data.length === 0
-  const hasNoDomains = domains.isSuccess && domains.data.length === 0
-  const showOnboarding = onboardingTimestamp === null && hasNoWebsites && hasNoDomains
+  const loaded = websites.isSuccess && domains.isSuccess
+  const alreadyHasHost = loaded && (websites.data.length > 0 || domains.data.length > 0)
+  const needsStamp = onboardingTimestamp === null && alreadyHasHost
 
-  const completeOnboarding = (path: string) => {
-    const timestamp = new Date().toISOString()
-    writeOnboardingTimestamp(timestamp)
-    setOnboardingTimestamp(timestamp)
-    void router.push(path)
+  useLayoutEffect(() => {
+    if (!needsStamp) {
+      return
+    }
+    setOnboardingTimestamp(stampOnboarding())
+  }, [needsStamp])
+
+  if (onboardingTimestamp === undefined || needsStamp) {
+    return null
   }
 
-  if (!showOnboarding) {
+  if (onboardingTimestamp !== null) {
     return children
+  }
+
+  if (!loaded) {
+    if (websites.isError || domains.isError) {
+      return children
+    }
+    return null
   }
 
   return (
     <OnboardingScreen
-      onCreateWebsite={() => completeOnboarding('/websites')}
-      onMoveWebsite={() => completeOnboarding('/domains')}
+      onComplete={() => {
+        setOnboardingTimestamp(stampOnboarding())
+      }}
     />
   )
 }

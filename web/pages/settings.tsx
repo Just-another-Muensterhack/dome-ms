@@ -1,8 +1,9 @@
 import type { NextPage } from 'next'
-import { LanguageSelect, LoadingAndErrorComponent, ThemeSelect } from '@helpwave/hightide'
+import { Button, LanguageSelect, LoadingAndErrorComponent, ThemeSelect } from '@helpwave/hightide'
 import { useCurrentUser } from '@/api/user'
 import { Page } from '@/components/layout/Page'
 import { useDomeTranslation } from '@/i18n/useDomeTranslation'
+import { logout } from '@/utils/auth'
 
 const Settings: NextPage = () => {
   const translation = useDomeTranslation()
@@ -37,6 +38,14 @@ const Settings: NextPage = () => {
           <h2 className="typography-title-sm">{translation('theme')}</h2>
           <ThemeSelect />
         </div>
+        <Button
+          type="button"
+          color="neutral"
+          coloringStyle="outline"
+          onClick={logout}
+        >
+          {translation('logout')}
+        </Button>
       </div>
     </Page>
   )

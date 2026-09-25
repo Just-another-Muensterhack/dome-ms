@@ -1,50 +1,64 @@
-import { ActionCard, Chip } from '@helpwave/hightide'
-import { useDomeTranslation } from '@/i18n/useDomeTranslation'
+import { useState } from 'react'
+import type { Domain } from '@/api/types/domain'
+import { OnboardingAddressStep } from '@/components/onboarding/OnboardingAddressStep'
+import { OnboardingChoice } from '@/components/onboarding/OnboardingChoice'
+import { OnboardingDomainStep } from '@/components/onboarding/OnboardingDomainStep'
+import { OnboardingWebsiteStep } from '@/components/onboarding/OnboardingWebsiteStep'
+
+type OnboardingPath = 'create' | 'existing'
 
 type OnboardingScreenProps = {
-  onCreateWebsite: () => void,
-  onMoveWebsite: () => void,
+  onComplete: () => void,
 }
 
 export const OnboardingScreen = ({
-  onCreateWebsite,
-  onMoveWebsite,
+  onComplete,
 }: OnboardingScreenProps) => {
-  const translation = useDomeTranslation()
+  const [path, setPath] = useState<OnboardingPath | null>(null)
+  const [domain, setDomain] = useState<Domain | null>(null)
+  const [domainConfirmed, setDomainConfirmed] = useState(false)
+
+  if (path === null) {
+    return (
+      <OnboardingChoice
+        onCreateWebsite={() => setPath('create')}
+        onAddExistingDomain={() => setPath('existing')}
+      />
+    )
+  }
+
+  if (!domainConfirmed) {
+    return (
+      <OnboardingDomainStep
+        domain={domain}
+        onBack={() => setPath(null)}
+        onSaved={(saved) => {
+          setDomain(saved)
+          setDomainConfirmed(true)
+        }}
+      />
+    )
+  }
+
+  if (domain === null) {
+    return null
+  }
+
+  if (path === 'create') {
+    return (
+      <OnboardingWebsiteStep
+        domain={domain}
+        onBack={() => setDomainConfirmed(false)}
+        onComplete={onComplete}
+      />
+    )
+  }
 
   return (
-    <div className="flex h-dvh w-screen items-center justify-center bg-background px-6 py-10">
-      <div className="flex w-full max-w-5xl flex-col gap-8">
-        <h1 className="typography-title-lg">{translation('onboardingTitle')}</h1>
-        <div className="grid grid-cols-1 gap-4 desktop:grid-cols-2">
-          <ActionCard
-            className="h-full"
-            title={(
-              <span className="flex flex-col items-start gap-2">
-                <span>{translation('onboardingCreateWebsite')}</span>
-                <Chip color="primary" coloringStyle="tonal" size="sm">
-                  {translation('onboardingRecommended')}
-                </Chip>
-              </span>
-            )}
-            description={translation('onboardingCreateWebsiteDescription')}
-            onClick={onCreateWebsite}
-          />
-          <ActionCard
-            className="h-full"
-            title={(
-              <span className="flex flex-col items-start gap-2">
-                <span>{translation('onboardingMoveWebsite')}</span>
-                <Chip color="secondary" coloringStyle="tonal" size="sm">
-                  {translation('onboardingExpert')}
-                </Chip>
-              </span>
-            )}
-            description={translation('onboardingMoveWebsiteDescription')}
-            onClick={onMoveWebsite}
-          />
-        </div>
-      </div>
-    </div>
+    <OnboardingAddressStep
+      domain={domain}
+      onBack={() => setDomainConfirmed(false)}
+      onComplete={onComplete}
+    />
   )
 }

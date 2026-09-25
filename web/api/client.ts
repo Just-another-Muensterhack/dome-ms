@@ -1,4 +1,4 @@
-import { getAccessToken } from '@/utils/auth'
+import { ensureAccessToken } from '@/utils/auth'
 
 const apiOrigin = process.env['NEXT_PUBLIC_API_ORIGIN'] ?? 'http://localhost:8000'
 
@@ -47,7 +47,7 @@ export const apiRequest = async <T>(path: string, init?: RequestInit): Promise<T
     headers.set('Content-Type', 'application/json')
   }
 
-  const accessToken = getAccessToken()
+  const accessToken = await ensureAccessToken()
   if (accessToken !== undefined && !headers.has('Authorization')) {
     headers.set('Authorization', `Bearer ${accessToken}`)
   }
