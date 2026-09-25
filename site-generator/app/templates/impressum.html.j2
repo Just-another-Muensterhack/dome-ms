@@ -1,0 +1,20 @@
+{% extends "_base.html.j2" %}
+{% block title %}Impressum · {{ req.name }}{% endblock %}
+{% block description %}Impressum von {{ req.name }}{% endblock %}
+{% block inhalt %}
+<section class="rechtliches zone-hell">
+  <div class="bahn">
+    <div class="hinweis"><strong>Entwurf:</strong> Die gelb markierten Angaben müssen vor der Veröffentlichung ergänzt werden (Angaben nach § 5 DDG).</div>
+    <h1>Impressum</h1>
+    <p><strong>{{ req.name }}</strong><br>
+    {% if req.kontakt.adresse %}{{ req.kontakt.adresse }}{% else %}<span class="platzhalter">Straße, Hausnummer, PLZ, Ort</span>{% endif %}</p>
+    <p>Vertreten durch: <span class="platzhalter">{% if req.kategorie == "verein" %}Vorstand nach § 26 BGB, Namen{% else %}Inhaber oder Geschäftsführung, Namen{% endif %}</span></p>
+    <p>Kontakt:<br>
+    {% if req.kontakt.telefon %}Telefon: {{ req.kontakt.telefon }}<br>{% endif %}
+    E-Mail: {% if req.kontakt.email %}{{ req.kontakt.email }}{% else %}<span class="platzhalter">E-Mail-Adresse</span>{% endif %}</p>
+    <p>{% if req.kategorie == "verein" %}Registergericht und Vereinsregisternummer{% else %}Registergericht und Registernummer (falls eingetragen){% endif %}: <span class="platzhalter">Amtsgericht, Nummer</span></p>
+    <p>Umsatzsteuer-ID (falls vorhanden): <span class="platzhalter">DE…</span></p>
+    <p>Verantwortlich für den Inhalt: <span class="platzhalter">Name, Anschrift</span></p>
+  </div>
+</section>
+{% endblock %}

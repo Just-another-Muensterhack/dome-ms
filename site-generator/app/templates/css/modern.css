@@ -1,0 +1,188 @@
+/* ========= Stil "modern": Anzeigetafel =========
+   Vollflächige Markenfarbe, riesige fette Schrift, Laufband, harte Kanten und Blockschatten.
+   Laut, aber geordnet. */
+
+.stil-modern {
+  --sans:
+    "Host Grotesk", "Schibsted Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --eng: "Host Grotesk", ui-sans-serif, sans-serif;
+}
+.stil-modern .zone-hero,
+.stil-modern .zone-kontakt {
+  --papier: var(--marke);
+  --papier2: var(--marke);
+  --tinte: var(--auf-marke);
+  --tinte-leise: color-mix(in oklch, var(--auf-marke) 78%, var(--marke));
+  --linie: color-mix(in oklch, var(--auf-marke) 28%, var(--marke));
+  --akzent: var(--auf-marke);
+  color-scheme: dark;
+}
+.stil-modern .kicker,
+.stil-modern .nummer,
+.stil-modern .typenschild dt,
+.stil-modern .kontakt__daten dt {
+  font-stretch: 100%;
+  letter-spacing: 0.08em;
+}
+
+.stil-modern .hero {
+  padding-bottom: clamp(3rem, 7vh, 5rem);
+}
+.stil-modern .hero__titel {
+  font-size: clamp(3rem, 10.5vw, 10rem);
+  line-height: 0.88;
+  letter-spacing: -0.055em;
+  font-weight: 800;
+}
+.stil-modern .hero--mit-bild .hero__titel {
+  font-size: clamp(2.8rem, 7.6vw, 7.4rem);
+}
+.stil-modern .zone-hero .aktion,
+.stil-modern .zone-kontakt .aktion {
+  background: var(--auf-marke);
+  color: var(--marke);
+}
+.stil-modern .zone-hero .aktion--still {
+  background: none;
+  color: var(--auf-marke);
+}
+.stil-modern .aktion {
+  border-radius: 0;
+  box-shadow: 6px 6px 0 color-mix(in oklch, var(--h-tinte) 85%, transparent);
+}
+.stil-modern .aktion:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 color-mix(in oklch, var(--h-tinte) 85%, transparent);
+}
+.stil-modern .aktion--still {
+  box-shadow: none !important;
+}
+.stil-modern .zone-hell .aktion {
+  background: var(--marke);
+  color: var(--auf-marke);
+}
+
+.stil-modern .bild-rahmen img {
+  box-shadow: 14px 14px 0 var(--h-tinte);
+}
+.stil-modern .zone-hero .bild-rahmen img {
+  box-shadow: 14px 14px 0 color-mix(in oklch, var(--h-tinte) 90%, transparent);
+}
+.stil-modern .hero__bild {
+  margin-right: 14px;
+}
+
+/* Laufband mit den Angeboten */
+.laufband {
+  background: var(--d-papier);
+  color: var(--d-tinte);
+  overflow: hidden;
+  border-block: 1px solid var(--d-linie);
+  padding-block: 1.1rem;
+}
+.laufband__spur {
+  display: flex;
+  width: max-content;
+  gap: 2.2rem;
+  align-items: center;
+  animation: laufen 38s linear infinite;
+  font-size: clamp(1.5rem, 3.4vw, 2.8rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.laufband .stern {
+  color: var(--marke);
+  font-size: 0.8em;
+}
+@keyframes laufen {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Angebote als große Tafelzeilen */
+.stil-modern .art-liste {
+  background: var(--d-papier);
+  --papier: var(--d-papier);
+  --tinte: var(--d-tinte);
+  --tinte-leise: var(--d-tinte-leise);
+  --linie: var(--d-linie);
+  --akzent: var(--d-akzent);
+  color: var(--d-tinte);
+  color-scheme: dark;
+}
+.stil-modern .liste {
+  grid-template-columns: 1fr;
+}
+.stil-modern .eintrag {
+  grid-template-columns: 5rem minmax(0, 1fr) minmax(0, 1.2fr);
+  align-items: baseline;
+  gap: 1.5rem;
+  padding: 1.6rem 0;
+  transition:
+    background 0.45s var(--ease),
+    padding 0.45s var(--ease);
+}
+.stil-modern .eintrag .nummer {
+  font-size: 1rem;
+  color: var(--marke);
+}
+.stil-modern .eintrag h3 {
+  font-size: clamp(1.6rem, 3.4vw, 3rem);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-weight: 800;
+}
+.stil-modern .eintrag:hover {
+  background: var(--marke);
+  color: var(--auf-marke);
+  padding-inline: 1.25rem;
+}
+.stil-modern .eintrag:hover p,
+.stil-modern .eintrag:hover .nummer {
+  color: var(--auf-marke);
+}
+@media (max-width: 760px) {
+  .stil-modern .eintrag {
+    grid-template-columns: 3rem 1fr;
+  }
+  .stil-modern .eintrag p {
+    grid-column: 2;
+  }
+}
+
+.stil-modern .these {
+  font-size: clamp(2.2rem, 5.4vw, 5rem);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 0.98;
+}
+.stil-modern .kapitel__kopf h2 {
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+.stil-modern .schritte li {
+  border-top: 6px solid var(--marke);
+}
+.stil-modern .schritte .nummer {
+  font-size: 3.6rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  color: var(--tinte);
+}
+.stil-modern .zeitplan dt {
+  font-size: clamp(1.2rem, 2vw, 1.6rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.stil-modern .kontakt__titel {
+  font-size: clamp(2.6rem, 7vw, 6.4rem);
+  line-height: 0.92;
+  letter-spacing: -0.05em;
+}
+.stil-modern .faq summary {
+  font-weight: 700;
+}

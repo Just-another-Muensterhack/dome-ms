@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="de" class="stil-{{ stil }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ seitentitel }}{% endblock %}</title>
+<meta name="description" content="{% block description %}{% endblock %}">
+<meta name="theme-color" content="{{ p.marke }}">
+<link rel="icon" href="{{ favicon[0] }}" type="{{ favicon[1] }}">
+<style>
+@font-face { font-family: "Schibsted Grotesk"; font-weight: 400 900; font-display: swap; src: url(fonts/schibsted-latin.woff2) format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212; }
+@font-face { font-family: "Schibsted Grotesk"; font-weight: 400 900; font-display: swap; src: url(fonts/schibsted-latin-ext.woff2) format("woff2"); unicode-range: U+0100-02BA, U+1E00-1EFF, U+2C60-2C7F; }
+@font-face { font-family: "Archivo"; font-weight: 400 700; font-stretch: 62% 100%; font-display: swap; src: url(fonts/archivo-latin.woff2) format("woff2"); }
+@font-face { font-family: "Bodoni Moda"; font-weight: 400 900; font-display: swap; src: url(fonts/bodoni-latin.woff2) format("woff2"); }
+@font-face { font-family: "Host Grotesk"; font-weight: 300 800; font-display: swap; src: url(fonts/host-grotesk-latin.woff2) format("woff2"); }
+
+:root {
+  --marke: {{ p.marke }};
+  --auf-marke: {{ farben.auf_akzent }};
+  --marke-text: {{ farben.akzent_text }};
+  --d-papier: {{ p.d_papier }}; --d-papier2: {{ p.d_papier2 }}; --d-tinte: {{ p.d_tinte }}; --d-tinte-leise: {{ p.d_tinte_leise }}; --d-linie: {{ p.d_linie }}; --d-akzent: {{ p.d_akzent }};
+  --h-papier: {{ p.h_papier }}; --h-papier2: {{ p.h_papier2 }}; --h-tinte: {{ p.h_tinte }}; --h-tinte-leise: {{ p.h_tinte_leise }}; --h-linie: {{ p.h_linie }}; --h-akzent: {{ p.h_akzent }};
+  --w-papier: {{ p.w_papier }}; --w-papier2: {{ p.w_papier2 }}; --w-marke-hell: {{ p.w_marke_hell }};
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --rand: clamp(1.25rem, 5vw, 5.5rem);
+  --breite: 1440px;
+  --sans: "Schibsted Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --eng: "Archivo", "Schibsted Grotesk", ui-sans-serif, sans-serif;
+}
+{% include "css/basis.css" %}
+{% include "css/" ~ stil ~ ".css" %}
+</style>
+</head>
+<body>
+<a class="sprung" href="#inhalt">Zum Inhalt</a>
+<header class="kopf">
+  <div class="kopf__innen">
+    <a class="marke" href="index.html">{{ marke }}<span class="marke__name">{{ req.name }}</span></a>
+    {% block nav %}{% endblock %}
+  </div>
+</header>
+<main id="inhalt">
+{% block inhalt %}{% endblock %}
+</main>
+<footer class="fuss zone-dunkel">
+  <div class="fuss__innen">
+    <p class="fuss__name">{{ req.name }}{% if req.ort %}<span>{{ req.ort }}</span>{% endif %}</p>
+    <nav aria-label="Rechtliches"><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a></nav>
+    <p class="fuss__klein">© {{ jahr }}. Ohne Cookies, ohne Tracking.</p>
+  </div>
+</footer>
+</body>
+</html>
