@@ -1,6 +1,6 @@
 import { ensureAccessToken } from '@/utils/auth'
 
-const apiOrigin = process.env['NEXT_PUBLIC_API_ORIGIN'] ?? 'http://localhost:8000'
+export const apiOrigin = process.env['NEXT_PUBLIC_API_ORIGIN'] ?? 'http://localhost:8000'
 
 export class ApiError extends Error {
   readonly status: number

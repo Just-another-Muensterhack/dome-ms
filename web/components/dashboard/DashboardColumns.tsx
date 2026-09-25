@@ -149,7 +149,7 @@ export const DashboardColumns = () => {
         </Expandable>
       </div>
       <div className="hidden desktop:grid desktop:grid-cols-2 gap-4">
-        <section className="rounded-lg bg-white p-4 flex-col-3">
+        <section className="rounded-lg bg-surface p-4 flex-col-3 text-on-surface">
           <h2 className="typography-title-md">{translation('navDomains')}</h2>
           <ColumnBody
             isLoading={domainsQuery.isPending}
@@ -161,7 +161,7 @@ export const DashboardColumns = () => {
             emptyAction={addDomainButton}
           />
         </section>
-        <section className="rounded-lg bg-white p-4 flex-col-3">
+        <section className="rounded-lg bg-surface p-4 flex-col-3 text-on-surface">
           <h2 className="typography-title-md">{translation('navWebsites')}</h2>
           <ColumnBody
             isLoading={websitesQuery.isPending}
