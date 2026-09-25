@@ -1,6 +1,17 @@
 import os
 
+from django.conf import settings
 from django.http import HttpRequest, HttpResponse
+
+# generated websites are static HTML and CSS, the sanitizer only lets http(s) and data images through
+MEDIA_CONTENT_SECURITY_POLICY = (
+    "default-src 'none'",
+    "img-src 'self' https: http: data:",
+    "style-src 'self' 'unsafe-inline' https: http:",
+    "font-src 'self' https: http: data:",
+    "base-uri 'none'",
+    "form-action 'none'",
+)
 
 
 class CorsMiddleware:
@@ -11,6 +22,7 @@ class CorsMiddleware:
             "http://localhost:3000,http://127.0.0.1:3000",
         )
         self.allowed_origins = [item.strip() for item in raw.split(",") if item.strip()]
+        self.media_prefix = "/" + settings.MEDIA_URL.lstrip("/")
 
     def __call__(self, request: HttpRequest) -> HttpResponse:
         if request.method == "OPTIONS":
@@ -29,4 +41,16 @@ class CorsMiddleware:
             response["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
             response["Access-Control-Max-Age"] = "86400"
 
+        # media is only served by django in DEBUG, the frontend embeds the websites in an iframe
+        if settings.DEBUG and request.path.startswith(self.media_prefix):
+            response.headers.pop("X-Frame-Options", None)
+            response["Content-Security-Policy"] = "; ".join(
+                (*MEDIA_CONTENT_SECURITY_POLICY, f"frame-ancestors {self.frame_ancestors()}")
+            )
+
         return response
+
+    def frame_ancestors(self) -> str:
+        if "*" in self.allowed_origins:
+            return "*"
+        return " ".join(("'self'", *self.allowed_origins))
