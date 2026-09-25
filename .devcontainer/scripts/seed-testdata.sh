@@ -5,7 +5,7 @@ set -euo pipefail
 
 API=${MSDOME_API_URL:-http://localhost:8000/api/v1}
 TOKEN=$(curl -sf -X POST "${KEYCLOAK_URL:-http://keycloak:8080}/realms/${KEYCLOAK_REALM:-msdome}/protocol/openid-connect/token" \
-    -d grant_type=password -d client_id=msdome-web -d username=test2 -d password=test -d scope=openid | jq -r .access_token)
+    -d grant_type=password -d client_id=frontend-client -d username=test2 -d password=test -d scope=openid | jq -r .access_token)
 
 api() { curl -s -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' "$@"; }
 

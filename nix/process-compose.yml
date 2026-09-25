@@ -1,0 +1,57 @@
+version: "0.5"
+is_strict: false
+processes:
+  infra:
+    command: run-dev-infra --foreground
+    availability:
+      restart: "no"
+    readiness_probe:
+      http_get:
+        host: "127.0.0.1"
+        scheme: "http"
+        port: 8080
+        path: "/realms/msdome"
+      initial_delay_seconds: 8
+      period_seconds: 4
+      timeout_seconds: 3
+      success_threshold: 1
+      failure_threshold: 45
+    shutdown:
+      command: run-dev-infra --down
+      timeout_seconds: 30
+  backend:
+    command: run-dev-backend
+    availability:
+      restart: "always"
+    depends_on:
+      infra:
+        condition: process_healthy
+    readiness_probe:
+      http_get:
+        host: "127.0.0.1"
+        scheme: "http"
+        port: 8000
+        path: "/health/"
+      initial_delay_seconds: 2
+      period_seconds: 3
+      timeout_seconds: 2
+      success_threshold: 1
+      failure_threshold: 40
+  frontend:
+    command: run-dev-frontend
+    availability:
+      restart: "always"
+    depends_on:
+      infra:
+        condition: process_healthy
+    readiness_probe:
+      http_get:
+        host: "127.0.0.1"
+        scheme: "http"
+        port: 3000
+        path: "/"
+      initial_delay_seconds: 3
+      period_seconds: 3
+      timeout_seconds: 2
+      success_threshold: 1
+      failure_threshold: 40

@@ -16,7 +16,7 @@
         {
             "label": "keycloak: get access token",
             "type": "shell",
-            "command": "curl -sf -X POST \"${KEYCLOAK_URL:-http://keycloak:8080}/realms/${KEYCLOAK_REALM:-msdome}/protocol/openid-connect/token\" -d grant_type=password -d client_id=msdome-web -d username=${input:keycloakUser} -d password=test -d scope=openid | jq -r .access_token",
+            "command": "curl -sf -X POST \"${KEYCLOAK_URL:-http://keycloak:8080}/realms/${KEYCLOAK_REALM:-msdome}/protocol/openid-connect/token\" -d grant_type=password -d client_id=frontend-client -d username=${input:keycloakUser} -d password=test -d scope=openid | jq -r .access_token",
             "presentation": {
                 "reveal": "always",
                 "panel": "dedicated",
