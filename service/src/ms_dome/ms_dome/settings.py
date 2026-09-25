@@ -25,7 +25,7 @@ SECRET_KEY = os.environ.get(
     "django-insecure-3is3nr)s13fdecc$aasym(=!n)a=o)-)@o+ch+-y$$%=a8eh9&",
 )
 
-DEBUG = os.environ.get("DJANGO_DEBUG", "true").lower() in ("1", "true", "yes")
+DEBUG = os.environ.get("DEBUG", "true").lower() in ("1", "true", "yes")
 
 ALLOWED_HOSTS = [
     host.strip()
@@ -44,8 +44,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'mozilla_django_oidc',
-    'analysis',
     'core',
+    'analysis',
+    'website',
 ]
 
 MIDDLEWARE = [
@@ -174,6 +175,13 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 
+# Media files (uploaded and generated content)
+# https://docs.djangoproject.com/en/6.1/topics/files/
+
+MEDIA_URL = 'media/'
+MEDIA_ROOT = Path(os.environ.get("MEDIA_ROOT", BASE_DIR / "media"))
+
+
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
@@ -182,3 +190,9 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+
+# AI Model Params
+MODEL_API_KEY = os.environ.get("MODEL_API_KEY", "")
+MODEL_API_URL = os.environ.get("MODEL_API_URL", "")
+MODEL_NAME = os.environ.get("MODEL_NAME", "Qwen3.8-27B")
+MODEL_TIMEOUT = float(os.environ.get("MODEL_TIMEOUT", "300"))
