@@ -3,6 +3,7 @@ import { IconButton, TabList, TabPanel, TabSwitcher, TabView } from '@helpwave/h
 import { PencilIcon } from 'lucide-react'
 import { useWebsite } from '@/api/website'
 import { WebsiteAnalytics } from '@/components/analytics/WebsiteAnalytics'
+import { WebsiteEditor } from '@/components/editor/WebsiteEditor'
 import { AddWebsiteDialog } from '@/components/websites/AddWebsiteDialog'
 import { WebsiteDomainChips } from '@/components/websites/WebsiteDomainChips'
 import { useDomeTranslation } from '@/i18n/useDomeTranslation'
@@ -51,7 +52,13 @@ export const WebsiteDetail = ({
           <WebsiteAnalytics websiteId={websiteId} />
         </TabPanel>
         <TabPanel id="dns" label={translation('dns')} />
-        <TabPanel id="editor" label={translation('editor')} />
+        <TabPanel id="editor" label={translation('editor')}>
+          <WebsiteEditor
+            websiteId={websiteId}
+            websiteName={website?.name ?? ''}
+            initialDescription={website?.description ?? ''}
+          />
+        </TabPanel>
       </TabSwitcher>
     </div>
   )
