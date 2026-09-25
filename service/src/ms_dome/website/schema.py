@@ -5,7 +5,7 @@ from uuid import UUID
 from ninja import Field, Schema
 from pydantic import StringConstraints
 
-from website.service import MAX_ATTRIBUTE_LENGTH, MAX_DESCRIPTION_LENGTH, MAX_SECTIONS
+from website.service import MAX_ATTRIBUTE_LENGTH, MAX_DESCRIPTION_LENGTH, MAX_PROMPT_LENGTH, MAX_SECTIONS
 
 AttributeText = Annotated[str, StringConstraints(max_length=MAX_ATTRIBUTE_LENGTH)]
 
@@ -28,17 +28,20 @@ class WebsiteContentIn(Schema):
     attributes: WebsiteAttributes = Field(default_factory=WebsiteAttributes)
 
 
+class WebsiteContentEditIn(Schema):
+    prompt: str = Field(..., min_length=1, max_length=MAX_PROMPT_LENGTH, examples=["Make the header dark blue"])
+
+
 class WebsiteContentOut(Schema):
+    """A version of a website's page, without the HTML."""
+
     id: UUID
     website_id: UUID
+    is_active: bool
+    source_id: UUID | None
+    prompt: str
     description: str
     attributes: dict[str, Any]
     model: str
-    html: str
     created_at: datetime
     updated_at: datetime
-
-    @staticmethod
-    def resolve_html(obj) -> str:
-        with obj.html.open("rb") as file:
-            return file.read().decode("utf-8")
