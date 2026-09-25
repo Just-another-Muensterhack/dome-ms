@@ -1,5 +1,5 @@
 {
-  description = "MSDome backend and web";
+  description = "dome.ms backend and web";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -265,8 +265,8 @@
             };
 
             meta = {
-              description = "Backend for MSDome";
-              homepage = "https://github.com/Just-another-Muensterhack/dome-ms-backend";
+              description = "Backend for dome.ms";
+              homepage = "https://github.com/Just-another-Muensterhack/dome.ms";
               license = lib.licenses.mit;
               mainProgram = "ms-dome";
             };
@@ -306,8 +306,8 @@
               runHook postInstall
             '';
             meta = {
-              description = "MSDome web frontend";
-              homepage = "https://github.com/Just-another-Muensterhack/dome-ms-backend";
+              description = "dome.ms web frontend";
+              homepage = "https://github.com/Just-another-Muensterhack/dome.ms";
               license = lib.licenses.mit;
             };
           };
@@ -487,7 +487,7 @@
               if [[ -f flake.nix ]]; then
                 export MSDOME_ROOT="$PWD"
               fi
-              echo "MSDome nix develop"
+              echo "dome.ms nix develop"
               echo "  run-dev-all       Keycloak + Postgres + backend + frontend"
               echo "  run-dev-infra     Keycloak (msdome realm) + Postgres containers"
               echo "  run-dev-backend   Django on :8000"

@@ -1,3 +1,3 @@
-# DomeMS Backend
+# dome.ms backend
 
-This is a template for creating Python projects. It includes a basic project structure, configuration files, and setup scripts to help you get started quickly.
+Django API, Next.js frontend, and Keycloak realm used by the NixOS nodes under `../nixos`.
