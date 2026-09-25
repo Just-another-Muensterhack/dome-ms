@@ -14,9 +14,14 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from pathlib import Path
+
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.http import HttpRequest, JsonResponse
-from django.urls import include, path
+from django.urls import include, path, re_path
+from django.views.static import serve
 from django.utils.module_loading import autodiscover_modules
 
 from ms_dome.api import api
@@ -34,3 +39,13 @@ urlpatterns = [
     path('oidc/', include('mozilla_django_oidc.urls')),
     path('api/v1/', api.urls),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+else:
+    # staticfiles only serves in DEBUG, so serve the admin's assets straight from the package
+    urlpatterns.append(re_path(
+        rf"^{settings.STATIC_URL.lstrip('/')}(?P<path>admin/.*)$",
+        serve,
+        {"document_root": Path(admin.__file__).parent / "static"},
+    ))

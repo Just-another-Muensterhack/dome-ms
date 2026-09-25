@@ -1,0 +1,44 @@
+from datetime import datetime
+from typing import Annotated, Any
+from uuid import UUID
+
+from ninja import Field, Schema
+from pydantic import StringConstraints
+
+from website.service import MAX_ATTRIBUTE_LENGTH, MAX_DESCRIPTION_LENGTH, MAX_SECTIONS
+
+AttributeText = Annotated[str, StringConstraints(max_length=MAX_ATTRIBUTE_LENGTH)]
+
+
+class WebsiteAttributes(Schema):
+    """Categorical data of a website, free text so the frontend can offer its own choices."""
+
+    category: AttributeText | None = Field(None, examples=["Café"])
+    purpose: AttributeText | None = Field(None, examples=["Present the café and its opening hours"])
+    location: AttributeText | None = Field(None, examples=["Münster"])
+    language: AttributeText = Field("de", examples=["de"])
+    tone: AttributeText | None = Field(None, examples=["friendly"])
+    sections: list[AttributeText] = Field(default_factory=list, max_length=MAX_SECTIONS, examples=[["about", "contact"]])
+    primary_color: str | None = Field(None, pattern=r"^#[0-9a-fA-F]{6}$", examples=["#2a9d8f"])
+
+
+class WebsiteContentIn(Schema):
+    website_id: UUID
+    description: str = Field(..., min_length=1, max_length=MAX_DESCRIPTION_LENGTH)
+    attributes: WebsiteAttributes = Field(default_factory=WebsiteAttributes)
+
+
+class WebsiteContentOut(Schema):
+    id: UUID
+    website_id: UUID
+    description: str
+    attributes: dict[str, Any]
+    model: str
+    html: str
+    created_at: datetime
+    updated_at: datetime
+
+    @staticmethod
+    def resolve_html(obj) -> str:
+        with obj.html.open("rb") as file:
+            return file.read().decode("utf-8")
