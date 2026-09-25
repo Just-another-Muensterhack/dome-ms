@@ -48,10 +48,13 @@ dev = [
 [tool.uv]
 exclude-newer = "P7D"
 
+[tool.ty.environment]
+root = ["src/ms_dome"]
+
 [tool.pytest.ini_options]
 python_files = ["test_*.py", "*_test.py"]
 filterwarnings = ["ignore::DeprecationWarning"]
-pythonpath = ["src"]
+pythonpath = ["src/ms_dome"]
 cache_dir = "/workspaces/.cache/pytest"
 addopts = [
     "--cov",

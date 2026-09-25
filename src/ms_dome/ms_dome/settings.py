@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    'ms_dome.apps.KeycloakAdminConfig',  # replaces 'django.contrib.admin', login via Keycloak
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'mozilla_django_oidc',
     'analysis',
+    'core',
 ]
 
 MIDDLEWARE = [
@@ -132,9 +133,16 @@ OIDC_OP_AUTHORIZATION_ENDPOINT = f"{_OIDC_PUBLIC_BASE}/auth"
 OIDC_OP_TOKEN_ENDPOINT = f"{_OIDC_BASE}/token"
 OIDC_OP_USER_ENDPOINT = f"{_OIDC_BASE}/userinfo"
 OIDC_OP_JWKS_ENDPOINT = f"{_OIDC_BASE}/certs"
+OIDC_OP_LOGOUT_ENDPOINT = f"{_OIDC_PUBLIC_BASE}/logout"
+OIDC_OP_LOGOUT_URL_METHOD = "ms_dome.auth.provider_logout"
+OIDC_STORE_ID_TOKEN = True
 
 OIDC_USERNAME_ALGO = "ms_dome.auth.username_from_claims"
 OIDC_TIMEOUT = 5
+
+# Keycloak realm roles (exposed as `roles` claim) granting `is_staff` / `is_superuser`
+OIDC_STAFF_ROLE = "staff"
+OIDC_SUPERUSER_ROLE = "admin"
 
 LOGIN_URL = "oidc_authentication_init"
 LOGIN_REDIRECT_URL = "/"

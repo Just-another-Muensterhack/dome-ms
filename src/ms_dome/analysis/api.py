@@ -1,9 +1,5 @@
 from django.http import HttpRequest
-from ninja import NinjaAPI, Schema
-
-from ms_dome.auth import OIDCBearer  # ty: ignore[unresolved-import]
-
-api = NinjaAPI(title="MSDome API", auth=OIDCBearer())
+from ninja import Router, Schema
 
 
 class UserSchema(Schema):
@@ -12,7 +8,8 @@ class UserSchema(Schema):
     first_name: str
     last_name: str
 
+analysis = Router(tags=["analysis"])
 
-@api.get("/me", response=UserSchema)
+@analysis.get("/me", response=UserSchema)
 def me(request: HttpRequest):
     return request.user  # ty: ignore[unresolved-attribute]

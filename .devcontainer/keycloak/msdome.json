@@ -14,6 +14,12 @@
   "accessTokenLifespan": 300,
   "ssoSessionIdleTimeout": 1800,
   "ssoSessionMaxLifespan": 36000,
+  "roles": {
+    "realm": [
+      { "name": "staff", "description": "Access to the Django admin" },
+      { "name": "admin", "description": "Django superuser (implies staff)" }
+    ]
+  },
   "clients": [
     {
       "clientId": "msdome-backend",
@@ -39,6 +45,22 @@
         "frontchannel.logout.session.required": "true"
       },
       "fullScopeAllowed": true,
+      "protocolMappers": [
+        {
+          "name": "realm roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "config": {
+            "claim.name": "roles",
+            "multivalued": "true",
+            "jsonType.label": "String",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        }
+      ],
       "defaultClientScopes": ["web-origins", "acr", "roles", "profile", "basic", "email"],
       "optionalClientScopes": ["address", "phone", "offline_access", "microprofile-jwt"]
     },
@@ -63,6 +85,22 @@
         "backchannel.logout.session.required": "true"
       },
       "fullScopeAllowed": true,
+      "protocolMappers": [
+        {
+          "name": "realm roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "config": {
+            "claim.name": "roles",
+            "multivalued": "true",
+            "jsonType.label": "String",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        }
+      ],
       "defaultClientScopes": ["web-origins", "acr", "roles", "profile", "basic", "email"],
       "optionalClientScopes": ["address", "phone", "offline_access", "microprofile-jwt"]
     }
@@ -76,7 +114,7 @@
       "emailVerified": true,
       "enabled": true,
       "credentials": [{ "type": "password", "value": "test", "temporary": false }],
-      "realmRoles": ["default-roles-msdome"]
+      "realmRoles": ["default-roles-msdome", "admin"]
     },
     {
       "username": "test2",

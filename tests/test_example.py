@@ -1,4 +1,4 @@
-from project_name.main import run
+from project_name.main import run  # ty: ignore[unresolved-import]
 
 
 def test_placeholder() -> None:
