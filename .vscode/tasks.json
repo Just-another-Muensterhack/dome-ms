@@ -12,6 +12,26 @@
             "type": "shell",
             "command": "pre-commit autoupdate",
             "problemMatcher": []
+        },
+        {
+            "label": "keycloak: get access token",
+            "type": "shell",
+            "command": "curl -sf -X POST \"${KEYCLOAK_URL:-http://keycloak:8080}/realms/${KEYCLOAK_REALM:-msdome}/protocol/openid-connect/token\" -d grant_type=password -d client_id=msdome-web -d username=${input:keycloakUser} -d password=test -d scope=openid | jq -r .access_token",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true
+            },
+            "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        {
+            "id": "keycloakUser",
+            "type": "pickString",
+            "description": "Keycloak test user (see .devcontainer/keycloak/msdome.json)",
+            "options": ["test", "test2"],
+            "default": "test"
         }
     ]
 }

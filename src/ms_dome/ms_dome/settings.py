@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'mozilla_django_oidc',
+    'analysis',
 ]
 
 MIDDLEWARE = [
@@ -102,6 +104,41 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+
+# Authentication (Keycloak via mozilla-django-oidc)
+# https://mozilla-django-oidc.readthedocs.io/en/stable/settings.html
+
+AUTHENTICATION_BACKENDS = [
+    "ms_dome.auth.KeycloakOIDCBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+
+# Server side calls (token, userinfo, jwks) use the container network, the browser gets redirected to the public URL
+KEYCLOAK_URL = os.environ.get("KEYCLOAK_URL", "http://keycloak:8080")
+KEYCLOAK_PUBLIC_URL = os.environ.get("KEYCLOAK_PUBLIC_URL", "http://localhost:8080")
+KEYCLOAK_REALM = os.environ.get("KEYCLOAK_REALM", "msdome")
+
+_OIDC_BASE = f"{KEYCLOAK_URL}/realms/{KEYCLOAK_REALM}/protocol/openid-connect"
+_OIDC_PUBLIC_BASE = f"{KEYCLOAK_PUBLIC_URL}/realms/{KEYCLOAK_REALM}/protocol/openid-connect"
+
+OIDC_RP_CLIENT_ID = os.environ.get("KEYCLOAK_CLIENT_ID", "msdome-backend")
+OIDC_RP_CLIENT_SECRET = os.environ.get("KEYCLOAK_CLIENT_SECRET", "msdome-secret")
+OIDC_RP_SIGN_ALGO = "RS256"
+OIDC_RP_SCOPES = "openid email profile"
+OIDC_USE_PKCE = True
+
+OIDC_OP_AUTHORIZATION_ENDPOINT = f"{_OIDC_PUBLIC_BASE}/auth"
+OIDC_OP_TOKEN_ENDPOINT = f"{_OIDC_BASE}/token"
+OIDC_OP_USER_ENDPOINT = f"{_OIDC_BASE}/userinfo"
+OIDC_OP_JWKS_ENDPOINT = f"{_OIDC_BASE}/certs"
+
+OIDC_USERNAME_ALGO = "ms_dome.auth.username_from_claims"
+OIDC_TIMEOUT = 5
+
+LOGIN_URL = "oidc_authentication_init"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 
 
 # Internationalization
