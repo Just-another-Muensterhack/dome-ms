@@ -196,3 +196,9 @@ MODEL_API_KEY = os.environ.get("MODEL_API_KEY", "")
 MODEL_API_URL = os.environ.get("MODEL_API_URL", "")
 MODEL_NAME = os.environ.get("MODEL_NAME", "Qwen3.8-27B")
 MODEL_TIMEOUT = float(os.environ.get("MODEL_TIMEOUT", "300"))
+
+# Websites get subdomains below this domain, everything else is an own domain of the user
+PLATFORM_DOMAIN = os.environ.get("PLATFORM_DOMAIN", "dome.ms")
+
+# Prometheus metrics at /metrics, when set scrapers must send `Authorization: Bearer <token>`
+METRICS_TOKEN = os.environ.get("METRICS_TOKEN", "")
