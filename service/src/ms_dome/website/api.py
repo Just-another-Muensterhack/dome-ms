@@ -4,8 +4,6 @@ from core.api.schema import ErrorOut
 from django.core.exceptions import ValidationError
 from django.http import HttpRequest
 from ninja import File, Form, Router, UploadedFile
-
-from ms_dome.api import api
 from website.schema import (
     WebsiteContentEditIn,
     WebsiteContentIn,
@@ -14,6 +12,8 @@ from website.schema import (
     WebsiteContentUploadIn,
 )
 from website.service import WebsiteBuilderService, WebsiteGenerationError
+
+from ms_dome.api import api
 
 website_builder = Router(tags=["website builder"])
 api.add_router("/website-builder", website_builder)
@@ -47,12 +47,7 @@ def upload_website(request: HttpRequest, payload: Form[WebsiteContentUploadIn], 
     return 201, service.upload_website(payload.website_id, list(zip(paths, files, strict=True)), payload.name)
 
 
-@website_builder.get("/{content_id}", response={200: WebsiteContentOut, 404: ErrorOut})
-def get_content(request: HttpRequest, content_id: UUID):
-    return WebsiteBuilderService(request.auth).get_content(content_id)  # ty: ignore[unresolved-attribute]
-
-
-@website_builder.post("/", response={201: WebsiteContentOut, 404: ErrorOut, 409: ErrorOut, 422: ErrorOut, 502: ErrorOut})
+@website_builder.post("/generate", response={201: WebsiteContentOut, 404: ErrorOut, 409: ErrorOut, 422: ErrorOut, 502: ErrorOut})
 def generate_website(request: HttpRequest, payload: WebsiteContentIn):
     """Generate a new version of a website's page from its description and attributes.
 
@@ -63,6 +58,11 @@ def generate_website(request: HttpRequest, payload: WebsiteContentIn):
         payload.website_id, payload.description, payload.attributes.model_dump(exclude_none=True), payload.name
     )
     return 201, content
+
+
+@website_builder.get("/{content_id}", response={200: WebsiteContentOut, 404: ErrorOut})
+def get_content(request: HttpRequest, content_id: UUID):
+    return WebsiteBuilderService(request.auth).get_content(content_id)  # ty: ignore[unresolved-attribute]
 
 
 @website_builder.post(
