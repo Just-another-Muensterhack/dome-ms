@@ -1,11 +1,18 @@
 from uuid import UUID
 
 from core.api.schema import ErrorOut
+from django.core.exceptions import ValidationError
 from django.http import HttpRequest
-from ninja import Router
+from ninja import File, Form, Router, UploadedFile
 
 from ms_dome.api import api
-from website.schema import WebsiteContentEditIn, WebsiteContentIn, WebsiteContentOut, WebsiteContentUpdate
+from website.schema import (
+    WebsiteContentEditIn,
+    WebsiteContentIn,
+    WebsiteContentOut,
+    WebsiteContentUpdate,
+    WebsiteContentUploadIn,
+)
 from website.service import WebsiteBuilderService, WebsiteGenerationError
 
 website_builder = Router(tags=["website builder"])
@@ -21,6 +28,23 @@ def website_generation_error(request: HttpRequest, exc: WebsiteGenerationError):
 def list_contents(request: HttpRequest, website_id: UUID):
     """All versions of a website's page, newest first."""
     return WebsiteBuilderService(request.auth).list_contents(website_id)  # ty: ignore[unresolved-attribute]
+
+
+# registered before the `/{content_id}` routes, their pattern also matches `/upload`
+@website_builder.post("/upload", response={201: WebsiteContentOut, 404: ErrorOut, 409: ErrorOut, 422: ErrorOut})
+def upload_website(request: HttpRequest, payload: Form[WebsiteContentUploadIn], files: File[list[UploadedFile]]):
+    """Create a new version of a website's page from uploaded files (HTML, CSS, JavaScript, images, videos, fonts,
+    ...), stored as they are. `index.html` is the entry page.
+
+    Send the files as `files` and their relative paths, e.g. `css/style.css`, in the same order as `paths`; without
+    `paths` the files are stored under their names. The first version of a website is activated, later ones through
+    the activate endpoint.
+    """
+    paths = payload.paths or [file.name or "" for file in files]
+    if len(paths) != len(files):
+        raise ValidationError({"paths": "Send one path per file."})
+    service = WebsiteBuilderService(request.auth)  # ty: ignore[unresolved-attribute]
+    return 201, service.upload_website(payload.website_id, list(zip(paths, files, strict=True)), payload.name)
 
 
 @website_builder.get("/{content_id}", response={200: WebsiteContentOut, 404: ErrorOut})

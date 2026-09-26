@@ -180,6 +180,9 @@ STATIC_URL = 'static/'
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = Path(os.environ.get("MEDIA_ROOT", BASE_DIR / "media"))
+# a website upload has up to `website.service.MAX_UPLOAD_FILES` files and as many path fields
+DATA_UPLOAD_MAX_NUMBER_FILES = 500
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 1100
 
 
 # Email
