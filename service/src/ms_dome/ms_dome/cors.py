@@ -44,7 +44,7 @@ class CorsMiddleware:
             response["Access-Control-Max-Age"] = "86400"
 
         # media is only served by django in DEBUG, the frontend embeds the websites in an iframe
-        if settings.DEBUG and request.path.startswith(self.media_prefix):
+        if request.path.startswith(self.media_prefix):
             response.headers.pop("X-Frame-Options", None)
             response["Content-Security-Policy"] = "; ".join(
                 (*MEDIA_CONTENT_SECURITY_POLICY, f"frame-ancestors {self.frame_ancestors()}")
