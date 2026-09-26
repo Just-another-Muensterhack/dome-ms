@@ -11,11 +11,21 @@ Layers:
 The service knows nothing about HTTP, it signals failures with `NotFoundError` and Django's `ValidationError`.
 """
 
+from dataclasses import dataclass
 from typing import Any
 from uuid import UUID
 
 from core.dns_check import check_txt
-from core.models import Domain, Host, Webserver, Website
+from core.models import (
+    Domain,
+    Host,
+    Webserver,
+    Website,
+    managed_label_error,
+    normalize_domain_name,
+    website_domain_label,
+)
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -25,6 +35,15 @@ from django.utils import timezone
 
 class NotFoundError(Exception):
     """The object does not exist or the acting user may not access it."""
+
+
+@dataclass(frozen=True)
+class Availability:
+    """Whether a managed domain name can be registered, `reason` says why not."""
+
+    name: str
+    available: bool
+    reason: str | None = None
 
 
 class HostManagementService:
@@ -135,6 +154,32 @@ class HostManagementService:
 
     def delete_domain(self, domain_id: UUID) -> None:
         self.get_domain(domain_id).delete()
+
+    def check_managed_domain(self, name: str) -> Availability:
+        """Whether `name`, a label or a full `<label>.<website domain>` name, is free to register.
+
+        A hint only, the name can still be taken before it is registered, `create_domain` has the final say.
+        """
+        website_domain = settings.DOME_WEBSITE_DOMAIN
+        name = name.strip().lower().rstrip(".")
+        if "." not in name:
+            name = f"{name}.{website_domain}"
+        try:
+            name = normalize_domain_name(name)
+        except ValidationError as exc:
+            return Availability(name, False, exc.messages[0])
+
+        label = website_domain_label(name)
+        if label is None:
+            return Availability(name, False, f"Enter a single name below {website_domain}, e.g. 'my-site'.")
+        if reason := managed_label_error(label):
+            return Availability(name, False, reason)
+        # managed domains are always verified, so a taken name is a verified one
+        holder = Domain.objects.filter(name=name, verified_at__isnull=False).values_list("owner_id", flat=True).first()
+        if holder is not None:
+            reason = "You already have this domain." if holder == self.user.pk else "This domain is already in use."
+            return Availability(name, False, reason)
+        return Availability(name, True)
 
     def verify_domain(self, domain_id: UUID) -> Domain:
         """Check the domain's TXT record and mark it verified if it matches. A verified domain stays verified.
