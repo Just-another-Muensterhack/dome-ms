@@ -1,7 +1,11 @@
-"""Application service of the website app: generating and editing the page of a website with a language model.
+"""Application service of the website app: generating and editing the page of a website with a language model, or
+uploading the files of a website.
 
-Every generation or edit creates a new version (`WebsiteContent`) of the page, at most one version per website is
-active. The first version of a website is activated, later ones only through `activate_content`.
+Every generation, edit or upload creates a new version (`WebsiteContent`) of the page, at most one version per website
+is active. The first version of a website is activated, later ones only through `activate_content`.
+
+Uploaded files are stored as they are, their content is not sanitized. Only their paths are validated, so a file can
+not be written outside its version's directory, and their type is limited to the files of a static website.
 
 The service knows nothing about HTTP, it signals failures with `NotFoundError`, Django's `ValidationError` and
 `WebsiteGenerationError`.
@@ -18,25 +22,29 @@ as data, as is the page that is edited since it was generated from user input:
 
 import re
 import secrets
+import shutil
 import unicodedata
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
+from pathlib import PurePosixPath
 from typing import Any
 from uuid import UUID
 
 import openai
+from core import nginx
 from core.models import Website
 from core.service import HostManagementService, NotFoundError
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.core.files.base import ContentFile
+from django.core.files.base import ContentFile, File
 from django.db import transaction
 from django.db.models import QuerySet
 from django.utils import timezone
 
-from website.models import WebsiteContent
+from website.models import WebsiteContent, website_content_dir, website_html_path, website_storage
 from website.sanitizer import sanitize_html
 
+MAX_NAME_LENGTH = 255
 MAX_DESCRIPTION_LENGTH = 4000
 MAX_PROMPT_LENGTH = 2000
 MAX_ATTRIBUTE_LENGTH = 200
@@ -45,6 +53,26 @@ MAX_SECTIONS = 12
 TEXT_ATTRIBUTES = ("category", "purpose", "location", "language", "tone", "primary_color")
 MAX_OUTPUT_TOKENS = 16384
 MAX_HTML_BYTES = 1_000_000
+
+# uploads, `settings.DATA_UPLOAD_MAX_NUMBER_FILES` has to allow `MAX_UPLOAD_FILES`
+MAX_UPLOAD_FILES = 500
+MAX_UPLOAD_FILE_BYTES = 50 * 1024 * 1024
+MAX_UPLOAD_BYTES = 200 * 1024 * 1024
+MAX_UPLOAD_PATH_LENGTH = 180  # the version directory and the path fit the 255 characters of the file field
+MAX_UPLOAD_PATH_DEPTH = 10
+# the files of a static website, lower case
+UPLOAD_EXTENSIONS = frozenset({
+    # pages, styles, scripts and data
+    "html", "htm", "css", "js", "mjs", "map", "json", "webmanifest", "xml", "txt", "csv", "md", "pdf",
+    # images
+    "png", "jpg", "jpeg", "gif", "webp", "avif", "svg", "ico", "bmp",
+    # videos and audio
+    "mp4", "webm", "ogv", "mov", "m4v", "mp3", "ogg", "oga", "wav", "m4a", "aac", "flac", "vtt",
+    # fonts
+    "woff", "woff2", "ttf", "otf", "eot",
+})  # fmt: skip
+# a path segment: no control characters, no characters that are special on other file systems or in URLs
+_UPLOAD_SEGMENT_RE = re.compile(r"[^\x00-\x1f\x7f\\/:*?\"<>|#%]+")
 
 # the rules every page has to follow, generated or edited
 PAGE_RULES = """\
@@ -174,6 +202,26 @@ def extract_html(text: str) -> str:
     return text[start:end + len("</html>")]
 
 
+def clean_upload_path(path: str) -> str:
+    """Validate the relative path of an uploaded file, e.g. `css/style.css`, and return it normalized. The path can
+    not leave the version's directory: no absolute paths, no `.` or `..` segments, no hidden files."""
+    path = unicodedata.normalize("NFC", path).replace("\\", "/")
+    segments = path.split("/")
+    if (
+        not path
+        or len(path) > MAX_UPLOAD_PATH_LENGTH
+        or len(segments) > MAX_UPLOAD_PATH_DEPTH
+        # rejects absolute paths and `a//b` through the empty segment, hidden files, `.` and `..` through the dot
+        or any(not segment or segment.startswith(".") or segment != segment.strip() for segment in segments)
+        or not all(_UPLOAD_SEGMENT_RE.fullmatch(segment) for segment in segments)
+    ):
+        raise ValidationError({"paths": f"{path!r} is not a valid relative file path."})
+    suffix = PurePosixPath(path).suffix.lower().removeprefix(".")
+    if suffix not in UPLOAD_EXTENSIONS:
+        raise ValidationError({"paths": f"{path!r} has an unsupported file type."})
+    return path
+
+
 class WebsiteBuilderService:
     """Generates, edits and activates the versions of website pages, performed on behalf of `user`."""
 
@@ -195,11 +243,17 @@ class WebsiteBuilderService:
         return content
 
     def generate_website(
-        self, website_id: UUID, description: str, attributes: Mapping[str, Any] | None = None
+        self,
+        website_id: UUID,
+        description: str,
+        attributes: Mapping[str, Any] | None = None,
+        name: str | None = None,
     ) -> WebsiteContent:
-        """Generate a new version of the website's page from `description` and `attributes`."""
+        """Generate a new version of the website's page from `description` and `attributes`. Without a `name` the
+        version is called `Version <n>`."""
         website = HostManagementService(self.user).get_website(website_id)
 
+        name = self._clean_name(name)
         description = clean_user_text(description)
         if not description:
             raise ValidationError({"description": "The description must not be blank."})
@@ -208,12 +262,47 @@ class WebsiteBuilderService:
         attributes = self._clean_attributes(attributes or {})
 
         html = self._generate_html(clean_user_text(website.name), description, attributes)  # ty: ignore[invalid-argument-type]
-        return self._store(WebsiteContent(website=website, description=description, attributes=attributes), html)
+        content = WebsiteContent(website=website, name=name, description=description, attributes=attributes)
+        return self._store(content, self._html_files(html))
 
-    def edit_content(self, content_id: UUID, prompt: str) -> WebsiteContent:
-        """Apply the change described by `prompt` to the page of a version, the result is stored as a new version."""
+    def upload_website(
+        self, website_id: UUID, files: Sequence[tuple[str, File]], name: str | None = None
+    ) -> WebsiteContent:
+        """Store the uploaded `files`, pairs of a relative path like `css/style.css` and the file, as a new version of
+        the website's page. The files are stored as they are, `index.html` is the entry page. Without a `name` the
+        version is called `Version <n>`."""
+        website = HostManagementService(self.user).get_website(website_id)
+
+        name = self._clean_name(name)
+        if not files:
+            raise ValidationError({"files": "Upload at least one file."})
+        if len(files) > MAX_UPLOAD_FILES:
+            raise ValidationError({"files": f"Upload at most {MAX_UPLOAD_FILES} files."})
+        cleaned: dict[str, File] = {}
+        total = 0
+        for path, file in files:
+            path = clean_upload_path(path)
+            # compared case insensitive, the files could not be extracted side by side on every file system
+            if any(path.casefold() == other.casefold() for other in cleaned):
+                raise ValidationError({"paths": f"{path!r} is uploaded more than once."})
+            if file.size > MAX_UPLOAD_FILE_BYTES:
+                raise ValidationError({"files": f"{path!r} is larger than {MAX_UPLOAD_FILE_BYTES // 2**20} MB."})
+            total += file.size
+            cleaned[path] = file
+        if total > MAX_UPLOAD_BYTES:
+            raise ValidationError({"files": f"Upload at most {MAX_UPLOAD_BYTES // 2**20} MB in total."})
+
+        content = WebsiteContent(website=website, kind=WebsiteContent.Kind.UPLOADED, name=name)
+        return self._store(content, cleaned)
+
+    def edit_content(self, content_id: UUID, prompt: str, name: str | None = None) -> WebsiteContent:
+        """Apply the change described by `prompt` to the page of a version, the result is stored as a new version.
+        Without a `name` the new version is called `Version <n>`. Uploaded versions can not be edited."""
         source = self.get_content(content_id)
+        if source.kind == WebsiteContent.Kind.UPLOADED:
+            raise ValidationError("An uploaded version can not be edited, upload a new version instead.")
 
+        name = self._clean_name(name)
         prompt = clean_user_text(prompt)
         if not prompt:
             raise ValidationError({"prompt": "The prompt must not be blank."})
@@ -226,13 +315,23 @@ class WebsiteBuilderService:
         previous_name = source.name[: 255 - len(suffix)].rstrip()
         content = WebsiteContent(
             website_id=source.website_id,  # ty: ignore[unresolved-attribute]
-            name=f"{previous_name}{suffix}",
+            name=name or f"{previous_name}{suffix}",
             source=source,
             prompt=prompt,
             description=source.description,
             attributes=source.attributes,
         )
-        return self._store(content, html)
+        return self._store(content, self._html_files(html))
+
+    def rename_content(self, content_id: UUID, name: str) -> WebsiteContent:
+        content = self.get_content(content_id)
+        name = self._clean_name(name)
+        if not name:
+            raise ValidationError({"name": "The name must not be blank."})
+        content.name = name  # ty: ignore[invalid-assignment]
+        content.full_clean()
+        content.save(update_fields=("name", "updated_at"))
+        return content
 
     @transaction.atomic
     def activate_content(self, content_id: UUID) -> WebsiteContent:
@@ -244,6 +343,8 @@ class WebsiteBuilderService:
         versions.filter(is_active=True).exclude(pk=content.pk).update(is_active=False)
         versions.filter(pk=content.pk).update(is_active=True)
         content.is_active = True  # ty: ignore[invalid-assignment]
+        # `update` sends no signals, the website's domains now serve this version
+        nginx.schedule_sync()
         return content
 
     def rename_content(self, content_id: UUID, name: str) -> WebsiteContent:
@@ -259,7 +360,7 @@ class WebsiteBuilderService:
 
     @transaction.atomic
     def delete_content(self, content_id: UUID) -> None:
-        """Delete the version and its HTML file. The active version can only be deleted if it is the only one, so a
+        """Delete the version and its directory. The active version can only be deleted if it is the only one, so a
         website with versions always keeps an active one."""
         content = self.get_content(content_id)
         self._lock_website(content.website_id)  # ty: ignore[unresolved-attribute]
@@ -268,10 +369,10 @@ class WebsiteBuilderService:
         others = WebsiteContent.objects.filter(website_id=content.website_id).exclude(pk=content.pk)  # ty: ignore[unresolved-attribute]
         if content.is_active and others.exists():
             raise ValidationError("The active version can not be deleted, activate another version first.")
-        html = content.html
+        directory = website_storage().path(website_content_dir(content))
         content.delete()
-        # remove the file only once the row is gone for good, a rollback keeps both
-        transaction.on_commit(lambda: html.storage.delete(html.name))
+        # remove the files only once the row is gone for good, a rollback keeps both
+        transaction.on_commit(lambda: shutil.rmtree(directory, ignore_errors=True))
 
     # Internals
 
@@ -283,6 +384,14 @@ class WebsiteBuilderService:
     def _lock_website(website_id: UUID) -> None:
         # serializes the changes of a website's versions, so two of them can not become active at the same time
         Website.objects.select_for_update().filter(pk=website_id).first()
+
+    @staticmethod
+    def _clean_name(name: str | None) -> str:
+        """The cleaned single line name, empty if none was given."""
+        name = clean_attribute_text(name or "")
+        if len(name) > MAX_NAME_LENGTH:
+            raise ValidationError({"name": f"Use at most {MAX_NAME_LENGTH} characters."})
+        return name
 
     @staticmethod
     def _clean_attributes(attributes: Mapping[str, Any]) -> dict[str, str | list[str]]:
@@ -368,17 +477,37 @@ class WebsiteBuilderService:
             lines.append(f"{key}: {cls._neutralize(text, tag)}")
         return "\n".join(lines) or "(none)"
 
-    @transaction.atomic
-    def _store(self, content: WebsiteContent, html: str) -> WebsiteContent:
-        """Save `content` as a new version with `html` as its page, the first version of a website is activated."""
-        self._lock_website(content.website_id)  # ty: ignore[unresolved-attribute]
-        versions = WebsiteContent.objects.filter(website_id=content.website_id)  # ty: ignore[unresolved-attribute]
-        content.is_active = not versions.filter(is_active=True).exists()  # ty: ignore[invalid-assignment]
-        if not content.name:
-            content.name = f"Snapshot {versions.count() + 1}"  # ty: ignore[invalid-assignment]
-        content.model = settings.MODEL_NAME
-        # the name is derived from the website and content ids by `website_html_path`
-        content.html.save("index.html", ContentFile(html.encode()), save=False)  # ty: ignore[unresolved-attribute]
-        content.full_clean()
-        content.save()
+    @staticmethod
+    def _html_files(html: str) -> dict[str, File]:
+        """The files of a generated version, its page only."""
+        return {"index.html": ContentFile(html.encode())}
+
+    def _store(self, content: WebsiteContent, files: Mapping[str, File]) -> WebsiteContent:
+        """Save `content` as a new version with `files` in its directory, keyed by their validated relative paths. The
+        first version of a website is activated, an unnamed version is called `Version <n>`."""
+        storage = website_storage()
+        directory = website_content_dir(content)
+        # the files are written before the website is locked, a large upload does not block its other versions
+        try:
+            for path, file in files.items():
+                name = f"{directory}/{path}"
+                # the directory is new, a changed name means the path was altered by the storage
+                if storage.save(name, file) != name:
+                    raise ValidationError({"paths": f"{path!r} could not be stored."})
+            with transaction.atomic():
+                self._lock_website(content.website_id)  # ty: ignore[unresolved-attribute]
+                versions = WebsiteContent.objects.filter(website_id=content.website_id)  # ty: ignore[unresolved-attribute]
+                content.is_active = not versions.filter(is_active=True).exists()  # ty: ignore[invalid-assignment]
+                if not content.name:
+                    # counted under the lock, so two versions created at the same time get different numbers
+                    content.name = f"Version {versions.count() + 1}"  # ty: ignore[invalid-assignment]
+                if content.kind == WebsiteContent.Kind.GENERATED:
+                    content.model = settings.MODEL_NAME
+                # the entry page, nginx serves the directory it is in; an upload may lack it
+                content.html.name = website_html_path(content, "index.html")
+                content.full_clean()
+                content.save()
+        except BaseException:
+            shutil.rmtree(storage.path(directory), ignore_errors=True)
+            raise
         return content
