@@ -81,7 +81,7 @@ class HostManagementService:
     def delete_website(self, website_id: UUID) -> None:
         website = self.get_website(website_id)
         with transaction.atomic():
-            website.domains.update(website=None)
+            website.domains.update(website=None)  # ty: ignore[unresolved-attribute]
             website.soft_delete()
 
     # Webservers

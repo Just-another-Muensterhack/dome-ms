@@ -312,7 +312,7 @@ class WebsiteBuilderService:
         html = self._edit_html(source.read_html(), prompt)
         updated_at = timezone.localtime().strftime("%d.%m.%Y, %H:%M")
         suffix = f" (Update {updated_at})"
-        previous_name = source.name[: 255 - len(suffix)].rstrip()
+        previous_name = source.name[: 255 - len(suffix)].rstrip()  # ty: ignore[not-subscriptable]
         content = WebsiteContent(
             website_id=source.website_id,  # ty: ignore[unresolved-attribute]
             name=name or f"{previous_name}{suffix}",

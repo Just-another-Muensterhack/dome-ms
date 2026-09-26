@@ -21,8 +21,8 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.http import HttpRequest, JsonResponse
 from django.urls import include, path, re_path
-from django.views.static import serve
 from django.utils.module_loading import autodiscover_modules
+from django.views.static import serve
 
 from ms_dome.api import api
 
@@ -40,9 +40,8 @@ urlpatterns = [
     path('api/v1/', api.urls),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-else:
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+if not settings.DEBUG:
     # staticfiles only serves in DEBUG, so serve the admin's assets straight from the package
     urlpatterns.append(re_path(
         rf"^{settings.STATIC_URL.lstrip('/')}(?P<path>admin/.*)$",
