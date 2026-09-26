@@ -177,7 +177,7 @@
               uv sync --all-groups
               uv run python src/ms_dome/manage.py migrate --noinput
               uv run python src/ms_dome/manage.py sync_nginx
-              exec uv run python src/ms_dome/manage.py runserver 0.0.0.0:8000
+              exec uv run gunicorn ms_dome.wsgi:application --bind "0.0.0.0:${PORT:-8000}" --workers "${GUNICORN_WORKERS:-4}" --timeout "${GUNICORN_TIMEOUT:-330}"
             '';
           };
 
