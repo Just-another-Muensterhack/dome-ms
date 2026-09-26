@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import {
   useQuery,
   type QueryKey,
@@ -8,6 +9,39 @@ import { apiRequest } from '@/api/client'
 import type { Domain, DomainIn, DomainUpdate } from '@/api/types/domain'
 
 const domainsPath = '/api/v1/domains/'
+const managedEligibilityDelayMs = 1000
+
+export const managedWebsiteDomain = 'website.dome.ms'
+
+const managedDomainLabelPattern = /^(?!-)[a-z0-9-]{1,63}(?<!-)$/
+
+export const isManagedDomainLabel = (name: string) => managedDomainLabelPattern.test(name.trim().toLowerCase())
+
+export const managedDomainHostname = (label: string) => (
+  `${label.trim().toLowerCase()}.${managedWebsiteDomain}`
+)
+
+export const useManagedDomainEligibility = (name: string, enabled: boolean) => {
+  const trimmed = name.trim().toLowerCase()
+  const [checkedName, setCheckedName] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!enabled || trimmed.length === 0) {
+      setCheckedName(null)
+      return
+    }
+    const timeout = window.setTimeout(() => setCheckedName(trimmed), managedEligibilityDelayMs)
+    return () => window.clearTimeout(timeout)
+  }, [enabled, trimmed])
+
+  const settled = enabled && trimmed.length > 0 && checkedName === trimmed
+
+  return {
+    passed: settled,
+    checking: enabled && trimmed.length > 0 && !settled,
+    failed: false,
+  }
+}
 
 export const fetchDomains = (websiteId?: string): Promise<Domain[]> => {
   const query = websiteId ? `?website_id=${encodeURIComponent(websiteId)}` : ''

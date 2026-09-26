@@ -159,6 +159,10 @@ export type DomeTranslationEntries = {
   'login': string,
   'loginFailed': string,
   'logout': string,
+  'managedDomain': string,
+  'managedDomainCannotBeEdited': string,
+  'managedDomainChecking': string,
+  'managedDomainUnavailable': string,
   'moreCount': (values: { count: string }) => string,
   'name': string,
   'navAll': string,
@@ -381,6 +385,10 @@ export const domeTranslation: Translation<DomeTranslationLocales, Partial<DomeTr
     'login': `Anmelden`,
     'loginFailed': `Anmeldung fehlgeschlagen. Bitte erneut versuchen.`,
     'logout': `Abmelden`,
+    'managedDomain': `Verwaltete Domain`,
+    'managedDomainCannotBeEdited': `Verwaltete Domains können nicht bearbeitet werden.`,
+    'managedDomainChecking': `Es wird geprüft, ob dieser Name frei ist.`,
+    'managedDomainUnavailable': `Dieser Name ist nicht verfügbar.`,
     'moreCount': ({ count }): string => {
       return `+${count} weitere`
     },
@@ -609,6 +617,10 @@ export const domeTranslation: Translation<DomeTranslationLocales, Partial<DomeTr
     'login': `Log in`,
     'loginFailed': `Login failed. Please try again.`,
     'logout': `Log out`,
+    'managedDomain': `Managed domain`,
+    'managedDomainCannotBeEdited': `Managed domains cannot be edited.`,
+    'managedDomainChecking': `Checking whether this name is available.`,
+    'managedDomainUnavailable': `This name is not available.`,
     'moreCount': ({ count }): string => {
       return `+${count} more`
     },

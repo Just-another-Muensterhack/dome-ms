@@ -4,9 +4,10 @@ export type Domain = {
   wildcard: boolean,
   website_id: string | null,
   webserver_id: string | null,
+  managed: boolean,
   verified_at: string | null,
-  record_name: string,
-  record_value: string,
+  record_name: string | null,
+  record_value: string | null,
   created_at: string,
   updated_at: string,
 }

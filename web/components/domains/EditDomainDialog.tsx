@@ -23,6 +23,7 @@ export const EditDomainDialog = ({
   const translation = useDomeTranslation()
   const queryClient = useQueryClient()
   const [name, setName] = useState(domain.name)
+  const managed = domain.managed
   const [wildcard, setWildcard] = useState(domain.wildcard)
   const [websiteId, setWebsiteId] = useState(domain.website_id ?? '')
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
@@ -78,6 +79,7 @@ export const EditDomainDialog = ({
             value={name}
             onValueChange={setName}
             placeholder="example.com"
+            disabled={managed}
             onKeyDown={(event) => {
               if (event.key === 'Enter') {
                 event.preventDefault()
@@ -86,13 +88,17 @@ export const EditDomainDialog = ({
             }}
           />
         </label>
+        {managed && (
+          <p className="typography-body text-description">{translation('managedDomainCannotBeEdited')}</p>
+        )}
         <LabelledCheckbox
           label={translation('wildcard')}
           value={wildcard}
+          disabled={managed}
           onValueChange={setWildcard}
         />
         <DomainWebsiteField websiteId={websiteId} onWebsiteIdChange={setWebsiteId} />
-        <DomainVerification domain={domain} />
+        {!managed && <DomainVerification domain={domain} />}
         {update.isError && (
           <p className="typography-body text-negative">{update.error.message}</p>
         )}

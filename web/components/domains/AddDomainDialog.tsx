@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ConfirmDialog, Input, LabelledCheckbox } from '@helpwave/hightide'
-import { createDomain } from '@/api/domain'
+import { ConfirmDialog, LabelledCheckbox } from '@helpwave/hightide'
+import { createDomain, isManagedDomainLabel, managedDomainHostname, useManagedDomainEligibility } from '@/api/domain'
+import { DomainNameField } from '@/components/domains/DomainNameField'
 import { DomainWebsiteField } from '@/components/domains/DomainWebsiteField'
 import { useDomeTranslation } from '@/i18n/useDomeTranslation'
 
@@ -17,11 +18,16 @@ export const AddDomainDialog = ({
   const translation = useDomeTranslation()
   const queryClient = useQueryClient()
   const [name, setName] = useState('')
+  const [managed, setManaged] = useState(false)
   const [wildcard, setWildcard] = useState(false)
   const [websiteId, setWebsiteId] = useState('')
+  const eligibility = useManagedDomainEligibility(name, managed)
+  const labelValid = isManagedDomainLabel(name)
+  const canSubmit = managed ? eligibility.passed && labelValid : name.trim().length > 0
 
   const clearForm = () => {
     setName('')
+    setManaged(false)
     setWildcard(false)
     setWebsiteId('')
   }
@@ -44,14 +50,13 @@ export const AddDomainDialog = ({
   }
 
   const submit = () => {
-    const trimmedName = name.trim()
-    if (trimmedName.length === 0 || create.isPending) {
+    if (!canSubmit || create.isPending) {
       return
     }
 
     create.mutate({
-      name: trimmedName,
-      wildcard,
+      name: managed ? managedDomainHostname(name) : name.trim(),
+      wildcard: managed ? false : wildcard,
       website_id: websiteId.length > 0 ? websiteId : null,
     })
   }
@@ -68,30 +73,28 @@ export const AddDomainDialog = ({
       buttonOverwrites={[
         { text: translation('cancel') },
         {},
-        { text: translation('add'), disabled: name.trim().length === 0 || create.isPending },
+        { text: translation('add'), disabled: !canSubmit || create.isPending },
       ]}
     >
       <div className="flex-col-3">
-        <label className="flex-col-1" htmlFor="domain-name">
-          <span className="typography-label-md">{translation('name')}</span>
-          <Input
-            id="domain-name"
-            value={name}
-            onValueChange={setName}
-            placeholder="example.com"
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                event.preventDefault()
-                submit()
-              }
-            }}
-          />
-        </label>
-        <LabelledCheckbox
-          label={translation('wildcard')}
-          value={wildcard}
-          onValueChange={setWildcard}
+        <DomainNameField
+          id="domain-name"
+          name={name}
+          managed={managed}
+          locked={false}
+          checking={eligibility.checking}
+          failed={eligibility.passed && !labelValid}
+          onNameChange={setName}
+          onManagedChange={setManaged}
+          onEnter={submit}
         />
+        {!managed && (
+          <LabelledCheckbox
+            label={translation('wildcard')}
+            value={wildcard}
+            onValueChange={setWildcard}
+          />
+        )}
         <DomainWebsiteField websiteId={websiteId} onWebsiteIdChange={setWebsiteId} />
         {create.isError && (
           <p className="typography-body text-negative">{create.error.message}</p>
