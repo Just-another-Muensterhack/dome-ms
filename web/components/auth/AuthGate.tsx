@@ -11,6 +11,7 @@ import {
 type AuthStatus = 'pending' | 'in' | 'out'
 
 const dashboardPath = '/dashboard'
+const publicPaths = ['/', '/login']
 
 export const AuthGate = ({
   children,
@@ -39,7 +40,7 @@ export const AuthGate = ({
             return
           }
           setStatus('out')
-          await router.replace('/?login=failed')
+          await router.replace('/login?login=failed')
         }
         return
       }
@@ -52,12 +53,14 @@ export const AuthGate = ({
       const loggedIn = token !== undefined
       setStatus(loggedIn ? 'in' : 'out')
 
-      if (!loggedIn && router.pathname !== '/') {
+      const isPublic = publicPaths.includes(router.pathname)
+
+      if (!loggedIn && !isPublic) {
         await router.replace('/')
         return
       }
 
-      if (loggedIn && router.pathname === '/') {
+      if (loggedIn && isPublic) {
         await router.replace(dashboardPath)
       }
     }
@@ -73,11 +76,13 @@ export const AuthGate = ({
     return null
   }
 
-  if (status === 'out' && router.pathname !== '/') {
+  const isPublic = publicPaths.includes(router.pathname)
+
+  if (status === 'out' && !isPublic) {
     return null
   }
 
-  if (status === 'in' && router.pathname === '/') {
+  if (status === 'in' && isPublic) {
     return null
   }
 

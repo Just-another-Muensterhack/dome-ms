@@ -1,8 +1,8 @@
 import type { NextPage } from 'next'
-import { LandingPage } from '@/components/landing/LandingPage'
+import { DesignLanding } from '@/components/landing/DesignLanding'
 
 const Home: NextPage = () => (
-  <LandingPage />
+  <DesignLanding />
 )
 
 export default Home
