@@ -1,6 +1,6 @@
 from uuid import uuid4
 
-from core.models import Website
+from core.models import Website, managed_domain_name
 from django.core.files.storage import FileSystemStorage, Storage
 from django.db import models
 
@@ -51,6 +51,11 @@ class WebsiteContent(models.Model):
 
     def __str__(self):
         return f"Content {self.id} of {self.website}"
+
+    @property
+    def managed_domain(self) -> str:
+        """The subdomain of the base domain this version is served at, whether it is active or not."""
+        return managed_domain_name(self.id)  # ty: ignore[invalid-argument-type]
 
     def read_html(self) -> str:
         with self.html.open("rb") as file:  # ty: ignore[unresolved-attribute]

@@ -196,3 +196,16 @@ MODEL_API_KEY = os.environ.get("MODEL_API_KEY", "")
 MODEL_API_URL = os.environ.get("MODEL_API_URL", "")
 MODEL_NAME = os.environ.get("MODEL_NAME", "Qwen3.8-27B")
 MODEL_TIMEOUT = float(os.environ.get("MODEL_TIMEOUT", "300"))
+
+# Hosting
+# every host is served at `<host id>.<base>`, every website version at `<content id>.<base>`
+DOME_BASE_DOMAIN = os.environ.get("DOME_BASE_DOMAIN", "dome.ms").strip().lower().rstrip(".")
+
+# nginx
+# one server config per served domain is written to this directory, nginx includes it with `include <dir>/*.conf;`
+# the directory belongs to the sync, other `*.conf` files in it are removed; unset disables the configs
+NGINX_CONFIG_DIR = Path(os.environ["NGINX_CONFIG_DIR"]) if os.environ.get("NGINX_CONFIG_DIR") else None
+# `MEDIA_ROOT` as nginx sees it, when it mounts the media volume at another path
+NGINX_MEDIA_ROOT = Path(os.environ.get("NGINX_MEDIA_ROOT", MEDIA_ROOT))
+# resolves the CNAMEs of webservers at request time
+NGINX_RESOLVER = os.environ.get("NGINX_RESOLVER", "1.1.1.1 8.8.8.8")

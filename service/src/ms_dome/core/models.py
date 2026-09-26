@@ -1,7 +1,8 @@
 import re
 import secrets
-from uuid import uuid4
+from uuid import UUID, uuid4
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
@@ -35,6 +36,17 @@ def normalize_domain_name(name: str) -> str:
 
 def new_verification_token() -> str:
     return secrets.token_urlsafe(32)
+
+
+def managed_domain_name(object_id: UUID) -> str:
+    """The subdomain of the base domain an object is served at, derived from its id so it is unique and never reused."""
+    return f"{object_id}.{settings.DOME_BASE_DOMAIN}"
+
+
+def is_managed_domain_name(name: str) -> bool:
+    """Whether `name` is the base domain or below it, those names are only handed out as managed domains."""
+    base = settings.DOME_BASE_DOMAIN
+    return name == base or name.endswith(f".{base}")
 
 
 class DomainQuerySet(models.QuerySet):
@@ -116,6 +128,10 @@ class Domain(models.Model):
                 self.name = normalize_domain_name(self.name)  # ty: ignore[invalid-argument-type, invalid-assignment]
             except ValidationError as exc:
                 errors["name"] = exc.messages
+            else:
+                # covers the base domain itself, its wildcard and every subdomain
+                if is_managed_domain_name(self.name):
+                    errors["name"] = f"{settings.DOME_BASE_DOMAIN} and its subdomains can not be registered."
 
         stored_name = getattr(self, "_stored_name", None)
         if stored_name is not None and self.name != stored_name:
@@ -172,6 +188,11 @@ class Host(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def managed_domain(self) -> str:
+        """The subdomain of the base domain the host is served at, it needs no verification and can not be changed."""
+        return managed_domain_name(self.id)  # ty: ignore[invalid-argument-type]
 
     def clean(self):
         self.name = self.name.strip()  # ty: ignore[unresolved-attribute]

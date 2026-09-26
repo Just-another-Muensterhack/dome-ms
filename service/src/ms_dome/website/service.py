@@ -24,6 +24,7 @@ from typing import Any
 from uuid import UUID
 
 import openai
+from core import nginx
 from core.models import Website
 from core.service import HostManagementService, NotFoundError
 from django.conf import settings
@@ -239,6 +240,8 @@ class WebsiteBuilderService:
         versions.filter(is_active=True).exclude(pk=content.pk).update(is_active=False)
         versions.filter(pk=content.pk).update(is_active=True)
         content.is_active = True  # ty: ignore[invalid-assignment]
+        # `update` sends no signals, the website's domains now serve this version
+        nginx.schedule_sync()
         return content
 
     @transaction.atomic

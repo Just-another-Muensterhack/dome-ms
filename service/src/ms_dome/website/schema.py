@@ -38,6 +38,8 @@ class WebsiteContentOut(Schema):
     id: UUID
     website_id: UUID
     is_active: bool
+    # `<content id>.<base domain>`, serves this version whether it is active or not
+    managed_domain: str
     source_id: UUID | None
     prompt: str
     description: str

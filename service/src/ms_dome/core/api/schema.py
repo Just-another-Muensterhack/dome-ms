@@ -57,6 +57,8 @@ class WebsiteOut(Schema):
     name: str
     description: str
     tags: list[str]
+    # `<website id>.<base domain>`, assigned automatically, not part of `domains`
+    managed_domain: str
     domains: list[DomainOut]
     created_at: datetime
     updated_at: datetime
@@ -95,6 +97,8 @@ class WebserverOut(Schema):
     ipv4: str | None
     ipv6: str | None
     cname: str
+    # `<webserver id>.<base domain>`, assigned automatically, not part of `domains`
+    managed_domain: str
     domains: list[DomainOut]
     created_at: datetime
     updated_at: datetime
