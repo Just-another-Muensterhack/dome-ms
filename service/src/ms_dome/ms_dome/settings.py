@@ -200,6 +200,11 @@ MODEL_API_URL = os.environ.get("MODEL_API_URL", "")
 MODEL_NAME = os.environ.get("MODEL_NAME", "Qwen3.8-27B")
 MODEL_TIMEOUT = float(os.environ.get("MODEL_TIMEOUT", "300"))
 
+GATUS_STATUSES_URL = os.environ.get(
+    "GATUS_STATUSES_URL",
+    "https://status.dome.ms/api/v1/endpoints/statuses",
+)
+
 # Hosting
 # every host is served at `<host id>.<base>`, every website version at `<content id>.<base>`
 DOME_BASE_DOMAIN = os.environ.get("DOME_BASE_DOMAIN", "dome.ms").strip().lower().rstrip(".")

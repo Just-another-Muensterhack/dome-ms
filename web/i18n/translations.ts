@@ -15,6 +15,7 @@ export type DomeTranslationEntries = {
   'add': string,
   'addDomain': string,
   'addWebsite': string,
+  'allSystemsOperational': string,
   'analytics': string,
   'analyticsFor': (values: { name: string }) => string,
   'analyticsRangeDay': string,
@@ -226,6 +227,7 @@ export const domeTranslation: Translation<DomeTranslationLocales, Partial<DomeTr
     'add': `Hinzufügen`,
     'addDomain': `Domain hinzufügen`,
     'addWebsite': `Website hinzufügen`,
+    'allSystemsOperational': `Alle Systeme betriebsbereit`,
     'analytics': `Analysen`,
     'analyticsFor': ({ name }): string => {
       return `Analysen für ${name}`
@@ -459,6 +461,7 @@ export const domeTranslation: Translation<DomeTranslationLocales, Partial<DomeTr
     'add': `Add`,
     'addDomain': `Add domain`,
     'addWebsite': `Add website`,
+    'allSystemsOperational': `All systems operational`,
     'analytics': `Analytics`,
     'analyticsFor': ({ name }): string => {
       return `Analytics for ${name}`

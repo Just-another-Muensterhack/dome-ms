@@ -103,6 +103,7 @@
   "notVerified": "Nicht verifiziert",
   "verifyDomain": "Domain verifizieren",
   "status": "Status",
+  "allSystemsOperational": "Alle Systeme betriebsbereit",
   "challengeUrl": "Challenge-URL",
   "challengeHash": "Hash",
   "testAgain": "Erneut prüfen",

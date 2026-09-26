@@ -7,6 +7,7 @@ import { useWebsites } from '@/api/website'
 import type { Domain } from '@/api/types/domain'
 import type { Website } from '@/api/types/website'
 import { AddDomainDialog } from '@/components/domains/AddDomainDialog'
+import { OperationalStatusLink } from '@/components/status/OperationalStatusLink'
 import { AddWebsiteDialog } from '@/components/websites/AddWebsiteDialog'
 import { useDomeTranslation } from '@/i18n/useDomeTranslation'
 import { domainLabel, isDomainVerified } from '@/utils/domains'
@@ -144,7 +145,13 @@ export const DashboardColumns = () => {
 
   return (
     <div className="flex-col-4">
-      <h1 className="typography-title-lg">{translation('navDashboard')}</h1>
+      <div className="flex-col-2">
+        <h1 className="typography-title-lg">{translation('navDashboard')}</h1>
+        <OperationalStatusLink
+          appearance="dashboard"
+          label={translation('allSystemsOperational')}
+        />
+      </div>
       <AddDomainDialog isOpen={isAddDomainOpen} onClose={() => setIsAddDomainOpen(false)} />
       <AddWebsiteDialog isOpen={isAddWebsiteOpen} onClose={() => setIsAddWebsiteOpen(false)} />
       <div className="flex-col-4 desktop:hidden">

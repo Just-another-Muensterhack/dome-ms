@@ -1,3 +1,5 @@
+import { OperationalStatusLink } from '@/components/status/OperationalStatusLink'
+
 const landingStyles = `
 .dome-landing {
   --green: #143F33;
@@ -107,6 +109,24 @@ const landingStyles = `
 }
 .dome-landing footer a { color: inherit; text-decoration: none; }
 .dome-landing footer a:hover { text-decoration: underline; }
+.dome-landing .status {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--lime);
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+}
+.dome-landing .status:hover { text-decoration: underline; }
+.dome-landing .status:focus-visible { outline: 3px solid var(--white); outline-offset: 3px; border-radius: 4px; }
+.dome-landing .status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--lime);
+  flex: none;
+}
 @media (prefers-reduced-motion: reduce) {
   .dome-landing { scroll-behavior: auto; }
 }
@@ -121,6 +141,7 @@ export const DesignLanding = () => (
           <img src="/dome-landing-logo.svg" alt="dome.ms" />
           <h1>Die IT-Abteilung, die Münster gehört.</h1>
           <a className="btn" href="/login">Mitmachen</a>
+          <OperationalStatusLink appearance="landing" label="Alle Systeme betriebsbereit" />
         </div>
       </section>
       <section>
