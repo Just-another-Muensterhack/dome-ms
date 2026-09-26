@@ -3,6 +3,7 @@ import type { AppProps } from 'next/app'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { HightideProvider } from '@helpwave/hightide'
 import { AuthGate } from '@/components/auth/AuthGate'
+import { NoIndex } from '@/components/seo/SiteGraph'
 import { domeTranslation } from '@/i18n/translations'
 import titleWrapper from '@/utils/titleWrapper'
 import '../globals.css'
@@ -18,6 +19,7 @@ const queryClient = new QueryClient({
 const MyApp = ({
   Component,
   pageProps,
+  router,
 }: AppProps) => {
   return (
     <HightideProvider
@@ -29,9 +31,10 @@ const MyApp = ({
     >
       <QueryClientProvider client={queryClient}>
         <Head>
-          <title>{titleWrapper()}</title>
+          {router.pathname !== '/' && <title>{titleWrapper()}</title>}
           <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes, viewport-fit=cover" />
         </Head>
+        {router.pathname !== '/' && <NoIndex />}
         <AuthGate>
           <Component {...pageProps} />
         </AuthGate>

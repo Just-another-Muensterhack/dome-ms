@@ -180,7 +180,7 @@ def sanitize_html(document: str) -> str:
     lang = _LANG_RE.search(document)
     language = lang.group(1) if lang else "de"
     title_match = _TITLE_RE.search(document)
-    title = unescape(title_match.group(1)).strip() if title_match else ""
+    title = " ".join(unescape(title_match.group(1)).split()) if title_match else ""
     description = _meta_content(document, "description")
     css = "\n".join(sanitize_css(match.group(1)).strip() for match in _STYLE_RE.finditer(document))
     body = nh3.clean(

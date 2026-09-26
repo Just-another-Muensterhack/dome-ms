@@ -73,6 +73,9 @@ export const AuthGate = ({
   }, [router, router.isReady, router.pathname])
 
   if (status === 'pending' || router.pathname === authCallbackPath) {
+    if (status === 'pending' && typeof window === 'undefined' && publicPaths.includes(router.pathname)) {
+      return children
+    }
     return null
   }
 
