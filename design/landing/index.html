@@ -1,0 +1,77 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>dome.ms</title>
+<meta name="description" content="dome.ms, die IT-Abteilung, die Münster gehört. Wir kümmern uns um eure Website, damit ihr euch um euer Geschäft kümmern könnt." />
+<style>
+:root{color-scheme:dark;--green:#143F33;--green-2:#1E5244;--lime:#CFE937;--white:#FFFFFF;--muted:#C7D8D0;
+  --font:"Trebuchet MS","Segoe UI",Tahoma,"Helvetica Neue",Arial,sans-serif}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--green);color:var(--white);font-family:var(--font);font-size:19px;line-height:1.5;-webkit-font-smoothing:antialiased;text-align:center}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:24px}
+h1,h2{margin:0;font-weight:700;line-height:1.2;text-wrap:balance}
+h2{font-size:clamp(1.6rem,3.6vw,2.5rem)}
+p{margin:0}
+section{padding-block:clamp(72px,11vw,130px)}
+.hero{min-height:88svh;display:flex;align-items:center;justify-content:center;padding-block:48px}
+.hero .wrap{display:grid;justify-items:center;gap:22px}
+.hero img{width:min(320px,70vw);height:auto}
+.hero h1{font-size:clamp(1.5rem,3.4vw,2.3rem);font-weight:400}
+.btn{display:inline-block;background:var(--lime);color:var(--green);font:inherit;font-weight:700;border-radius:12px;padding:14px 26px;text-decoration:none;margin-top:14px}
+.btn:hover{background:#E1F36B}
+.btn:focus-visible{outline:3px solid var(--white);outline-offset:3px}
+.icons{display:flex;justify-content:center;gap:clamp(18px,4vw,44px);margin-block:clamp(40px,6vw,64px)}
+.ic{width:clamp(96px,14vw,160px);aspect-ratio:1;border-radius:50%;background:var(--lime);display:flex;align-items:center;justify-content:center}
+.ic svg{width:52%;height:auto}
+.list{display:grid;gap:18px;justify-content:center;text-align:left;margin:0 auto;padding:0;list-style:none;counter-reset:n}
+.list li{display:grid;grid-template-columns:56px 1fr;gap:18px;align-items:center;counter-increment:n}
+.list li::before{content:counter(n);width:56px;height:56px;border-radius:50%;background:var(--lime);color:var(--green);font-weight:700;font-size:1.3rem;display:flex;align-items:center;justify-content:center}
+.list b{display:block;font-size:1.3rem}
+.list span{color:var(--muted);font-size:1rem}
+.coop{background:var(--green-2)}
+.coop p{color:var(--muted);max-width:40rem;margin:20px auto 0}
+footer{padding-block:28px 40px;font-size:.9rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:center}
+footer a{color:inherit;text-decoration:none}
+footer a:hover{text-decoration:underline}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMjM2MyAyMzYzIiB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHhtbDpzcGFjZT0icHJlc2VydmUiIHhtbG5zOmFmZmluaXR5PSJodHRwczovL3d3dy5hZmZpbml0eS5zdHVkaW8vIiBzdHlsZT0iZmlsbC1ydWxlOmV2ZW5vZGQ7Y2xpcC1ydWxlOmV2ZW5vZGQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kO3N0cm9rZS1taXRlcmxpbWl0OjI7Ij48cmVjdCBpZD0iQXJ0Qm9hcmQxIiB4PSIwIiB5PSIwIiB3aWR0aD0iMjM2Mi4yMDUiIGhlaWdodD0iMjM2Mi4yMDUiIHN0eWxlPSJmaWxsOm5vbmU7Ii8+PGcgaWQ9IkFydEJvYXJkMTEiIGFmZmluaXR5OmlkPSJBcnRCb2FyZDEiPjxnPjxwYXRoIGQ9Ik0xOTA4LjQ0Niw3NzkuNjQzYzUuODEzLDcuOTYxIDExLjU0NiwxNi4wNTIgMTcuMTk3LDI0LjI3M2MyMDAuOTU4LDI5Mi4zNDkgMTYzLjU3MSw1NjcuMzc4IDE2Ny41MjEsNzI5LjMzMmMtMS4wOTEsMzcuNjYzIDkuNzA0LDQ1Ljk3NSAtMTAuMTQ0LDUxLjA4OWMtNS44NzQsMS41MTMgLTEyODMuNTczLDAuODU2IC0xMzk1LjE4OCwwLjc5OWMtMzQuOTY1LC0wLjAxOCAtMzg2Ljg2NSwtMC4xOTkgLTQzNy4wNjcsMC4zNTRjLTQuMjA0LDAuMDQ2IC00OC42MDYsMC41MzUgLTUxLjgxMSwtOC44ODNjLTEuNjIxLC00Ljc2NCAtMS4yNjYsLTI0OS4xNDMgLTAuMjk1LC0yNjYuOTc1YzQ0LjM0LC04MTQuMzM2IDkzMy44OTMsLTExNTEuODQxIDE0OTguMzg4LC03NDIuMTE2YzExLjYyMywxMDQuMDM0IDk5LjcyLDIwMi4zNDQgMjExLjM5OSwyMTIuMTNabS0xMjA2LjE5OCwtNzAuODc2Yy0zMTkuNzMxLDIzMC43MjQgLTMyOS4xNTYsNTcxLjg5MSAtMzMwLjcyOCw2MjguODA2Yy00LjAwMiwxNDQuODgxIC0wLjQzLDE0OS4xODUgMTEuNDM4LDE1MS4yYzQxLjM4Miw3LjAyOCAzNy42MzgsLTExLjM2OCAzNy4zMDMsLTUzLjQzMmMtMC41MywtNjYuNDgyIDE2LjM5NiwtNjEuMzA0IDY4Ljc0OSwtMTAxLjUyNmMyOS43OTUsLTIyLjg5IDMzLjQwNCwtOC4xNTIgNzUuODgyLDIxLjkyOGM0NS41MTQsMzIuMjMgNTkuODU3LDQ4LjUyMSA1OS44NTMsMjMuNjM4Yy0wLjAyOCwtMTk0Ljc0IC0zLjY5OCwtMTk4LjkzMSAxNS42MDksLTIxNS40NDRjMTE3LjI2OSwtMTAwLjI5MiAxMjcuNDU3LC05My40ODggMTM4LjMwMywtODYuMjQ1YzguNTM2LDUuNzAxIDExOS43MjUsOTAuMzE1IDEyNC40MjgsOTguODA1YzE0LjAwMiwyNS4yODIgLTcuNDc1LDI4MS4wOTUgMTIuODI3LDI4OC45MTljMy43NjEsMS40NDkgNjAuMjkxLDguMjYxIDY0LjI1OCwtOC44MThjNS4xNTgsLTIyLjIxIC03LjE4NiwtNDI2Ljc0IDcuMDAyLC00NTQuMzJjOC42MzYsLTE2Ljc4NyAxMDUuNDc0LC0yMDUuMDMyIDExMC45NzcsLTIwOC4yMjljOC4zMywtNC44NCAxNS40LDE1LjYyMiAxMTMuNzY0LDIwMi41MjNjMjYuNTE0LDUwLjM4IC03LjcwNSw0ODMuODQ4IDE4LjE1OCw0OTEuNjk4YzQuNTYzLDEuMzg1IDU2LjcyNiwxNy4yMTYgNTYuODc3LC0xNy44NDdjMC42LC0xMzkuMDM2IC04LjYyNywtMTU2Ljk0MiAyMC45NTQsLTE3OC42NzhjNzEuNTc1LC01Mi41OTIgNzYuODQ4LC02OC45MzQgMTEzLjI5LC00Mi4xMzFjNzcuMjAzLDU2Ljc4MiA3Ny4yNjcsNjUuMzUxIDc3LjMzLDczLjk0NmMwLjY1Niw4OC4xNzcgLTguOTg0LDE0NC44MDQgMTQuOTcxLDE0Ny4wNTVjNDAuNzU4LDMuODMxIDQ5LjcsLTIuMzcyIDQ5LjgwOSwtMjEuMjE1YzEuMjE3LC0yMDguNzE4IC02LjA1OSwtMjIwLjI0OCAxMy41MDcsLTIzNi43MzhjMTE0LjY5NywtOTYuNjY3IDExOS4wMjUsLTk2LjIyNyAxMzAuMzg5LC05MC41ODNjNS43NywyLjg2NiAxMjIuMDMzLDg4LjUyMyAxMjkuMjA5LDk4Ljc4M2MxMS40NTUsMTYuMzggLTMuODUyLDIzNi44NjggOS40NzMsMjQzLjM5MWMzLjE1LDEuNTQyIDcyLjAwNywxNi40NDIgNzMuMjIxLC0xNC43MTdjMC44NzMsLTIyLjQxNCA1NS44MzgsLTUwMS41OTQgLTM2NS43MjQsLTc2Ni44NGMtNDEzLjUxMiwtMjYwLjE4MSAtNzkzLjk4NywtMTEuMzA4IC04NTEuMTMxLDI2LjA3WiIgc3R5bGU9ImZpbGw6I2ZmZjsiLz48cGF0aCBkPSJNMjA0Ni44OTgsNjcwLjE2NGMtMTk3LjkyMSwxODguMzQyIC00MTQuMDE2LC0xNDYuMjQxIC0xOTkuNDQxLC0yNjAuNTM1YzEzNS42MTksLTcyLjIzOCAzMzQuNTI0LDgyLjUyNiAxOTkuNDQxLDI2MC41MzVaIiBzdHlsZT0iZmlsbDojY2ZlOTM3OyIvPjxwYXRoIGQ9Ik00NTUuNDkyLDE2MTMuNjAybDAsMzY0LjExbC02NC41MTIsMGwwLC0xNi45MDdjLTUuMzMzLDUuODk2IC0xNC4zNjUsMTEuMDU1IC0yNy4wOTUsMTUuNDc3Yy0xMi43Myw0LjQyMiAtMjUuODkxLDYuNjMzIC0zOS40ODIsNi42MzNjLTM4LjUzNSwwIC02OC44NTYsLTEyLjMxMiAtOTAuOTYyLC0zNi45MzZjLTIyLjEwNiwtMjQuNjI0IC0zMy4xNTksLTU4Ljk1OSAtMzMuMTU5LC0xMDMuMDA0YzAsLTQ0LjA0NiAxMi42ODcsLTc5Ljg5OCAzOC4wNjIsLTEwNy41NTZjMjUuMzc1LC0yNy42NTkgNTcuMTU4LC00MS40ODggOTUuMzQ5LC00MS40ODhjMjAuOTg4LDAgNDAuMDg0LDQuMzM1IDU3LjI4NywxMy4wMDZsMCwtOTMuMzMzbDY0LjUxMiwwWm0tNjQuNTEyLDE1Mi4xMTljLTEzLjc2MywtMTEuMDk4IC0yOC4xMjcsLTE2LjY0NyAtNDMuMDk0LC0xNi42NDdjLTI1LjgwNSwwIC00NS42NzUsNy45MzMgLTU5LjYwOSwyMy44Yy0xMy45MzUsMTUuODY3IC0yMC45MDIsMzguNjI3IC0yMC45MDIsNjguMjc5YzAsNTcuOTE4IDI3LjY5Nyw4Ni44NzcgODMuMDkyLDg2Ljg3N2M2LjE5MywwIDEzLjgwNiwtMS44NjQgMjIuODM3LC01LjU5MmM5LjAzMiwtMy43MjggMTQuOTI0LC03LjUgMTcuNjc2LC0xMS4zMTVsMCwtMTQ1LjQwM1ptNjguNjgyLDcyLjA1MWMwLC00Mi40ODUgMTIuMTcxLC03Ny4wOCAzNi41MTQsLTEwMy43ODVjMjQuMzQzLC0yNi43MDUgNTYuNDcsLTQwLjA1NyA5Ni4zODEsLTQwLjA1N2M0MS45NzYsMCA3NC41NzYsMTIuODMyIDk3LjgwMSwzOC40OTdjMjMuMjI0LDI1LjY2NCAzNC44MzcsNjAuNzc5IDM0LjgzNywxMDUuMzQ1YzAsNDQuMzkyIC0xMS44MjcsNzkuNjgxIC0zNS40ODIsMTA1Ljg2NmMtMjMuNjU1LDI2LjE4NSAtNTYuMDQsMzkuMjc3IC05Ny4xNTYsMzkuMjc3Yy00MS45NzYsMCAtNzQuNjE5LC0xMy4yMjIgLTk3LjkzLC0zOS42NjdjLTIzLjMxLC0yNi40NDUgLTM0Ljk2NiwtNjEuNjAzIC0zNC45NjYsLTEwNS40NzVabTY3LjA5MywwYzAsNjEuMzg2IDIxLjkzNCw5Mi4wOCA2NS44MDMsOTIuMDhjMjAuMTI4LDAgMzYuMDg0LC03Ljk3NyA0Ny44NjgsLTIzLjkzYzExLjc4NCwtMTUuOTU0IDE3LjY3NiwtMzguNjcgMTcuNjc2LC02OC4xNDljMCwtNjAuNTE5IC0yMS44NDgsLTkwLjc3OSAtNjUuNTQ1LC05MC43NzljLTIwLjEyOCwwIC0zNi4xMjcsNy45NzcgLTQ3Ljk5NywyMy45M2MtMTEuODcsMTUuOTU0IC0xNy44MDUsMzguMjM2IC0xNy44MDUsNjYuODQ5Wm01MjcuNzUyLDEzOS45NGwwLC0xNzQuNTM1YzAsLTM2LjU4OSAtMTYuMjU3LC01NC44ODQgLTQ4Ljc3MSwtNTQuODg0Yy05LjYzNCwwIC0xOC45MjQsMi44NjEgLTI3Ljg2OSw4LjU4NGMtOC45NDYsNS43MjIgLTE1LjIyNSwxMi4zMTIgLTE4LjgzOCwxOS43NjlsMCwyMDEuMDY3bC02NC41MTIsMGwwLC0xODQuNjc5YzAsLTEzLjY5OSAtNC4yMTUsLTI0LjU4MSAtMTIuNjQ0LC0zMi42NDRjLTguNDMsLTguMDYzIC0yMC4zLC0xMi4wOTUgLTM1LjYxMSwtMTIuMDk1Yy04LjA4NiwwIC0xNi45MDIsMy4wMzUgLTI2LjQ1LDkuMTA0Yy05LjU0OCw2LjA2OSAtMTYuNDcyLDEyLjc0NSAtMjAuNzczLDIwLjAyOWwwLDIwMC4yODZsLTY0LjUxMiwwbDAsLTI3OC41OGw0NC4zODQsMGwxMy4xNjEsMjQuNDUxYzE3Ljg5MSwtMTkuNzY5IDQxLjAzLC0yOS42NTMgNjkuNDE1LC0yOS42NTNjMzYuNjQzLDAgNjQuMjU0LDEwLjA1OCA4Mi44MzQsMzAuMTczYzguMDg2LC05LjE5MSAxOS4zNTQsLTE2LjUxNyAzMy44MDQsLTIxLjk3OWMxNC40NTEsLTUuNDYyIDI4LjkwMiwtOC4xOTQgNDMuMzUyLC04LjE5NGMzMC43OTQsMCA1NC43NDksOC44ODcgNzEuODY3LDI2LjY2MWMxNy4xMTcsMTcuNzc0IDI1LjY3Niw0Mi4xODEgMjUuNjc2LDczLjIyMmwwLDE4My44OTlsLTY0LjUxMiwwWm0zMzguNjAyLC0xMTkuMzkxbC0xOTcuNDA4LDBjMS4yMDQsMjIuMTk2IDguNzc0LDM5LjQ1IDIyLjcwOCw1MS43NjJjMTMuOTM1LDEyLjMxMiAzMi42ODYsMTguNDY4IDU2LjI1NSwxOC40NjhjMjkuNDE4LDAgNTEuNzgyLC03LjcxNyA2Ny4wOTMsLTIzLjE1bDI1LjAzMSw0OS42ODFjLTIyLjcwOCwxOC41NTUgLTU2LjU5OSwyNy44MzIgLTEwMS42NzEsMjcuODMyYy00Mi4xNDgsMCAtNzUuNDc5LC0xMi40NDIgLTk5Ljk5NCwtMzcuMzI2Yy0yNC41MTUsLTI0Ljg4NCAtMzYuNzcyLC01OS42MDkgLTM2Ljc3MiwtMTA0LjE3NWMwLC00My44NzIgMTMuNDYyLC03OS40MjEgNDAuMzg1LC0xMDYuNjQ2YzI2LjkyMywtMjcuMjI1IDU5LjIyMiwtNDAuODM4IDk2Ljg5OCwtNDAuODM4YzQwLjA4NCwwIDcyLjI1NCwxMi4wNTIgOTYuNTEsMzYuMTU2YzI0LjI1NywyNC4xMDQgMzYuMzg1LDU0Ljc5NyAzNi4zODUsOTIuMDhjMCw3Ljk3NyAtMS44MDYsMjAuMDI5IC01LjQxOSwzNi4xNTZabS0xOTUuMDg1LC00OC45MDFsMTM1LjczNCwwYy00LjQ3MywtNDAuNzUxIC0yNi44MzcsLTYxLjEyNiAtNjcuMDkzLC02MS4xMjZjLTM2LjgxNSwwIC01OS42OTUsMjAuMzc1IC02OC42NDEsNjEuMTI2Wm0xODguMTksMTM0LjIxOGMwLC0xMy4wMDYgNC41MTYsLTI0LjA2IDEzLjU0OCwtMzMuMTY0YzkuMDMyLC05LjEwNCAxOS45OTksLTEzLjY1NiAzMi45MDEsLTEzLjY1NmMxMi45MDIsMCAyMy44Nyw0LjU1MiAzMi45MDEsMTMuNjU2YzkuMDMyLDkuMTA0IDEzLjU0OCwyMC4xNTkgMTMuNTQ4LDMzLjE2NGMwLDEzLjAwNiAtNC41MTYsMjQuMTA0IC0xMy41NDgsMzMuMjk0Yy05LjAzMiw5LjE5MSAtMTkuOTk5LDEzLjc4NiAtMzIuOTAxLDEzLjc4NmMtMTIuOTAyLDAgLTIzLjg3LC00LjU5NSAtMzIuOTAxLC0xMy43ODZjLTkuMDMyLC05LjE5MSAtMTMuNTQ4LC0yMC4yODkgLTEzLjU0OCwtMzMuMjk0Wm00MzUuMjY3LDM0LjA3NWwwLC0xNzQuNTM1YzAsLTM2LjU4OSAtMTYuMjU3LC01NC44ODQgLTQ4Ljc3MSwtNTQuODg0Yy05LjYzNCwwIC0xOC45MjQsMi44NjEgLTI3Ljg2OSw4LjU4NGMtOC45NDYsNS43MjIgLTE1LjIyNSwxMi4zMTIgLTE4LjgzOCwxOS43NjlsMCwyMDEuMDY3bC02NC41MTIsMGwwLC0xODQuNjc5YzAsLTEzLjY5OSAtNC4yMTUsLTI0LjU4MSAtMTIuNjQ0LC0zMi42NDRjLTguNDMsLTguMDYzIC0yMC4zLC0xMi4wOTUgLTM1LjYxMSwtMTIuMDk1Yy04LjA4NiwwIC0xNi45MDIsMy4wMzUgLTI2LjQ1LDkuMTA0Yy05LjU0OCw2LjA2OSAtMTYuNDcyLDEyLjc0NSAtMjAuNzczLDIwLjAyOWwwLDIwMC4yODZsLTY0LjUxMiwwbDAsLTI3OC41OGw0NC4zODQsMGwxMy4xNjEsMjQuNDUxYzE3Ljg5MSwtMTkuNzY5IDQxLjAzLC0yOS42NTMgNjkuNDE1LC0yOS42NTNjMzYuNjQzLDAgNjQuMjU0LDEwLjA1OCA4Mi44MzQsMzAuMTczYzguMDg2LC05LjE5MSAxOS4zNTQsLTE2LjUxNyAzMy44MDQsLTIxLjk3OWMxNC40NTEsLTUuNDYyIDI4LjkwMiwtOC4xOTQgNDMuMzUyLC04LjE5NGMzMC43OTQsMCA1NC43NDksOC44ODcgNzEuODY3LDI2LjY2MWMxNy4xMTcsMTcuNzc0IDI1LjY3Niw0Mi4xODEgMjUuNjc2LDczLjIyMmwwLDE4My44OTlsLTY0LjUxMiwwWm03NC44NzYsLTE3Ljk0OGwyMi45NjYsLTUxLjc2MmMxOS4yNjgsMTUuNDMzIDQxLjAzLDIzLjE1IDY1LjI4NywyMy4xNWMyNS4xMTcsMCAzNy42NzUsLTkuMDE3IDM3LjY3NSwtMjcuMDUyYzAsLTEwLjU3OCAtMy43ODUsLTE5LjI0OCAtMTEuMzU0LC0yNi4wMTFjLTcuNTY5LC02Ljc2MyAtMjIuMjc4LC0xNC43NCAtNDQuMTI2LC0yMy45M2MtNDcuNjUzLC0xOS45NDIgLTcxLjQ4LC00Ny44NjEgLTcxLjQ4LC04My43NTZjMCwtMjQuMTA0IDkuMTE4LC00Mi44NzUgMjcuMzUzLC01Ni4zMTRjMTguMjM1LC0xMy40MzkgNDEuNTQ2LC0yMC4xNTkgNjkuOTMxLC0yMC4xNTljMjguNzMsMCA1NS43MzksNi41MDMgODEuMDI4LDE5LjUwOGwtMTguNTgsNTAuNDYyYy0xNC4xMDcsLTEyLjEzOSAtMzMuNzE4LC0xOC4yMDggLTU4LjgzNSwtMTguMjA4Yy0yMi41MzYsMCAtMzMuODA0LDkuMDE3IC0zMy44MDQsMjcuMDUyYzAsNy4xMSAzLjY5OSwxMy41MjYgMTEuMDk2LDE5LjI0OGM3LjM5Nyw1LjcyMiAyMy4yMjQsMTMuMzk2IDQ3LjQ4MSwyMy4wMmMyNC4yNTcsOS42MjQgNDEuNzE4LDIxLjI4NiA1Mi4zODQsMzQuOTg1YzEwLjY2NiwxMy42OTkgMTUuOTk5LDMwLjI2IDE1Ljk5OSw0OS42ODFjMCwyNS44MzggLTkuNTA1LDQ2LjE3IC0yOC41MTQsNjAuOTk2Yy0xOS4wMSwxNC44MjYgLTQ0Ljg1OCwyMi4yNCAtNzcuNTQ0LDIyLjI0Yy0xOC40MDgsMCAtMzMuMTU5LC0xLjUxNyAtNDQuMjU1LC00LjU1MmMtMTEuMDk2LC0zLjAzNSAtMjUuMzMyLC05LjIzNCAtNDIuNzA3LC0xOC41OThaIiBzdHlsZT0iZmlsbDojZmZmOyIvPjxwYXRoIGQ9Ik0xNDY3LjE2MiwxOTc2LjM2NmMtNTYuNzQzLDUzLjk5NiAtMTE4LjY5NiwtNDEuOTI2IC01Ny4xNzksLTc0LjY5NGMzOC44ODEsLTIwLjcxIDk1LjkwNiwyMy42NiA1Ny4xNzksNzQuNjk0WiIgc3R5bGU9ImZpbGw6I2NmZTkzNzsiLz48L2c+PC9nPjwvc3ZnPg==" alt="dome.ms" />
+      <h1>Die IT-Abteilung, die Münster gehört.</h1>
+      <a class="btn" href="#mitmachen">Mitmachen</a>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Wir kümmern uns um eure Website,<br>damit ihr euch um euer Geschäft kümmern könnt.</h2>
+      <div class="icons" aria-hidden="true">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="#143F33"><rect x="2" y="5" width="9" height="4" rx=".6"/><rect x="13" y="5" width="9" height="4" rx=".6"/><rect x="2" y="10.5" width="4" height="4" rx=".6"/><rect x="7.5" y="10.5" width="9" height="4" rx=".6"/><rect x="18" y="10.5" width="4" height="4" rx=".6"/><rect x="2" y="16" width="9" height="4" rx=".6"/><rect x="13" y="16" width="9" height="4" rx=".6"/></svg></div>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#143F33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"/><circle cx="12" cy="12" r="7"/></svg></div>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#143F33" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5l8 3v6c0 5-3.5 8.6-8 10-4.5-1.4-8-5-8-10v-6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></div>
+      </div>
+      <ol class="list">
+        <li><div><b>Souverän und Open Source</b><span>Der Code ist offen, die Daten bleiben in Münster.</span></div></li>
+        <li><div><b>Kostengünstig</b><span>Keine Rendite, keine Lizenzen. Vereine sind mit kleinen Beiträgen dabei.</span></div></li>
+        <li><div><b>Lokal und nah</b><span>Partner aus Münster betreiben die Server. Hilfe von Menschen, die man kennt.</span></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="coop" id="mitmachen">
+    <div class="wrap">
+      <h2>Wir gründen kein weiteres Unternehmen.<br>Wir geben dome.ms dahin, wo es hingehört.</h2>
+      <p>dome.ms wird eine Genossenschaft. Wer mitmacht, besitzt mit, und jedes Mitglied hat eine Stimme.</p>
+      <a class="btn" href="#mitmachen">Mitglied werden</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span>dome.ms · Münsterhack 2026</span>
+  <a href="#impressum">Impressum</a>
+  <a href="#datenschutz">Datenschutz</a>
+</footer>
