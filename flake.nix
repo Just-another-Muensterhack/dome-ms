@@ -176,6 +176,7 @@
               cd "$MSDOME_ROOT/service"
               uv sync --all-groups
               uv run python src/ms_dome/manage.py migrate --noinput
+              uv run python src/ms_dome/manage.py sync_nginx
               exec uv run python src/ms_dome/manage.py runserver 0.0.0.0:8000
             '';
           };
@@ -254,6 +255,7 @@
               #!${pkgs.runtimeShell}
               set -e
               $out/bin/ms-dome-manage migrate --noinput
+              $out/bin/ms-dome-manage sync_nginx
               export PYTHONPATH="$out/share/ms-dome" PYTHONUNBUFFERED=1 DJANGO_SETTINGS_MODULE=ms_dome.settings
               exec ${venv}/bin/gunicorn ms_dome.wsgi:application \\
                 --chdir "$out/share/ms-dome" \\
