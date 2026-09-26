@@ -39,7 +39,7 @@ export const DomainCard = ({
       trailing={(
         <div className="flex-row-1 z-10">
           <Link
-            href={`https://${website?.name}`}
+            href={`https://${domain.name}`}
             target="_blank"
             rel="noopener noreferrer"
             className="icon-button"

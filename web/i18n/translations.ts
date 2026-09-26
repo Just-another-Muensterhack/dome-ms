@@ -163,6 +163,7 @@ export type DomeTranslationEntries = {
   'searchDomains': string,
   'searchDomainsFor': (values: { name: string }) => string,
   'searchWebsitesByName': string,
+  'selectWebsite': string,
   'settings': string,
   'signUp': string,
   'status': string,
@@ -354,6 +355,7 @@ export const domeTranslation: Translation<DomeTranslationLocales, Partial<DomeTr
       return `Domains für ${name} suchen`
     },
     'searchWebsitesByName': `Websites nach Namen suchen`,
+    'selectWebsite': `Website auswählen`,
     'settings': `Einstellungen`,
     'signUp': `Registrieren`,
     'status': `Status`,
@@ -543,6 +545,7 @@ export const domeTranslation: Translation<DomeTranslationLocales, Partial<DomeTr
       return `Search domains for ${name}`
     },
     'searchWebsitesByName': `Search websites by name`,
+    'selectWebsite': `Select a website`,
     'settings': `Settings`,
     'signUp': `Sign up`,
     'status': `Status`,

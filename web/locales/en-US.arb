@@ -20,6 +20,7 @@
   "wildcard": "Wildcard",
   "website": "Website",
   "noWebsite": "No website",
+  "selectWebsite": "Select a website",
   "loadingAccount": "Loading account",
   "accountUnavailable": "Account is unavailable.",
   "language": "Language",

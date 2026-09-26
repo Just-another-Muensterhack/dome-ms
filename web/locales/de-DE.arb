@@ -20,6 +20,7 @@
   "wildcard": "Wildcard",
   "website": "Website",
   "noWebsite": "Keine Website",
+  "selectWebsite": "Website auswählen",
   "loadingAccount": "Konto wird geladen",
   "accountUnavailable": "Konto ist nicht verfügbar.",
   "language": "Sprache",

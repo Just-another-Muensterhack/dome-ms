@@ -95,10 +95,10 @@ export const EditDomainDialog = ({
         <div className="flex-col-1">
           <span className="typography-label-md">{translation('website')}</span>
           <Select
-            value={hasNoWebsites ? '' : websiteId}
+            value={websiteId.length > 0 ? websiteId : undefined}
             disabled={hasNoWebsites}
             onValueChange={(value) => setWebsiteId(value ?? '')}
-            placeholder={hasNoWebsites ? translation('noWebsites') : translation('noWebsite')}
+            placeholder={hasNoWebsites ? translation('noWebsites') : translation('selectWebsite')}
           >
             {!hasNoWebsites && (
               <Select.Option value="" label={translation('noWebsite')}>

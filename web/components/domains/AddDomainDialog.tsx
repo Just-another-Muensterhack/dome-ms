@@ -96,9 +96,9 @@ export const AddDomainDialog = ({
         <div className="flex-col-1">
           <span className="typography-label-md">{translation('website')}</span>
           <Select
-            value={websiteId}
+            value={websiteId.length > 0 ? websiteId : undefined}
             onValueChange={(value) => setWebsiteId(value ?? '')}
-            placeholder={translation('noWebsite')}
+            placeholder={translation('selectWebsite')}
           >
             <Select.Option value="" label={translation('noWebsite')}>
               {translation('noWebsite')}
