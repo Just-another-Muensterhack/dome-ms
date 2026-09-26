@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Cpath fill=%27%23c2402c%27 d=%27M12 21.5 3.6 13.1a5.6 5.6 0 0 1 0-7.9 5.6 5.6 0 0 1 7.9 0L12 5.7l.5-.5a5.6 5.6 0 0 1 7.9 0 5.6 5.6 0 0 1 0 7.9z%27/%3E%3C/svg%3E">
+  <title>Hello Heroes – Mehr Leben ist möglich (Demo)</title>
+  <meta name="description" content="Demo: Die Plattform für alle, die Inklusion leben, ermöglichen und vorantreiben. Menschen, Geschichten, Produkte, Lösungen und zugängliche Orte in Münster.">
+  <script>document.documentElement.classList.add("js");</script>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="base.css">
+  <link rel="stylesheet" href="components.css">
+  <link rel="stylesheet" href="pages.css">
+</head>
+<body>
+  <!-- shared:header -->
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+  <header class="site-header">
+    <div class="demo-banner demo-only" role="note">
+      <strong>Demo-Version:</strong> Ortsangaben stammen von den Betrieben, nicht vor Ort geprüft. Beispielkarten sind erfunden.
+    </div>
+    <div class="wrap site-header__bar">
+      <a class="wordmark" href="index.html" aria-label="Hello Heroes, zur Startseite">
+        <span>Hello</span>
+        <span>Her<svg class="wordmark__heart" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21.5 3.6 13.1a5.6 5.6 0 0 1 0-7.9 5.6 5.6 0 0 1 7.9 0L12 5.7l.5-.5a5.6 5.6 0 0 1 7.9 0 5.6 5.6 0 0 1 0 7.9z"/></svg>es</span>
+        <span class="wordmark__tag" aria-hidden="true">Leben. Ohne Limits.</span>
+      </a>
+      <div class="site-header__actions">
+        <a class="btn btn--icon" href="orte.html" aria-label="Suche: Orte entdecken"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
+        <a class="btn btn--dark header-cta" href="community.html">Gemeinsam mehr bewegen</a>
+        <button class="btn btn--icon nav-toggle" type="button" aria-expanded="false" aria-controls="hauptnavigation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="visually-hidden">Menü</span>
+        </button>
+      </div>
+      <nav class="nav" id="hauptnavigation" aria-label="Hauptnavigation">
+        <ul class="nav__list">
+          <li><a class="nav__link" href="magazin.html">Magazin</a></li>
+          <li><a class="nav__link" href="podcast.html">Podcast</a></li>
+          <li><a class="nav__link" href="hilfsmittel.html">Hilfsmittel</a></li>
+          <li><a class="nav__link" href="reisen.html">Reisen</a></li>
+          <li><a class="nav__link" href="leben.html">Leben</a></li>
+          <li><a class="nav__link" href="projekte.html">Projekte</a></li>
+          <li><a class="nav__link" href="orte.html">Orte</a></li>
+          <li><a class="nav__link" href="community.html">Community</a></li>
+          <li><a class="nav__link" href="unternehmen.html">Für Unternehmen</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <!-- /shared:header -->
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-titel">
+      <div class="wrap hero__grid">
+        <div class="hero__text">
+          <p class="hero__script" aria-hidden="true">Different People, Same Dreams</p>
+          <h1 id="hero-titel">Mehr Leben ist möglich.</h1>
+          <p class="hero__lead">Hier findest du Orte in Münster mit konkreten Angaben zur Zugänglichkeit, statt pauschalem „barrierefrei“. Dazu Interviews, Podcast und Hilfsmittel.</p>
+          <div class="hero__cta">
+            <a class="btn" href="orte.html">Orte in Münster entdecken</a>
+            <a class="btn btn--ghost" href="magazin.html">Interviews lesen</a>
+          </div>
+        </div>
+        <figure class="hero__figure">
+          <picture>
+            <source media="(max-width: 47.99rem)" srcset="hero-mobile.jpg" width="900" height="675">
+            <img src="hero-side.jpg" width="1057" height="793" fetchpriority="high"
+                 alt="Sechs Menschen gehen lachend über einen sonnigen Platz mit Kirche und Cafés. Unter ihnen sind eine Frau im Rollstuhl und ein Kind.">
+          </picture>
+          <figcaption>Symbolbild, KI-generiert. Kein Foto realer Personen oder Orte.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="finder" aria-labelledby="suche-titel">
+      <div class="wrap">
+        <div class="finder__box">
+          <form action="orte.html" method="get" role="search">
+            <label class="finder__label" id="suche-titel" for="start-suche">Orte in Münster suchen</label>
+            <div class="searchbar">
+              <input class="input" id="start-suche" type="search" name="q" placeholder="Zum Beispiel: Museum, Hotel, Café" autocomplete="off">
+              <button class="btn" type="submit">Orte suchen</button>
+            </div>
+          </form>
+          <div>
+            <p class="finder__label">Oder starte hier:</p>
+            <ul class="finder__links">
+              <li><a class="chip" href="magazin.html">Tipps</a></li>
+              <li><a class="chip" href="magazin.html">Erfahrungen</a></li>
+              <li><a class="chip" href="podcast.html">Expert:innen</a></li>
+              <li><a class="chip" href="hilfsmittel.html">Produkte</a></li>
+              <li><a class="chip" href="orte.html">Orte</a></li>
+              <li><a class="chip" href="podcast.html">Menschen</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="themen-titel">
+      <div class="wrap">
+        <div class="section__head"><h2 id="themen-titel">Themenwelten</h2></div>
+        <ul class="tiles">
+          <li><a class="tile" style="--a:#5b6fb0;--b:#17304f" href="hilfsmittel.html"><svg class="tile__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="9" cy="15" r="5"/><circle cx="9" cy="15" r="1"/><path d="M9 10V4h3M13 15h5l2 5"/></svg><span class="tile__title">Hilfsmittel</span><span class="tile__sub">Mehr Möglichkeiten</span></a></li>
+          <li><a class="tile" style="--a:#3d7f8a;--b:#17304f" href="reisen.html"><svg class="tile__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 19 9 9l4 6 3-4 5 8z"/></svg><span class="tile__title">Reisen</span><span class="tile__sub">Die Welt entdecken</span></a></li>
+          <li><a class="tile" style="--a:#6b5b1f;--b:#17304f" href="leben.html#wohnen"><svg class="tile__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 11 12 4l8 7v9H4zM10 20v-5h4v5"/></svg><span class="tile__title">Wohnen</span><span class="tile__sub">Zuhause sein</span></a></li>
+          <li><a class="tile" style="--a:#2e6b4f;--b:#17304f" href="magazin.html?thema=Sport"><svg class="tile__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 4h8v5a4 4 0 0 1-8 0zM12 13v4M8 20h8M4 5h4M16 5h4"/></svg><span class="tile__title">Sport</span><span class="tile__sub">Stärker jeden Tag</span></a></li>
+          <li><a class="tile" style="--a:#94528a;--b:#17304f" href="leben.html#mode"><svg class="tile__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 8V6.5a2 2 0 1 0-2-2M12 8l9 7a1 1 0 0 1-.6 1.8H3.6A1 1 0 0 1 3 15z"/></svg><span class="tile__title">Mode</span><span class="tile__sub">Stil kennt keine Grenzen</span></a></li>
+          <li><a class="tile" style="--a:#a3452f;--b:#17304f" href="magazin.html?thema=Gesundheit"><svg class="tile__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 20.5 4.2 12.7a4.8 4.8 0 0 1 0-6.8 4.8 4.8 0 0 1 6.8 0l1 1 1-1a4.8 4.8 0 0 1 6.8 0 4.8 4.8 0 0 1 0 6.8z"/></svg><span class="tile__title">Gesundheit</span><span class="tile__sub">Gut leben</span></a></li>
+          <li><a class="tile" style="--a:#3a5a80;--b:#17304f" href="magazin.html?thema=Arbeit"><svg class="tile__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 8h16v11H4zM9 8V5h6v3M4 13h16"/></svg><span class="tile__title">Arbeit</span><span class="tile__sub">Potenziale nutzen</span></a></li>
+          <li><a class="tile" style="--a:#5a4aa8;--b:#17304f" href="magazin.html?thema=Familie"><svg class="tile__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M2.5 19c.4-3.4 2.6-5.5 5.5-5.5s5.1 2.1 5.5 5.5M14.5 14c.8-.5 1.6-.7 2.5-.7 2.4 0 4 1.8 4.4 4.7"/></svg><span class="tile__title">Familie</span><span class="tile__sub">Gemeinsam stark</span></a></li>
+          <li><a class="tile" style="--a:#7a3f6b;--b:#17304f" href="leben.html#kultur"><svg class="tile__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg><span class="tile__title">Kultur</span><span class="tile__sub">Erleben ohne Hürden</span></a></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section section--mist" aria-labelledby="orte-titel">
+      <div class="wrap">
+        <div class="section__head">
+          <h2 id="orte-titel">Orte in Münster entdecken</h2>
+          <a href="orte.html">Alle Orte ansehen</a>
+        </div>
+        <p class="section__intro">Bevor du losgehst: Ist der Eingang stufenlos? Gibt es ein WC, das für dich passt? Hier stehen die konkreten Merkmale. Die Angaben stammen von den Betrieben und sind nicht vor Ort geprüft.</p>
+        <ul class="cards" id="start-orte" data-orte="atlantic-hotel-muenster,pension-schmidt,lwl-museum-naturkunde"></ul>
+        <noscript><p><a class="btn" href="orte.html">Alle Orte ansehen</a></p></noscript>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="aktuell-titel">
+      <div class="wrap">
+        <div class="section__head">
+          <h2 id="aktuell-titel">Aktuell bei Hello Heroes</h2>
+          <a href="magazin.html">Alle Beiträge</a>
+        </div>
+        <div class="feature">
+          <article class="feature__main">
+            <img class="feature__img" src="samuel-koch.jpg" width="1000" height="1223" alt="Porträt von Samuel Koch in einer orangefarbenen Jacke, der zur Seite blickt" loading="lazy">
+            <div class="feature__main-body">
+              <p><span class="badge">Interview</span></p>
+              <h3><a href="interview-samuel-koch.html">Interview mit Samuel Koch</a></h3>
+              <p>„Barrieren sind für mich nicht nur Stufen oder das Fehlen von Aufzügen, sondern vor allem die Hürden in den Köpfen.“</p>
+              <p class="feature__credit">Foto: Sergej Falk</p>
+            </div>
+          </article>
+          <div class="feature__side">
+            <article class="panel">
+              <div class="panel__row">
+                <img class="panel__thumb" src="leon-windscheid.jpg" width="933" height="1400" alt="" loading="lazy">
+                <div>
+                  <p><span class="badge">Interview</span></p>
+                  <h3><a href="interview-leon-windscheid.html">Mentale Stärke – Wenn das Leben plötzlich anders kommt</a></h3>
+                  <p>Interview mit Dr. Leon Windscheid für gtinfo.</p>
+                </div>
+              </div>
+            </article>
+            <article class="panel">
+              <p><span class="badge">Kolumne</span></p>
+              <h3><a href="kolumne-comedy-und-inklusion.html">Wait a minute: Comedy und Inklusion</a></h3>
+              <p>Die Hello-Heroes-Kolumne von Anuschka Bayer.</p>
+            </article>
+            <article class="panel">
+              <p><span class="badge">Podcast</span></p>
+              <h3><a href="podcast.html">Comedy und Inklusion</a></h3>
+              <p>Im Gespräch mit Schauspielerin und Comedian Lisa Feller.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="band on-dark" aria-labelledby="newsletter-titel">
+      <div class="wrap band__grid">
+        <div>
+          <p class="script" aria-hidden="true">Gemeinsam eine inklusivere Welt.</p>
+          <h2 id="newsletter-titel">Bleib auf dem Laufenden.</h2>
+          <p>Melde dich für den Newsletter an. Du bekommst neue Geschichten, Produkte und Einblicke. In der Demo wird nichts gesendet.</p>
+        </div>
+        <form data-demo-form novalidate>
+          <div class="form-row">
+            <div class="field">
+              <label for="newsletter-mail">E-Mail-Adresse</label>
+              <input class="input" id="newsletter-mail" type="email" name="email" autocomplete="email" placeholder="name@beispiel.de">
+            </div>
+            <button class="btn" type="submit">Anmelden</button>
+          </div>
+          <p class="form-status" role="status" data-form-status></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- shared:footer -->
+  <footer class="site-footer">
+    <div class="wrap site-footer__grid">
+      <a class="wordmark" href="index.html" aria-label="Hello Heroes, zur Startseite">
+        <span>Hello</span>
+        <span>Her<svg class="wordmark__heart" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21.5 3.6 13.1a5.6 5.6 0 0 1 0-7.9 5.6 5.6 0 0 1 7.9 0L12 5.7l.5-.5a5.6 5.6 0 0 1 7.9 0 5.6 5.6 0 0 1 0 7.9z"/></svg>es</span>
+      </a>
+      <div>
+        <nav aria-label="Weitere Seiten">
+          <ul class="site-footer__list">
+            <li><a href="ueber-uns.html">Über uns</a></li>
+            <li><a href="projekte.html">Projekte</a></li>
+            <li><a href="unternehmen.html">Für Unternehmen</a></li>
+            <li><a href="datenschutz.html">Datenschutz</a></li>
+            <li><a href="impressum.html">Impressum</a></li>
+          </ul>
+        </nav>
+        <small class="demo-only">Demo-Version für den Pitch. Ortsangaben stammen von den Betrieben und sind nicht vor Ort geprüft. Beispielkarten sind erfunden.</small>
+      </div>
+    </div>
+  </footer>
+  <!-- /shared:footer -->
+
+  <script src="orte-demo.js"></script>
+  <script src="common.js"></script>
+  <script src="home.js"></script>
+</body>
+</html>
