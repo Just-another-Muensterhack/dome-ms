@@ -149,6 +149,7 @@ export const DashboardColumns = () => {
       <AddWebsiteDialog isOpen={isAddWebsiteOpen} onClose={() => setIsAddWebsiteOpen(false)} />
       <div className="flex-col-4 desktop:hidden">
         <Expandable
+          isInitialExpanded
           trigger={<span className="typography-title-md">{translation('navDomains')}</span>}
           contentExpandedClassName="max-h-none h-auto"
         >
@@ -163,6 +164,7 @@ export const DashboardColumns = () => {
           />
         </Expandable>
         <Expandable
+          isInitialExpanded
           trigger={<span className="typography-title-md">{translation('navWebsites')}</span>}
           contentExpandedClassName="max-h-none h-auto"
         >
