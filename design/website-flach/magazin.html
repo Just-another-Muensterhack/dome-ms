@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Cpath fill=%27%23c2402c%27 d=%27M12 21.5 3.6 13.1a5.6 5.6 0 0 1 0-7.9 5.6 5.6 0 0 1 7.9 0L12 5.7l.5-.5a5.6 5.6 0 0 1 7.9 0 5.6 5.6 0 0 1 0 7.9z%27/%3E%3C/svg%3E">
+  <title>Magazin – Hello Heroes (Demo)</title>
+  <meta name="description" content="Interviews, Kolumne und Geschichten.">
+  <script>document.documentElement.classList.add("js");</script>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="base.css">
+  <link rel="stylesheet" href="components.css">
+  <link rel="stylesheet" href="pages.css">
+</head>
+<body>
+  <!-- shared:header -->
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+  <header class="site-header">
+    <div class="demo-banner demo-only" role="note">
+      <strong>Demo-Version:</strong> Ortsangaben stammen von den Betrieben, nicht vor Ort geprüft. Beispielkarten sind erfunden.
+    </div>
+    <div class="wrap site-header__bar">
+      <a class="wordmark" href="index.html" aria-label="Hello Heroes, zur Startseite">
+        <span>Hello</span>
+        <span>Her<svg class="wordmark__heart" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21.5 3.6 13.1a5.6 5.6 0 0 1 0-7.9 5.6 5.6 0 0 1 7.9 0L12 5.7l.5-.5a5.6 5.6 0 0 1 7.9 0 5.6 5.6 0 0 1 0 7.9z"/></svg>es</span>
+        <span class="wordmark__tag" aria-hidden="true">Leben. Ohne Limits.</span>
+      </a>
+      <div class="site-header__actions">
+        <a class="btn btn--icon" href="orte.html" aria-label="Suche: Orte entdecken"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
+        <a class="btn btn--dark header-cta" href="community.html">Gemeinsam mehr bewegen</a>
+        <button class="btn btn--icon nav-toggle" type="button" aria-expanded="false" aria-controls="hauptnavigation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="visually-hidden">Menü</span>
+        </button>
+      </div>
+      <nav class="nav" id="hauptnavigation" aria-label="Hauptnavigation">
+        <ul class="nav__list">
+          <li><a class="nav__link" href="magazin.html" aria-current="page">Magazin</a></li>
+          <li><a class="nav__link" href="podcast.html">Podcast</a></li>
+          <li><a class="nav__link" href="hilfsmittel.html">Hilfsmittel</a></li>
+          <li><a class="nav__link" href="reisen.html">Reisen</a></li>
+          <li><a class="nav__link" href="leben.html">Leben</a></li>
+          <li><a class="nav__link" href="projekte.html">Projekte</a></li>
+          <li><a class="nav__link" href="orte.html">Orte</a></li>
+          <li><a class="nav__link" href="community.html">Community</a></li>
+          <li><a class="nav__link" href="unternehmen.html">Für Unternehmen</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <!-- /shared:header -->
+
+  <main id="main">
+    <div class="page-head">
+      <div class="wrap">
+        <h1>Magazin</h1>
+        <p>Interviews, Kolumne und Geschichten aus dem echten Leben.</p>
+      </div>
+    </div>
+    <section class="section">
+      <div class="wrap">
+        <p class="section__intro">Die drei ersten Beiträge sind echte Texte. Die Karten danach sind erfundene Beispiele und als solche markiert.</p>
+        <nav aria-label="Themen im Magazin"><ul class="themen"><li><a class="chip" href="magazin.html" data-thema-link="">Alle Themen</a></li><li><a class="chip" href="magazin.html?thema=Reisen" data-thema-link="Reisen">Reisen</a></li><li><a class="chip" href="magazin.html?thema=Leben" data-thema-link="Leben">Leben</a></li><li><a class="chip" href="magazin.html?thema=Sport" data-thema-link="Sport">Sport</a></li><li><a class="chip" href="magazin.html?thema=Arbeit" data-thema-link="Arbeit">Arbeit</a></li><li><a class="chip" href="magazin.html?thema=Gesundheit" data-thema-link="Gesundheit">Gesundheit</a></li><li><a class="chip" href="magazin.html?thema=Familie" data-thema-link="Familie">Familie</a></li><li><a class="chip" href="magazin.html?thema=Kultur" data-thema-link="Kultur">Kultur</a></li></ul></nav>
+        <p class="orte-status" id="magazin-status" role="status"></p>
+        <div style="height:var(--space-2)"></div>
+<h2 class="visually-hidden">Beiträge</h2>
+<ul class="cards">
+<li data-thema="Leben"><article class="card"><div class="card__media"><img class="card__img" src="samuel-koch.jpg" alt="Porträt von Samuel Koch" loading="lazy"></div><div class="card__body"><div class="card__badges"><span class="badge">Interview</span></div><h3 class="card__title"><a href="interview-samuel-koch.html">Interview mit Samuel Koch</a></h3><p>Ein Interview mit dem Schauspieler Samuel Koch.</p><p class="card__meta">Foto: Sergej Falk</p></div></article></li>
+<li data-thema="Gesundheit"><article class="card"><div class="card__media"><img class="card__img" src="leon-windscheid.jpg" alt="Porträt von Dr. Leon Windscheid" loading="lazy"></div><div class="card__body"><div class="card__badges"><span class="badge">Interview</span></div><h3 class="card__title"><a href="interview-leon-windscheid.html">Mentale Stärke – Wenn das Leben plötzlich anders kommt</a></h3><p>Interview mit Dr. Leon Windscheid für gtinfo.</p><p class="card__meta">Foto: Marvin Ruppert</p></div></article></li>
+<li data-thema="Familie"><article class="card"><div class="card__body"><div class="card__badges"><span class="badge">Kolumne</span></div><h3 class="card__title"><a href="kolumne-comedy-und-inklusion.html">Wait a minute: Comedy und Inklusion</a></h3><p>Die Hello-Heroes-Kolumne von Anuschka Bayer.</p></div></article></li>
+<li class="demo-only" data-thema="Leben"><article class="card"><div class="card__media"><div class="ph ph--16x9 ph--sky" role="img" aria-label="Bildplatzhalter: Wanderin auf einem Bergpfad"><p class="ph__label"><strong>Bildplatzhalter</strong>Wanderin auf einem Bergpfad</p></div></div><div class="card__body"><div class="card__badges"><span class="badge">Leben</span><span class="badge badge--demo">Demo-Beitrag</span></div><h3 class="card__title"><a href="magazin-beitrag.html">Grenzen existieren nicht nur im Kopf</a></h3><p>Beispieltext: Eine Reportage über Wege, die erst unmöglich schienen.</p></div></article></li>
+<li class="demo-only" data-thema="Leben"><article class="card card--static"><div class="card__media"><div class="ph ph--16x9 ph--rose" role="img" aria-label="Bildplatzhalter: Porträt einer älteren Frau"><p class="ph__label"><strong>Bildplatzhalter</strong>Porträt einer älteren Frau</p></div></div><div class="card__body"><div class="card__badges"><span class="badge">Leben</span><span class="badge badge--demo">Demo-Beitrag</span></div><h3 class="card__title">Es ist nie zu spät</h3><p>Beispieltext: Ein neuer Anfang mit 72.</p><p class="card__soon">Demo: Inhalt folgt.</p></div></article></li>
+<li class="demo-only" data-thema="Reisen"><article class="card card--static"><div class="card__media"><div class="ph ph--16x9 ph--sea" role="img" aria-label="Bildplatzhalter: Strandpromenade"><p class="ph__label"><strong>Bildplatzhalter</strong>Strandpromenade</p></div></div><div class="card__body"><div class="card__badges"><span class="badge">Reisen</span><span class="badge badge--demo">Demo-Beitrag</span></div><h3 class="card__title">Barrierefrei ans Meer</h3><p>Beispieltext: Die schönsten Reiseziele, getestet und empfohlen.</p><p class="card__soon">Demo: Inhalt folgt.</p></div></article></li>
+<li class="demo-only" data-thema="Sport"><article class="card card--static"><div class="card__media"><div class="ph ph--16x9 ph--leaf" role="img" aria-label="Bildplatzhalter: Rollstuhlbasketball"><p class="ph__label"><strong>Bildplatzhalter</strong>Rollstuhlbasketball</p></div></div><div class="card__body"><div class="card__badges"><span class="badge">Sport</span><span class="badge badge--demo">Demo-Beitrag</span></div><h3 class="card__title">Teamgeist ohne Barrieren</h3><p>Beispieltext: Wie Inklusion im Sport wirklich gelingen kann.</p><p class="card__soon">Demo: Inhalt folgt.</p></div></article></li>
+<li class="demo-only" data-thema="Arbeit"><article class="card"><div class="card__media"><div class="ph ph--16x9 ph--sky" role="img" aria-label="Bildplatzhalter: Team im Büro"><p class="ph__label"><strong>Bildplatzhalter</strong>Team im Büro</p></div></div><div class="card__body"><div class="card__badges"><span class="badge">Arbeit</span><span class="badge badge--demo">Demo-Beitrag</span></div><h3 class="card__title"><a href="unternehmen.html">Inklusion ist ein Gewinn</a></h3><p>Beispieltext: Warum Unternehmen jetzt handeln sollten.</p></div></article></li>
+<li class="demo-only" data-thema="Gesundheit"><article class="card card--static"><div class="card__media"><div class="ph ph--16x9 ph--sun" role="img" aria-label="Bildplatzhalter: Übungsstunde im Freien"><p class="ph__label"><strong>Bildplatzhalter</strong>Übungsstunde im Freien</p></div></div><div class="card__body"><div class="card__badges"><span class="badge">Gesundheit</span><span class="badge badge--demo">Demo-Beitrag</span></div><h3 class="card__title">Bewegung, die guttut</h3><p>Beispieltext: Kleine Übungen für jeden Tag.</p><p class="card__soon">Demo: Inhalt folgt.</p></div></article></li>
+<li class="demo-only" data-thema="Familie"><article class="card"><div class="card__media"><div class="ph ph--16x9 ph--sun" role="img" aria-label="Bildplatzhalter: Familie am Küchentisch"><p class="ph__label"><strong>Bildplatzhalter</strong>Familie am Küchentisch</p></div></div><div class="card__body"><div class="card__badges"><span class="badge">Familie</span><span class="badge badge--demo">Demo-Beitrag</span></div><h3 class="card__title"><a href="orte.html">Gemeinsam planen</a></h3><p>Beispieltext: Wie Angehörige und Betroffene Ausflüge vorbereiten. Ein Beispiel dafür ist die Orte-Suche.</p></div></article></li>
+<li class="demo-only" data-thema="Kultur"><article class="card"><div class="card__media"><div class="ph ph--16x9 ph--rose" role="img" aria-label="Bildplatzhalter: Blick in ein Museum"><p class="ph__label"><strong>Bildplatzhalter</strong>Blick in ein Museum</p></div></div><div class="card__body"><div class="card__badges"><span class="badge">Kultur</span><span class="badge badge--demo">Demo-Beitrag</span></div><h3 class="card__title"><a href="orte.html?bereich=Kultur">Kunst ohne Stufen</a></h3><p>Beispieltext: Museen, die Zugänglichkeit ernst nehmen.</p></div></article></li>
+</ul>
+        <div class="notice" id="magazin-leer" hidden><p>Zu diesem Thema gibt es noch keinen Beitrag.</p><p><a class="btn" href="magazin.html">Alle Themen zeigen</a></p></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- shared:footer -->
+  <footer class="site-footer">
+    <div class="wrap site-footer__grid">
+      <a class="wordmark" href="index.html" aria-label="Hello Heroes, zur Startseite">
+        <span>Hello</span>
+        <span>Her<svg class="wordmark__heart" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21.5 3.6 13.1a5.6 5.6 0 0 1 0-7.9 5.6 5.6 0 0 1 7.9 0L12 5.7l.5-.5a5.6 5.6 0 0 1 7.9 0 5.6 5.6 0 0 1 0 7.9z"/></svg>es</span>
+      </a>
+      <div>
+        <nav aria-label="Weitere Seiten">
+          <ul class="site-footer__list">
+            <li><a href="ueber-uns.html">Über uns</a></li>
+            <li><a href="projekte.html">Projekte</a></li>
+            <li><a href="unternehmen.html">Für Unternehmen</a></li>
+            <li><a href="datenschutz.html">Datenschutz</a></li>
+            <li><a href="impressum.html">Impressum</a></li>
+          </ul>
+        </nav>
+        <small class="demo-only">Demo-Version für den Pitch. Ortsangaben stammen von den Betrieben und sind nicht vor Ort geprüft. Beispielkarten sind erfunden.</small>
+      </div>
+    </div>
+  </footer>
+  <!-- /shared:footer -->
+
+  <script src="common.js"></script>
+  <script src="magazin.js"></script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Cpath fill=%27%23c2402c%27 d=%27M12 21.5 3.6 13.1a5.6 5.6 0 0 1 0-7.9 5.6 5.6 0 0 1 7.9 0L12 5.7l.5-.5a5.6 5.6 0 0 1 7.9 0 5.6 5.6 0 0 1 0 7.9z%27/%3E%3C/svg%3E">
+  <title>Orte entdecken – Hello Heroes (Demo)</title>
+  <meta name="description" content="Demo: Finde zugängliche Orte in Münster. Suche und filtere nach stufenfreiem Eingang, Rampe, Aufzug und weiteren Merkmalen.">
+  <script>document.documentElement.classList.add("js");</script>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="base.css">
+  <link rel="stylesheet" href="components.css">
+  <link rel="stylesheet" href="pages.css">
+</head>
+<body>
+  <!-- shared:header -->
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+  <header class="site-header">
+    <div class="demo-banner demo-only" role="note">
+      <strong>Demo-Version:</strong> Ortsangaben stammen von den Betrieben, nicht vor Ort geprüft. Beispielkarten sind erfunden.
+    </div>
+    <div class="wrap site-header__bar">
+      <a class="wordmark" href="index.html" aria-label="Hello Heroes, zur Startseite">
+        <span>Hello</span>
+        <span>Her<svg class="wordmark__heart" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21.5 3.6 13.1a5.6 5.6 0 0 1 0-7.9 5.6 5.6 0 0 1 7.9 0L12 5.7l.5-.5a5.6 5.6 0 0 1 7.9 0 5.6 5.6 0 0 1 0 7.9z"/></svg>es</span>
+        <span class="wordmark__tag" aria-hidden="true">Leben. Ohne Limits.</span>
+      </a>
+      <div class="site-header__actions">
+        <a class="btn btn--icon" href="orte.html" aria-label="Suche: Orte entdecken"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
+        <a class="btn btn--dark header-cta" href="community.html">Gemeinsam mehr bewegen</a>
+        <button class="btn btn--icon nav-toggle" type="button" aria-expanded="false" aria-controls="hauptnavigation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="visually-hidden">Menü</span>
+        </button>
+      </div>
+      <nav class="nav" id="hauptnavigation" aria-label="Hauptnavigation">
+        <ul class="nav__list">
+          <li><a class="nav__link" href="magazin.html">Magazin</a></li>
+          <li><a class="nav__link" href="podcast.html">Podcast</a></li>
+          <li><a class="nav__link" href="hilfsmittel.html">Hilfsmittel</a></li>
+          <li><a class="nav__link" href="reisen.html">Reisen</a></li>
+          <li><a class="nav__link" href="leben.html">Leben</a></li>
+          <li><a class="nav__link" href="projekte.html">Projekte</a></li>
+          <li><a class="nav__link" href="orte.html" aria-current="page">Orte</a></li>
+          <li><a class="nav__link" href="community.html">Community</a></li>
+          <li><a class="nav__link" href="unternehmen.html">Für Unternehmen</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <!-- /shared:header -->
+
+  <main id="main">
+    <div class="page-head">
+      <div class="wrap">
+        <nav aria-label="Brotkrumen" class="crumbs"><ol><li><a href="index.html">Start</a></li><li aria-current="page">Orte entdecken</li></ol></nav>
+        <h1>Orte entdecken</h1>
+        <p>Finde Orte in Münster und sieh genau, was dort zugänglich ist. Wähle, was für dich wichtig ist.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="wrap orte-layout">
+        <details class="filterbox" id="filterbox" open>
+          <summary class="filterbox__summary">Suche und Filter<span id="filter-anzahl"></span></summary>
+          <form class="filters" id="orte-form" action="orte.html" method="get" role="search" aria-label="Orte suchen und filtern">
+            <div class="field">
+              <label for="q">Suchbegriff</label>
+              <input class="input" id="q" type="search" name="q" autocomplete="off" placeholder="Name, Art oder Straße">
+            </div>
+            <div class="field">
+              <label for="bereich">Bereich</label>
+              <select class="select" id="bereich" name="bereich">
+                <option value="">Alle Bereiche</option>
+              </select>
+            </div>
+            <fieldset>
+              <legend class="visually-hidden">Das soll vorhanden sein</legend>
+              <p class="filters__titel" aria-hidden="true">Das soll vorhanden sein</p>
+              <div id="merkmal-liste"></div>
+              <div class="check check--extra">
+                <input type="checkbox" id="m-nicht-erfasst" name="nicht_erfasst" value="1" aria-describedby="h-nicht-erfasst">
+                <div>
+                  <label for="m-nicht-erfasst">Auch Orte zeigen, bei denen das Merkmal eingeschränkt oder nicht erfasst ist</label>
+                  <span class="check__hint" id="h-nicht-erfasst">Sonst siehst du nur Orte, bei denen das Merkmal bestätigt ist. Orte mit „Nein“ bleiben immer ausgeblendet.</span>
+                </div>
+              </div>
+            </fieldset>
+            <div class="filters__actions">
+              <button class="btn btn--dark" type="submit">Suchen</button>
+              <button class="btn btn--ghost" type="button" data-orte-reset>Filter zurücksetzen</button>
+            </div>
+          </form>
+        </details>
+
+        <section aria-labelledby="ergebnisse-titel">
+          <div class="orte-result-bar">
+            <div>
+              <h2 id="ergebnisse-titel" class="visually-hidden">Ergebnisse</h2>
+              <p class="orte-status" id="orte-status"></p>
+              <div class="visually-hidden" id="orte-ansage" role="status" aria-live="polite"></div>
+            </div>
+          </div>
+          <p class="orte-hinweis">Das ist eine erste Auswahl. Alle Angaben stammen von den Betrieben und sind nicht vor Ort geprüft.</p>
+          <div class="aktiv" id="orte-aktiv" hidden></div>
+          <noscript><div class="notice"><p>Für die Suche und die Filter braucht diese Demo JavaScript. Bitte schalte JavaScript im Browser ein.</p></div></noscript>
+          <ul class="cards" id="orte-liste"></ul>
+          <div class="notice" id="orte-leer" hidden>
+            <h3>Keine Orte gefunden</h3>
+            <p>Zu deiner Auswahl gibt es keinen Ort. Versuche es mit weniger Filtern oder einem anderen Suchbegriff.</p>
+            <p class="notice__actions">
+              <button class="btn" type="button" id="orte-unbekannt-btn" hidden>Auch eingeschränkte oder nicht erfasste Orte zeigen</button>
+              <button class="btn btn--dark" type="button" data-orte-reset>Filter zurücksetzen</button>
+            </p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- shared:footer -->
+  <footer class="site-footer">
+    <div class="wrap site-footer__grid">
+      <a class="wordmark" href="index.html" aria-label="Hello Heroes, zur Startseite">
+        <span>Hello</span>
+        <span>Her<svg class="wordmark__heart" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21.5 3.6 13.1a5.6 5.6 0 0 1 0-7.9 5.6 5.6 0 0 1 7.9 0L12 5.7l.5-.5a5.6 5.6 0 0 1 7.9 0 5.6 5.6 0 0 1 0 7.9z"/></svg>es</span>
+      </a>
+      <div>
+        <nav aria-label="Weitere Seiten">
+          <ul class="site-footer__list">
+            <li><a href="ueber-uns.html">Über uns</a></li>
+            <li><a href="projekte.html">Projekte</a></li>
+            <li><a href="unternehmen.html">Für Unternehmen</a></li>
+            <li><a href="datenschutz.html">Datenschutz</a></li>
+            <li><a href="impressum.html">Impressum</a></li>
+          </ul>
+        </nav>
+        <small class="demo-only">Demo-Version für den Pitch. Ortsangaben stammen von den Betrieben und sind nicht vor Ort geprüft. Beispielkarten sind erfunden.</small>
+      </div>
+    </div>
+  </footer>
+  <!-- /shared:footer -->
+
+  <script src="orte-demo.js"></script>
+  <script src="common.js"></script>
+  <script src="orte.js"></script>
+</body>
+</html>

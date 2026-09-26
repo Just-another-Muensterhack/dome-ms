@@ -1,0 +1,79 @@
+/* Design-Tokens Hello Heroes (Demo)
+   Kontraste geprüft (WCAG 2.2 AA):
+   ink #1B2433 auf weiß 15,6:1 · navy auf weiß 13,4:1 · navy auf coral 5,8:1
+   weiß auf coral-deep 5,2:1 · violet auf weiß 7,8:1 · muted auf weiß 6,1:1 */
+
+@font-face {
+  font-family: "Atkinson Hyperlegible";
+  src: url("atkinson-hyperlegible-400-normal.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible";
+  src: url("atkinson-hyperlegible-700-normal.woff2") format("woff2");
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Barlow Condensed";
+  src: url("barlow-condensed-800-normal.woff2") format("woff2");
+  font-weight: 800; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Caveat Brush";
+  src: url("caveat-brush-400-normal.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+
+:root {
+  /* Farben */
+  --navy: #17304f;
+  --navy-soft: #3a5a80;
+  --ink: #1b2433;
+  --muted: #59627a;
+  --paper: #ffffff;
+  --mist: #f4f2fb;
+  --lavender: #efebfa;
+  --line: #d9d6e6;
+  --coral: #ff8a78;
+  --coral-deep: #c2402c;
+  --violet: #4b3fb8;
+  --demo-bg: #fff3b8;
+  --demo-ink: #4d4200;
+  --ok: #1d6b45;
+  --ok-bg: #e4f4ea;
+  --no: #8a2a1b;
+  --no-bg: #ffe9e5;
+  --unk: #4a4f5e;
+  --unk-bg: #eceef3;
+  --lim: #7a4b00;
+  --lim-bg: #fff0d6;
+  --eigen-bg: #e6ecf5;
+  --focus: #1d4ed8;
+
+  /* Schrift */
+  --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Barlow Condensed", "Arial Narrow", "Atkinson Hyperlegible", sans-serif;
+  --font-script: "Caveat Brush", "Segoe Script", cursive;
+
+  /* Schriftgrößen (rem, skalieren mit Nutzereinstellung) */
+  --step--1: 0.9375rem;
+  --step-0: 1.125rem;
+  --step-1: 1.375rem;
+  --step-2: 1.75rem;
+  --step-3: clamp(2rem, 1.5rem + 2vw, 2.75rem);
+  --step-4: clamp(2.75rem, 1.6rem + 5vw, 5.25rem);
+
+  /* Abstände und Form */
+  --gutter: clamp(1rem, 4vw, 2rem);
+  --max: 76rem;
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2.5rem;
+  --space-5: clamp(3rem, 6vw, 5rem);
+  --radius-s: 0.5rem;
+  --radius-m: 1rem;
+  --radius-l: 1.5rem;
+  --radius-pill: 999px;
+  --shadow: 0 1px 2px rgb(23 48 79 / 0.08), 0 8px 24px rgb(23 48 79 / 0.08);
+}

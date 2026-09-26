@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Cpath fill=%27%23c2402c%27 d=%27M12 21.5 3.6 13.1a5.6 5.6 0 0 1 0-7.9 5.6 5.6 0 0 1 7.9 0L12 5.7l.5-.5a5.6 5.6 0 0 1 7.9 0 5.6 5.6 0 0 1 0 7.9z%27/%3E%3C/svg%3E">
+  <title>Für Unternehmen – Hello Heroes (Demo)</title>
+  <meta name="description" content="Demo: Partnerschaften, Sichtbarkeit und Inklusionswissen für Unternehmen.">
+  <script>document.documentElement.classList.add("js");</script>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="base.css">
+  <link rel="stylesheet" href="components.css">
+  <link rel="stylesheet" href="pages.css">
+</head>
+<body>
+  <!-- shared:header -->
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+  <header class="site-header">
+    <div class="demo-banner demo-only" role="note">
+      <strong>Demo-Version:</strong> Ortsangaben stammen von den Betrieben, nicht vor Ort geprüft. Beispielkarten sind erfunden.
+    </div>
+    <div class="wrap site-header__bar">
+      <a class="wordmark" href="index.html" aria-label="Hello Heroes, zur Startseite">
+        <span>Hello</span>
+        <span>Her<svg class="wordmark__heart" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21.5 3.6 13.1a5.6 5.6 0 0 1 0-7.9 5.6 5.6 0 0 1 7.9 0L12 5.7l.5-.5a5.6 5.6 0 0 1 7.9 0 5.6 5.6 0 0 1 0 7.9z"/></svg>es</span>
+        <span class="wordmark__tag" aria-hidden="true">Leben. Ohne Limits.</span>
+      </a>
+      <div class="site-header__actions">
+        <a class="btn btn--icon" href="orte.html" aria-label="Suche: Orte entdecken"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
+        <a class="btn btn--dark header-cta" href="community.html">Gemeinsam mehr bewegen</a>
+        <button class="btn btn--icon nav-toggle" type="button" aria-expanded="false" aria-controls="hauptnavigation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="visually-hidden">Menü</span>
+        </button>
+      </div>
+      <nav class="nav" id="hauptnavigation" aria-label="Hauptnavigation">
+        <ul class="nav__list">
+          <li><a class="nav__link" href="magazin.html">Magazin</a></li>
+          <li><a class="nav__link" href="podcast.html">Podcast</a></li>
+          <li><a class="nav__link" href="hilfsmittel.html">Hilfsmittel</a></li>
+          <li><a class="nav__link" href="reisen.html">Reisen</a></li>
+          <li><a class="nav__link" href="leben.html">Leben</a></li>
+          <li><a class="nav__link" href="projekte.html">Projekte</a></li>
+          <li><a class="nav__link" href="orte.html">Orte</a></li>
+          <li><a class="nav__link" href="community.html">Community</a></li>
+          <li><a class="nav__link" href="unternehmen.html" aria-current="page">Für Unternehmen</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <!-- /shared:header -->
+
+  <main id="main">
+    <div class="page-head">
+      <div class="wrap">
+        <h1>Für Unternehmen</h1>
+        <p>Zeige, wofür du stehst, und erreiche Menschen, die auf dich achten.</p>
+      </div>
+    </div>
+    <section class="section">
+      <div class="wrap">
+        <div class="split">
+          <div><h2>Sichtbar werden</h2><p>Stelle dein Angebot vor: als Ort, Produkt oder Veranstaltung.</p></div>
+          <div><h2>Inklusionswissen</h2><p>Praxisnahe Beiträge, wie Barrieren im Alltag abgebaut werden können.</p></div>
+          <div><h2>Klar gekennzeichnet</h2><p>Partnerschaften und bezahlte Inhalte sind immer als „Partnerschaft“ oder „Anzeige“ erkennbar.</p></div>
+          <div><h2>Orte aufnehmen</h2><p>Für Orte in Münster ist ein Verfahren denkbar, bei dem Angaben zur Zugänglichkeit erfasst und geprüft werden. Wie das genau läuft, ist noch offen. Ein Gütesiegel gibt es nicht.</p></div>
+        </div>
+        <h2 style="margin-top:var(--space-5)">Kontakt aufnehmen</h2>
+        <form data-demo-form novalidate style="max-width:32rem;display:grid;gap:var(--space-2)">
+          <div class="field"><label for="u-name">Name des Unternehmens</label><input class="input" id="u-name" type="text" name="unternehmen" autocomplete="organization"></div>
+          <div class="field"><label for="u-mail">E-Mail-Adresse</label><input class="input" id="u-mail" type="email" name="email" autocomplete="email" required aria-required="true"></div>
+          <div><button class="btn" type="submit">Anfrage senden</button></div>
+          <p class="form-status" role="status" data-form-status></p>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- shared:footer -->
+  <footer class="site-footer">
+    <div class="wrap site-footer__grid">
+      <a class="wordmark" href="index.html" aria-label="Hello Heroes, zur Startseite">
+        <span>Hello</span>
+        <span>Her<svg class="wordmark__heart" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21.5 3.6 13.1a5.6 5.6 0 0 1 0-7.9 5.6 5.6 0 0 1 7.9 0L12 5.7l.5-.5a5.6 5.6 0 0 1 7.9 0 5.6 5.6 0 0 1 0 7.9z"/></svg>es</span>
+      </a>
+      <div>
+        <nav aria-label="Weitere Seiten">
+          <ul class="site-footer__list">
+            <li><a href="ueber-uns.html">Über uns</a></li>
+            <li><a href="projekte.html">Projekte</a></li>
+            <li><a href="unternehmen.html">Für Unternehmen</a></li>
+            <li><a href="datenschutz.html">Datenschutz</a></li>
+            <li><a href="impressum.html">Impressum</a></li>
+          </ul>
+        </nav>
+        <small class="demo-only">Demo-Version für den Pitch. Ortsangaben stammen von den Betrieben und sind nicht vor Ort geprüft. Beispielkarten sind erfunden.</small>
+      </div>
+    </div>
+  </footer>
+  <!-- /shared:footer -->
+
+  <script src="common.js"></script>
+</body>
+</html>
