@@ -21,6 +21,7 @@ class WebsiteContent(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     website = models.ForeignKey(Website, on_delete=models.CASCADE, related_name="contents")
+    name = models.CharField(max_length=255, help_text="Identifies the version to the user, e.g. 'Version 3'.")
     is_active = models.BooleanField(default=False, help_text="Whether this version is the one served for the website.")
     source = models.ForeignKey(
         "self",
@@ -50,7 +51,7 @@ class WebsiteContent(models.Model):
         )
 
     def __str__(self):
-        return f"Content {self.id} of {self.website}"
+        return f"{self.name} of {self.website}"
 
     @property
     def managed_domain(self) -> str:

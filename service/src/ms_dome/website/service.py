@@ -37,6 +37,7 @@ from django.db.models import QuerySet
 from website.models import WebsiteContent
 from website.sanitizer import sanitize_html
 
+MAX_NAME_LENGTH = 255
 MAX_DESCRIPTION_LENGTH = 4000
 MAX_PROMPT_LENGTH = 2000
 MAX_ATTRIBUTE_LENGTH = 200
@@ -195,11 +196,17 @@ class WebsiteBuilderService:
         return content
 
     def generate_website(
-        self, website_id: UUID, description: str, attributes: Mapping[str, Any] | None = None
+        self,
+        website_id: UUID,
+        description: str,
+        attributes: Mapping[str, Any] | None = None,
+        name: str | None = None,
     ) -> WebsiteContent:
-        """Generate a new version of the website's page from `description` and `attributes`."""
+        """Generate a new version of the website's page from `description` and `attributes`. Without a `name` the
+        version is called `Version <n>`."""
         website = HostManagementService(self.user).get_website(website_id)
 
+        name = self._clean_name(name)
         description = clean_user_text(description)
         if not description:
             raise ValidationError({"description": "The description must not be blank."})
@@ -208,12 +215,15 @@ class WebsiteBuilderService:
         attributes = self._clean_attributes(attributes or {})
 
         html = self._generate_html(clean_user_text(website.name), description, attributes)  # ty: ignore[invalid-argument-type]
-        return self._store(WebsiteContent(website=website, description=description, attributes=attributes), html)
+        content = WebsiteContent(website=website, name=name, description=description, attributes=attributes)
+        return self._store(content, html)
 
-    def edit_content(self, content_id: UUID, prompt: str) -> WebsiteContent:
-        """Apply the change described by `prompt` to the page of a version, the result is stored as a new version."""
+    def edit_content(self, content_id: UUID, prompt: str, name: str | None = None) -> WebsiteContent:
+        """Apply the change described by `prompt` to the page of a version, the result is stored as a new version.
+        Without a `name` the new version is called `Version <n>`."""
         source = self.get_content(content_id)
 
+        name = self._clean_name(name)
         prompt = clean_user_text(prompt)
         if not prompt:
             raise ValidationError({"prompt": "The prompt must not be blank."})
@@ -223,12 +233,23 @@ class WebsiteBuilderService:
         html = self._edit_html(source.read_html(), prompt)
         content = WebsiteContent(
             website_id=source.website_id,  # ty: ignore[unresolved-attribute]
+            name=name,
             source=source,
             prompt=prompt,
             description=source.description,
             attributes=source.attributes,
         )
         return self._store(content, html)
+
+    def rename_content(self, content_id: UUID, name: str) -> WebsiteContent:
+        content = self.get_content(content_id)
+        name = self._clean_name(name)
+        if not name:
+            raise ValidationError({"name": "The name must not be blank."})
+        content.name = name  # ty: ignore[invalid-assignment]
+        content.full_clean()
+        content.save(update_fields=("name", "updated_at"))
+        return content
 
     @transaction.atomic
     def activate_content(self, content_id: UUID) -> WebsiteContent:
@@ -270,6 +291,14 @@ class WebsiteBuilderService:
     def _lock_website(website_id: UUID) -> None:
         # serializes the changes of a website's versions, so two of them can not become active at the same time
         Website.objects.select_for_update().filter(pk=website_id).first()
+
+    @staticmethod
+    def _clean_name(name: str | None) -> str:
+        """The cleaned single line name, empty if none was given."""
+        name = clean_attribute_text(name or "")
+        if len(name) > MAX_NAME_LENGTH:
+            raise ValidationError({"name": f"Use at most {MAX_NAME_LENGTH} characters."})
+        return name
 
     @staticmethod
     def _clean_attributes(attributes: Mapping[str, Any]) -> dict[str, str | list[str]]:
@@ -357,10 +386,14 @@ class WebsiteBuilderService:
 
     @transaction.atomic
     def _store(self, content: WebsiteContent, html: str) -> WebsiteContent:
-        """Save `content` as a new version with `html` as its page, the first version of a website is activated."""
+        """Save `content` as a new version with `html` as its page, the first version of a website is activated. An
+        unnamed version is called `Version <n>`."""
         self._lock_website(content.website_id)  # ty: ignore[unresolved-attribute]
-        active = WebsiteContent.objects.filter(website_id=content.website_id, is_active=True)  # ty: ignore[unresolved-attribute]
-        content.is_active = not active.exists()  # ty: ignore[invalid-assignment]
+        versions = WebsiteContent.objects.filter(website_id=content.website_id)  # ty: ignore[unresolved-attribute]
+        content.is_active = not versions.filter(is_active=True).exists()  # ty: ignore[invalid-assignment]
+        if not content.name:
+            # counted under the lock, so two versions created at the same time get different numbers
+            content.name = f"Version {versions.count() + 1}"  # ty: ignore[invalid-assignment]
         content.model = settings.MODEL_NAME
         # the name is derived from the website and content ids by `website_html_path`
         content.html.save("index.html", ContentFile(html.encode()), save=False)  # ty: ignore[unresolved-attribute]
