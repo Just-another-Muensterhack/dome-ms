@@ -23,7 +23,7 @@ export const WebsiteSnapshotPreview = ({
         <iframe
           key={selectedId}
           title={translation('editorPreviewFrame')}
-          sandbox=""
+          sandbox="allow-scripts allow-same-origin"
           src={websiteContentPreviewUrl(websiteId, selectedId)}
           className="h-[36rem] w-full rounded-lg border border-neutral bg-white desktop:h-full"
         />

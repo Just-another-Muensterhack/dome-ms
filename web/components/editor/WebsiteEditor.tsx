@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { Button, Dialog, Drawer, IconButton, LoadingSpinner, Textarea } from '@helpwave/hightide'
+import { Button, Dialog, Drawer, IconButton, Input, LoadingSpinner, Textarea } from '@helpwave/hightide'
 import { PencilIcon } from 'lucide-react'
 import {
   useActivateWebsiteContent,
@@ -14,8 +14,9 @@ import type { WebsiteContent } from '@/api/types/websiteContent'
 import { WebsiteEditorSidebar } from '@/components/editor/WebsiteEditorSidebar'
 import { WebsiteSnapshotPreview } from '@/components/editor/WebsiteSnapshotPreview'
 import { WebsiteSnapshotStepper } from '@/components/editor/WebsiteSnapshotStepper'
-import { useDomeTranslation } from '@/i18n/useDomeTranslation'
-import { websiteContentPreviewUrl } from '@/utils/websiteContent'
+import { WebsiteUploadDialog } from '@/components/editor/WebsiteUploadDialog'
+import { useDomeTranslation, useLocale } from '@/i18n/useDomeTranslation'
+import { snapshotDateLabel, snapshotNameWithSuffix, websiteContentPreviewUrl } from '@/utils/websiteContent'
 
 const maxPromptLength = 2000
 
@@ -46,14 +47,17 @@ export const WebsiteEditor = ({
   fullscreen = false,
 }: WebsiteEditorProps) => {
   const translation = useDomeTranslation()
+  const { locale } = useLocale()
   const queryClient = useQueryClient()
   const contentsQuery = useWebsiteContents(websiteId)
   const contents = contentsQuery.data ?? []
   const activeContent = contents.find((content) => content.is_active)
-  const [panel, setPanel] = useState<'preview' | 'update'>('preview')
   const [selectedId, setSelectedId] = useState<string | undefined>()
   const [prompt, setPrompt] = useState('')
+  const [snapshotName, setSnapshotName] = useState('')
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [isUploadOpen, setIsUploadOpen] = useState(false)
   const [mobilePreview, setMobilePreview] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
@@ -79,7 +83,7 @@ export const WebsiteEditor = ({
       const next = remaining.find((content) => content.is_active) ?? remaining[0]
       setSelectedId(next?.id)
       setPrompt('')
-      setPanel('preview')
+      setIsUpdateOpen(false)
       void refreshContents()
     },
   })
@@ -87,7 +91,7 @@ export const WebsiteEditor = ({
   const showCreatedSnapshot = async (content: WebsiteContent) => {
     setSelectedId(content.id)
     setPrompt('')
-    setPanel('preview')
+    setIsUpdateOpen(false)
     setIsCreateOpen(false)
     await refreshContents()
   }
@@ -108,39 +112,13 @@ export const WebsiteEditor = ({
     setSelectedId(contentId)
   }
 
-  const updateForm = panel === 'update' && selectedContent ? (
-    edit.isPending ? (
-      <div className="flex-col-2 items-start">
-        <LoadingSpinner />
-        <p className="typography-title-md">{translation('editorUpdatingTitle')}</p>
-        <p className="typography-body text-description">{translation('editorUpdatingWait')}</p>
-      </div>
-    ) : (
-      <div className="flex-col-2">
-        <Field label={translation('editorUpdatePromptLabel')}>
-          <Textarea
-            value={prompt}
-            maxLength={maxPromptLength}
-            rows={4}
-            placeholder={translation('editorUpdatePromptPlaceholder')}
-            onValueChange={setPrompt}
-          />
-        </Field>
-        <div className="flex flex-wrap items-center gap-3">
-          <Button type="button" color="neutral" coloringStyle="outline" onClick={() => setPanel('preview')}>
-            {translation('cancel')}
-          </Button>
-          <Button
-            type="button"
-            disabled={prompt.trim().length === 0}
-            onClick={() => edit.mutate({ contentId: selectedContent.id, prompt: prompt.trim() })}
-          >
-            {translation('editorUpdateSubmit')}
-          </Button>
-        </div>
-      </div>
-    )
-  ) : undefined
+  const closeUpdate = () => {
+    if (edit.isPending) {
+      return
+    }
+    edit.reset()
+    setIsUpdateOpen(false)
+  }
 
   const sidebar = (
     <WebsiteEditorSidebar
@@ -155,18 +133,21 @@ export const WebsiteEditor = ({
       onDelete={(contentId) => remove.mutateAsync(contentId)}
       isDeleting={remove.isPending}
       onUpdate={() => {
+        const current = contents.find((content) => content.id === previewId) ?? selectedContent
         setPrompt('')
-        setPanel('update')
+        setSnapshotName(snapshotNameWithSuffix(
+          current?.name ?? '',
+          translation('editorUpdatedSnapshotSuffix', { when: snapshotDateLabel(new Date(), locale) }),
+        ))
+        setIsUpdateOpen(true)
       }}
       onCreate={() => setIsCreateOpen(true)}
+      onUpload={() => setIsUploadOpen(true)}
       isActivating={activate.isPending}
-      showActions={panel === 'preview'}
       mobilePreview={mobilePreview}
       onMobilePreviewChange={setMobilePreview}
       showFullscreenLink={!fullscreen}
-    >
-      {updateForm}
-    </WebsiteEditorSidebar>
+    />
   )
 
   const createDialog = isCreateOpen ? (
@@ -201,11 +182,6 @@ export const WebsiteEditor = ({
       {contentsQuery.isError && (
         <p className="typography-body text-negative" role="alert">{translation('editorSnapshotsUnavailable')}</p>
       )}
-      {edit.isError && (
-        <p className="typography-body text-negative" role="alert">
-          {edit.error.message || translation('editorUpdateFailed')}
-        </p>
-      )}
       {activate.isError && (
         <p className="typography-body text-negative" role="alert">
           {activate.error.message || translation('editorActivateFailed')}
@@ -222,6 +198,7 @@ export const WebsiteEditor = ({
           websiteId={websiteId}
           websiteName={websiteName}
           initialDescription={initialDescription}
+          onUpload={() => setIsUploadOpen(true)}
           onCreated={(content) => {
             void showCreatedSnapshot(content)
           }}
@@ -245,7 +222,7 @@ export const WebsiteEditor = ({
               <iframe
                 key={previewId}
                 title={translation('editorPreviewFrame')}
-                sandbox=""
+                sandbox="allow-scripts allow-same-origin"
                 src={websiteContentPreviewUrl(websiteId, previewId)}
                 className="block h-full w-full border-0 bg-white"
               />
@@ -271,7 +248,74 @@ export const WebsiteEditor = ({
           </Drawer>
         </div>
       )}
+      {isUpdateOpen && selectedContent && selectedContent.kind !== 'uploaded' && (
+        <Dialog
+          isOpen
+          isModal
+          className="confirm-dialog"
+          titleElement={<span className="typography-title-md">{translation('editorUpdateSnapshot')}</span>}
+          description={translation('editorUpdatePromptLabel')}
+          onClose={closeUpdate}
+        >
+          {edit.isPending ? (
+            <div className="flex-col-2 items-start">
+              <LoadingSpinner />
+              <p className="typography-title-md">{translation('editorUpdatingTitle')}</p>
+              <p className="typography-body text-description">{translation('editorUpdatingWait')}</p>
+            </div>
+          ) : (
+            <div className="flex-col-3">
+              <Field label={translation('name')}>
+                <Input
+                  value={snapshotName}
+                  maxLength={255}
+                  onValueChange={setSnapshotName}
+                />
+              </Field>
+              <Field label={translation('editorUpdatePromptLabel')}>
+                <Textarea
+                  value={prompt}
+                  maxLength={maxPromptLength}
+                  rows={4}
+                  placeholder={translation('editorUpdatePromptPlaceholder')}
+                  onValueChange={setPrompt}
+                />
+              </Field>
+              {edit.isError && (
+                <p className="typography-body text-negative" role="alert">
+                  {edit.error.message || translation('editorUpdateFailed')}
+                </p>
+              )}
+              <div className="flex flex-wrap justify-end gap-3">
+                <Button type="button" color="neutral" coloringStyle="outline" onClick={closeUpdate}>
+                  {translation('cancel')}
+                </Button>
+                <Button
+                  type="button"
+                  disabled={prompt.trim().length === 0}
+                  onClick={() => edit.mutate({
+                    contentId: selectedContent.id,
+                    prompt: prompt.trim(),
+                    name: snapshotName.trim(),
+                  })}
+                >
+                  {translation('editorUpdateSubmit')}
+                </Button>
+              </div>
+            </div>
+          )}
+        </Dialog>
+      )}
       {createDialog}
+      {isUploadOpen && (
+        <WebsiteUploadDialog
+          websiteId={websiteId}
+          onClose={() => setIsUploadOpen(false)}
+          onUploaded={(content) => {
+            void showCreatedSnapshot(content)
+          }}
+        />
+      )}
     </div>
   )
 }

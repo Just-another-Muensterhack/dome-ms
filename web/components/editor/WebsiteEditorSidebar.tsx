@@ -1,9 +1,9 @@
-import { useEffect, useState, type ReactNode } from 'react'
-import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { Button, ConfirmDialog, Input, LabelledCheckbox, Select } from '@helpwave/hightide'
 import { ExternalLink } from 'lucide-react'
 import type { WebsiteContent } from '@/api/types/websiteContent'
 import { useDomeTranslation } from '@/i18n/useDomeTranslation'
+import { websiteContentPreviewUrl } from '@/utils/websiteContent'
 
 type WebsiteEditorSidebarProps = {
   websiteId: string,
@@ -18,12 +18,11 @@ type WebsiteEditorSidebarProps = {
   isDeleting: boolean,
   onUpdate: () => void,
   onCreate: () => void,
+  onUpload: () => void,
   isActivating: boolean,
-  showActions: boolean,
   mobilePreview: boolean,
   onMobilePreviewChange: (mobilePreview: boolean) => void,
   showFullscreenLink: boolean,
-  children?: ReactNode,
 }
 
 export const WebsiteEditorSidebar = ({
@@ -39,12 +38,11 @@ export const WebsiteEditorSidebar = ({
   isDeleting,
   onUpdate,
   onCreate,
+  onUpload,
   isActivating,
-  showActions,
   mobilePreview,
   onMobilePreviewChange,
   showFullscreenLink,
-  children,
 }: WebsiteEditorSidebarProps) => {
   const translation = useDomeTranslation()
   const hasActiveSnapshot = contents.some((content) => content.is_active)
@@ -101,9 +99,9 @@ export const WebsiteEditorSidebar = ({
             <p className="typography-body text-description">{websiteName}</p>
           )}
         </div>
-        {showFullscreenLink && (
-          <Link
-            href={`/website/preview/${websiteId}`}
+        {showFullscreenLink && selected && (
+          <a
+            href={websiteContentPreviewUrl(websiteId, selected.id)}
             target="_blank"
             rel="noopener noreferrer"
             className="icon-button"
@@ -112,7 +110,7 @@ export const WebsiteEditorSidebar = ({
             data-coloringstyle="text"
           >
             <ExternalLink size={16}/>
-          </Link>
+          </a>
         )}
       </div>
       {contents.length > 0 && selected && (
@@ -198,11 +196,18 @@ export const WebsiteEditorSidebar = ({
           <Button type="button" color="neutral" coloringStyle="outline" onClick={onCreate}>
             {translation('editorNewSnapshot')}
           </Button>
-          {showActions && hasActiveSnapshot && (
+          <Button type="button" color="neutral" coloringStyle="outline" onClick={onUpload}>
+            {translation('editorUploadFiles')}
+          </Button>
+          {hasActiveSnapshot && (
             <>
-              <Button type="button" onClick={onUpdate}>
-                {translation('editorUpdateSnapshot')}
-              </Button>
+              {selected?.kind === 'uploaded' ? (
+                <p className="typography-body text-description">{translation('editorUploadedNoUpdate')}</p>
+              ) : (
+                <Button type="button" onClick={onUpdate}>
+                  {translation('editorUpdateSnapshot')}
+                </Button>
+              )}
               <Button
                 type="button"
                 color="negative"
@@ -239,12 +244,11 @@ export const WebsiteEditorSidebar = ({
           )}
         </div>
       </div>
-      {showActions && contents.length === 0 && (
+      {contents.length === 0 && (
         <Button type="button" onClick={onCreate}>
           {translation('editorNewSnapshot')}
         </Button>
       )}
-      {children}
     </aside>
   )
 }

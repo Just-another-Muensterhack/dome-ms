@@ -205,6 +205,33 @@
   "editorSnapshotActive": "active",
   "editorUpdateSnapshot": "Update snapshot",
   "editorNewSnapshot": "New snapshot",
+  "editorCreatedSnapshotName": "Snapshot {website} {when}",
+  "@editorCreatedSnapshotName": {
+    "placeholders": {
+      "website": { "type": "string" },
+      "when": { "type": "string" }
+    }
+  },
+  "editorUpdatedSnapshotSuffix": " (Update: {when})",
+  "@editorUpdatedSnapshotSuffix": {
+    "placeholders": {
+      "when": { "type": "string" }
+    }
+  },
+  "editorUploadedSnapshotName": "Upload {when}",
+  "@editorUploadedSnapshotName": {
+    "placeholders": {
+      "when": { "type": "string" }
+    }
+  },
+  "editorUploadedNoUpdate": "This snapshot was uploaded manually and cannot be updated with artificial intelligence yet.",
+  "editorUploadFiles": "Upload files",
+  "editorChooseFiles": "Choose files",
+  "editorUploadHint": "Drop files here, or choose them.",
+  "editorUploadEmpty": "No files selected.",
+  "editorUploadSkipped": "Some files were skipped because their type is not supported.",
+  "editorUploadFailed": "The files could not be uploaded.",
+  "editorUploadRemove": "Remove file",
   "editorUpdatePromptLabel": "What should change on this snapshot?",
   "editorUpdatePromptPlaceholder": "For example, make the header dark blue",
   "editorUpdateSubmit": "Update snapshot",

@@ -10,6 +10,7 @@ export type WebsiteAttributes = {
 
 export type WebsiteContentIn = {
   website_id: string,
+  name?: string,
   description: string,
   attributes: WebsiteAttributes,
 }
@@ -17,6 +18,7 @@ export type WebsiteContentIn = {
 export type WebsiteContent = {
   id: string,
   website_id: string,
+  kind: 'generated' | 'uploaded',
   name: string,
   is_active: boolean,
   source_id: string | null,

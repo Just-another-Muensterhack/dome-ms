@@ -205,6 +205,33 @@
   "editorSnapshotActive": "aktiv",
   "editorUpdateSnapshot": "Snapshot aktualisieren",
   "editorNewSnapshot": "Neuer Snapshot",
+  "editorCreatedSnapshotName": "Snapshot {website} {when}",
+  "@editorCreatedSnapshotName": {
+    "placeholders": {
+      "website": { "type": "string" },
+      "when": { "type": "string" }
+    }
+  },
+  "editorUpdatedSnapshotSuffix": " (Aktualisierung: {when})",
+  "@editorUpdatedSnapshotSuffix": {
+    "placeholders": {
+      "when": { "type": "string" }
+    }
+  },
+  "editorUploadedSnapshotName": "Upload {when}",
+  "@editorUploadedSnapshotName": {
+    "placeholders": {
+      "when": { "type": "string" }
+    }
+  },
+  "editorUploadedNoUpdate": "Dieser Snapshot wurde manuell hochgeladen und kann noch nicht mit künstlicher Intelligenz aktualisiert werden.",
+  "editorUploadFiles": "Dateien hochladen",
+  "editorChooseFiles": "Dateien auswählen",
+  "editorUploadHint": "Ziehen Sie Dateien hierher oder wählen Sie sie aus.",
+  "editorUploadEmpty": "Keine Dateien ausgewählt.",
+  "editorUploadSkipped": "Einige Dateien wurden übersprungen, weil ihr Dateityp nicht unterstützt wird.",
+  "editorUploadFailed": "Die Dateien konnten nicht hochgeladen werden.",
+  "editorUploadRemove": "Datei entfernen",
   "editorUpdatePromptLabel": "Was soll an diesem Snapshot geändert werden?",
   "editorUpdatePromptPlaceholder": "Zum Beispiel die Kopfzeile dunkelblau machen",
   "editorUpdateSubmit": "Snapshot aktualisieren",

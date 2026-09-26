@@ -3,6 +3,7 @@ import { Button, Chip, Input, LoadingSpinner, Textarea } from '@helpwave/hightid
 import { useGenerateWebsite } from '@/api/websiteBuilder'
 import type { WebsiteAttributes, WebsiteContent } from '@/api/types/websiteContent'
 import { useDomeTranslation, useLocale } from '@/i18n/useDomeTranslation'
+import { collapseSnapshotName, snapshotDateTimeLabel } from '@/utils/websiteContent'
 
 const colors = [
   '#2f6f4f',
@@ -34,6 +35,7 @@ type WebsiteSnapshotStepperProps = {
   source?: WebsiteContent,
   fixedHeight?: boolean,
   onCancel?: () => void,
+  onUpload?: () => void,
   onCreated: (content: WebsiteContent) => void,
 }
 
@@ -95,6 +97,7 @@ export const WebsiteSnapshotStepper = ({
   source,
   fixedHeight = false,
   onCancel,
+  onUpload,
   onCreated,
 }: WebsiteSnapshotStepperProps) => {
   const translation = useDomeTranslation()
@@ -126,6 +129,22 @@ export const WebsiteSnapshotStepper = ({
   const [language, setLanguage] = useState<PageLanguage>(pageLanguage(source?.attributes.language, locale))
   const [fieldError, setFieldError] = useState<string | undefined>()
   const [seeded, setSeeded] = useState((source?.description ?? initialDescription).length > 0)
+  const [nameTouched, setNameTouched] = useState(false)
+  const suggestedName = collapseSnapshotName(translation('editorCreatedSnapshotName', {
+    website: websiteName.trim(),
+    when: snapshotDateTimeLabel(new Date(), locale),
+  }))
+  const [snapshotName, setSnapshotName] = useState(suggestedName)
+
+  useEffect(() => {
+    if (nameTouched) {
+      return
+    }
+    setSnapshotName(collapseSnapshotName(translation('editorCreatedSnapshotName', {
+      website: websiteName.trim(),
+      when: snapshotDateTimeLabel(new Date(), locale),
+    })))
+  }, [locale, nameTouched, translation, websiteName])
 
   useEffect(() => {
     if (source || seeded || initialDescription.length === 0) {
@@ -197,8 +216,10 @@ export const WebsiteSnapshotStepper = ({
         return
       }
       setStep('loading')
+      const name = snapshotName.trim()
       generate.mutate({
         website_id: websiteId,
+        ...(name.length > 0 ? { name } : {}),
         description: description.trim(),
         attributes: attributes(),
       })
@@ -239,12 +260,27 @@ export const WebsiteSnapshotStepper = ({
               <Button type="button" onClick={() => setStep('about')}>
                 {translation('editorStart')}
               </Button>
+              {onUpload && (
+                <Button type="button" color="neutral" coloringStyle="outline" onClick={onUpload}>
+                  {translation('editorUploadFiles')}
+                </Button>
+              )}
             </div>
           </section>
         )}
         {step === 'about' && (
           <section className="flex-col-4 rounded-lg bg-surface-variant p-5 text-on-surface">
             <p className="typography-label text-primary">{translation('editorStep', { step: '1', total: '3' })}</p>
+            <Field label={translation('name')}>
+              <Input
+                value={snapshotName}
+                maxLength={255}
+                onValueChange={(value) => {
+                  setNameTouched(true)
+                  setSnapshotName(value)
+                }}
+              />
+            </Field>
             <div className="flex-col-4">
               <div className="flex-col-0">
                 <h2 className="typography-title-md">{translation('editorWhoTitle')}</h2>

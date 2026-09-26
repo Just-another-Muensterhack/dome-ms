@@ -62,7 +62,9 @@ export type DomeTranslationEntries = {
   'editorCatPracticeInfo': string,
   'editorCatTrade': string,
   'editorCatTradeInfo': string,
+  'editorChooseFiles': string,
   'editorColorLegend': string,
+  'editorCreatedSnapshotName': (values: { website: string, when: string }) => string,
   'editorCreateSite': string,
   'editorCustomColor': string,
   'editorDeleteActiveSnapshot': string,
@@ -119,6 +121,7 @@ export type DomeTranslationEntries = {
   'editorStyleWarm': string,
   'editorStyleWarmInfo': string,
   'editorTooManySections': string,
+  'editorUpdatedSnapshotSuffix': (values: { when: string }) => string,
   'editorUpdateFailed': string,
   'editorUpdatePromptLabel': string,
   'editorUpdatePromptPlaceholder': string,
@@ -126,6 +129,14 @@ export type DomeTranslationEntries = {
   'editorUpdateSubmit': string,
   'editorUpdatingTitle': string,
   'editorUpdatingWait': string,
+  'editorUploadedNoUpdate': string,
+  'editorUploadedSnapshotName': (values: { when: string }) => string,
+  'editorUploadEmpty': string,
+  'editorUploadFailed': string,
+  'editorUploadFiles': string,
+  'editorUploadHint': string,
+  'editorUploadRemove': string,
+  'editorUploadSkipped': string,
   'editorUsesName': (values: { name: string }) => string,
   'editorWhoTitle': string,
   'editWebsite': string,
@@ -263,7 +274,11 @@ export const domeTranslation: Translation<DomeTranslationLocales, Partial<DomeTr
     'editorCatPracticeInfo': `Arzt, Therapie, Coaching`,
     'editorCatTrade': `Handwerk`,
     'editorCatTradeInfo': `Betrieb, Werkstatt`,
+    'editorChooseFiles': `Dateien auswählen`,
     'editorColorLegend': `Hauptfarbe`,
+    'editorCreatedSnapshotName': ({ website, when }): string => {
+      return `Snapshot ${website} ${when}`
+    },
     'editorCreateSite': `Website erstellen`,
     'editorCustomColor': `Eigene Farbe`,
     'editorDeleteActiveSnapshot': `Aktivieren Sie zuerst einen anderen Snapshot.`,
@@ -322,6 +337,9 @@ export const domeTranslation: Translation<DomeTranslationLocales, Partial<DomeTr
     'editorStyleWarm': `Warm`,
     'editorStyleWarmInfo': `Freundlich, mit Serifen`,
     'editorTooManySections': `Es passen höchstens 12 Abschnitte.`,
+    'editorUpdatedSnapshotSuffix': ({ when }): string => {
+      return ` (Aktualisierung: ${when})`
+    },
     'editorUpdateFailed': `Der Snapshot konnte nicht aktualisiert werden.`,
     'editorUpdatePromptLabel': `Was soll an diesem Snapshot geändert werden?`,
     'editorUpdatePromptPlaceholder': `Zum Beispiel die Kopfzeile dunkelblau machen`,
@@ -329,6 +347,16 @@ export const domeTranslation: Translation<DomeTranslationLocales, Partial<DomeTr
     'editorUpdateSubmit': `Snapshot aktualisieren`,
     'editorUpdatingTitle': `Der Snapshot wird aktualisiert`,
     'editorUpdatingWait': `Das kann eine Minute dauern.`,
+    'editorUploadedNoUpdate': `Dieser Snapshot wurde manuell hochgeladen und kann noch nicht mit künstlicher Intelligenz aktualisiert werden.`,
+    'editorUploadedSnapshotName': ({ when }): string => {
+      return `Upload ${when}`
+    },
+    'editorUploadEmpty': `Keine Dateien ausgewählt.`,
+    'editorUploadFailed': `Die Dateien konnten nicht hochgeladen werden.`,
+    'editorUploadFiles': `Dateien hochladen`,
+    'editorUploadHint': `Ziehen Sie Dateien hierher oder wählen Sie sie aus.`,
+    'editorUploadRemove': `Datei entfernen`,
+    'editorUploadSkipped': `Einige Dateien wurden übersprungen, weil ihr Dateityp nicht unterstützt wird.`,
     'editorUsesName': ({ name }): string => {
       return `Die Seite wird für ${name} erzeugt.`
     },
@@ -474,7 +502,11 @@ export const domeTranslation: Translation<DomeTranslationLocales, Partial<DomeTr
     'editorCatPracticeInfo': `Doctor, therapy, coaching`,
     'editorCatTrade': `Trade`,
     'editorCatTradeInfo': `Workshop, craft`,
+    'editorChooseFiles': `Choose files`,
     'editorColorLegend': `Main color`,
+    'editorCreatedSnapshotName': ({ website, when }): string => {
+      return `Snapshot ${website} ${when}`
+    },
     'editorCreateSite': `Create website`,
     'editorCustomColor': `Custom color`,
     'editorDeleteActiveSnapshot': `Activate another snapshot before deleting this one.`,
@@ -533,6 +565,9 @@ export const domeTranslation: Translation<DomeTranslationLocales, Partial<DomeTr
     'editorStyleWarm': `Warm`,
     'editorStyleWarmInfo': `Friendly, with serif type`,
     'editorTooManySections': `Only 12 sections fit.`,
+    'editorUpdatedSnapshotSuffix': ({ when }): string => {
+      return ` (Update: ${when})`
+    },
     'editorUpdateFailed': `The snapshot could not be updated.`,
     'editorUpdatePromptLabel': `What should change on this snapshot?`,
     'editorUpdatePromptPlaceholder': `For example, make the header dark blue`,
@@ -540,6 +575,16 @@ export const domeTranslation: Translation<DomeTranslationLocales, Partial<DomeTr
     'editorUpdateSubmit': `Update snapshot`,
     'editorUpdatingTitle': `The snapshot is being updated`,
     'editorUpdatingWait': `This can take a minute.`,
+    'editorUploadedNoUpdate': `This snapshot was uploaded manually and cannot be updated with artificial intelligence yet.`,
+    'editorUploadedSnapshotName': ({ when }): string => {
+      return `Upload ${when}`
+    },
+    'editorUploadEmpty': `No files selected.`,
+    'editorUploadFailed': `The files could not be uploaded.`,
+    'editorUploadFiles': `Upload files`,
+    'editorUploadHint': `Drop files here, or choose them.`,
+    'editorUploadRemove': `Remove file`,
+    'editorUploadSkipped': `Some files were skipped because their type is not supported.`,
     'editorUsesName': ({ name }): string => {
       return `This page is built for ${name}.`
     },

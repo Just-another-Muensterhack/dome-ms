@@ -1,3 +1,5 @@
+import { clearOnboardingTimestamp } from '@/utils/onboarding'
+
 export const keycloakConfig = {
   url: process.env['NEXT_PUBLIC_KEYCLOAK_URL'] ?? 'http://localhost:8080',
   realm: process.env['NEXT_PUBLIC_KEYCLOAK_REALM'] ?? 'msdome',
@@ -265,5 +267,6 @@ export const logout = (): void => {
   }
 
   clearSession()
+  clearOnboardingTimestamp()
   window.location.assign(`${issuerPath('logout')}?${params.toString()}`)
 }
