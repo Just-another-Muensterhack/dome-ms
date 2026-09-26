@@ -10,6 +10,7 @@ repaired by the next sync. nginx has to be reloaded to pick up the changes.
 """
 
 import fcntl
+import functools
 import ipaddress
 import logging
 import os
@@ -23,7 +24,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import transaction
 from django.db.models import Q
-from django.template.loader import render_to_string
+from django.template import Engine
 
 from core.models import Domain, Webserver, Website, is_managed_domain_name
 
@@ -83,12 +84,13 @@ def sync() -> SyncResult:
 def render_configs() -> dict[str, str]:
     """The file name and content of every config."""
     WebsiteContent = apps.get_model("website", "WebsiteContent")  # the website app depends on core, not vice versa
+    engine = _engine(settings.NGINX_TEMPLATE_DIR)
     configs: dict[str, str] = {}
 
     def add(server_name: str, description: str, target: Target) -> None:
         template, context = target
         context = {**context, "server_name": server_name, "description": description}
-        configs[_file_name(server_name)] = render_to_string(template, context)
+        configs[_file_name(server_name)] = engine.render_to_string(template, context)
 
     contents = WebsiteContent.objects.filter(website__deleted=False).only("id", "website_id", "is_active", "html")
     active = {content.website_id: content for content in contents if content.is_active}
@@ -115,6 +117,12 @@ def render_configs() -> dict[str, str]:
     return configs
 
 
+@functools.cache
+def _engine(directory: Path) -> Engine:
+    # a separate engine, so the templates are only looked up in `directory` and not in the apps' template dirs
+    return Engine(dirs=[str(directory)], autoescape=True)
+
+
 def _file_name(server_name: str) -> str:
     # every name is a validated host name or a UUID below the base domain, never a path; `_` is not allowed in a host
     # name, so a wildcard never shares a file with a plain name
@@ -127,7 +135,7 @@ def _file_name(server_name: str) -> str:
 def _static(content: Any | None) -> Target:
     """Serve the HTML of `content`, 404 without one."""
     root = settings.NGINX_MEDIA_ROOT / Path(content.html.name).parent if content is not None else None
-    return "core/nginx/static.conf", {"root": root}
+    return "static.conf", {"root": root}
 
 
 def _proxy(webserver: Webserver) -> Target:
@@ -139,9 +147,9 @@ def _proxy(webserver: Webserver) -> Target:
         # private, loopback and link local addresses would expose our internal network
         if ip.is_global:
             upstream = f"[{ip}]" if ip.version == 6 else str(ip)
-            return "core/nginx/proxy.conf", {"upstream": upstream, "resolver": None}
+            return "proxy.conf", {"upstream": upstream, "resolver": None}
     if webserver.cname and not is_managed_domain_name(webserver.cname):  # ty: ignore[invalid-argument-type]
-        return "core/nginx/proxy.conf", {"upstream": webserver.cname, "resolver": settings.NGINX_RESOLVER}
+        return "proxy.conf", {"upstream": webserver.cname, "resolver": settings.NGINX_RESOLVER}
     logger.debug("webserver %s has no public address, it is not proxied", webserver.pk)
     return _static(None)
 

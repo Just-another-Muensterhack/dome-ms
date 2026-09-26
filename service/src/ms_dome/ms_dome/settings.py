@@ -205,6 +205,8 @@ DOME_BASE_DOMAIN = os.environ.get("DOME_BASE_DOMAIN", "dome.ms").strip().lower()
 # one server config per served domain is written to this directory, nginx includes it with `include <dir>/*.conf;`
 # the directory belongs to the sync, other `*.conf` files in it are removed; unset disables the configs
 NGINX_CONFIG_DIR = Path(os.environ["NGINX_CONFIG_DIR"]) if os.environ.get("NGINX_CONFIG_DIR") else None
+# the `static.conf` and `proxy.conf` templates the configs are rendered from, defaults to the ones shipped with the app
+NGINX_TEMPLATE_DIR = Path(os.environ.get("NGINX_TEMPLATE_DIR", BASE_DIR / "core" / "templates" / "core" / "nginx"))
 # `MEDIA_ROOT` as nginx sees it, when it mounts the media volume at another path
 NGINX_MEDIA_ROOT = Path(os.environ.get("NGINX_MEDIA_ROOT", MEDIA_ROOT))
 # resolves the CNAMEs of webservers at request time
