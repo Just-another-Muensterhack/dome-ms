@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import { Button, Expandable, LoadingAndErrorComponent } from '@helpwave/hightide'
+import { ChevronRight } from 'lucide-react'
 import { useDomainsQuery } from '@/api/domain'
 import { useWebsites } from '@/api/website'
 import type { Domain } from '@/api/types/domain'
@@ -39,9 +40,13 @@ const NameList = ({
   return (
     <ul className="flex-col-2">
       {entries.map((entry) => (
-        <li key={entry.id}>
-          <Link href={entry.href} className="typography-body hover:underline">
-            {entry.name}
+        <li key={entry.id} className="w-full">
+          <Link
+            href={entry.href}
+            className="group flex w-full items-center justify-between gap-3 rounded-md px-2 py-2 typography-body transition-colors hover:bg-surface-variant"
+          >
+            <span className="min-w-0 truncate">{entry.name}</span>
+            <ChevronRight className="size-4 shrink-0 transition-transform group-hover:translate-x-1" />
           </Link>
         </li>
       ))}

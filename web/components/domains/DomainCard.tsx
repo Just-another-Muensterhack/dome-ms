@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Card, Chip, IconButton } from '@helpwave/hightide'
-import { PencilIcon } from 'lucide-react'
+import { Check, PencilIcon, Verified } from 'lucide-react'
 import { useWebsites } from '@/api/website'
 import type { Domain } from '@/api/types/domain'
 import { EditDomainDialog } from '@/components/domains/EditDomainDialog'
@@ -25,8 +25,17 @@ export const DomainCard = ({
   return (
     <Card
       id={domain.id}
-      title={<span className="block truncate">{domainLabel(domain)}</span>}
-      className="relative h-full [&_.card-header]:min-h-0 [&_.card-header]:items-start"
+      title={(
+        <span className="truncate flex-row-1 items-center">
+          {domainLabel(domain)}
+          {true ?
+            // todo update the above to read domain.verified
+            (<Verified size={16} className="text-positive"/>)
+            : undefined
+          }
+        </span>
+      )}
+      className="relative [&_.card-header]:z-1"
       trailing={(
         <IconButton
           size="sm"
@@ -40,24 +49,29 @@ export const DomainCard = ({
         </IconButton>
       )}
     >
+      <button
+        className="absolute inset-0 cursor-pointer underline-none hover:bg-surface-hover rounded-[inherit] z-0"
+        onClick={() => setIsEditOpen(true)}
+      />
       {website ? (
-          <Link
-            href={`/website/${website.id}`}
-            className="typography-body text-primary hover:underline"
+        <Link
+          href={`/website/${website.id}`}
+          className="typography-body text-primary hover:bg-surface-hover w-fit z-1"
+        >
+          <Chip
+            color="primary"
+            coloringStyle="tonal"
+            size="sm"
           >
-            <Chip
-              color="primary"
-              coloringStyle="tonal"
-              size="sm"
-            >
-              {website.name}
-            </Chip>
-          </Link>
+            {website.name}
+          </Chip>
+        </Link>
       ) : (
         <Chip
           color="neutral"
           coloringStyle="tonal"
           size="sm"
+          className="z-1"
         >
           {translation('custom')}
         </Chip>
