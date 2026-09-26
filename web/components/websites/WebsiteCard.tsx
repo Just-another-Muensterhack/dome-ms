@@ -1,8 +1,6 @@
-import { useState } from 'react'
-import { Card, IconButton } from '@helpwave/hightide'
+import { Card } from '@helpwave/hightide'
 import { PencilIcon } from 'lucide-react'
 import type { Website } from '@/api/types/website'
-import { AddWebsiteDialog } from '@/components/websites/AddWebsiteDialog'
 import { useDomeTranslation } from '@/i18n/useDomeTranslation'
 import { WebsiteDomainChips } from './WebsiteDomainChips'
 import Link from 'next/link'
@@ -15,7 +13,6 @@ export const WebsiteCard = ({
   website,
 }: WebsiteCardProps) => {
   const translation = useDomeTranslation()
-  const [isEditOpen, setIsEditOpen] = useState(false)
 
   return (
     <Card
@@ -23,16 +20,16 @@ export const WebsiteCard = ({
       title={website.name}
       className="relative flex-col justify-start [&_.card-header]:z-[1]"
       trailing={(
-        <IconButton
-          size="sm"
-          color="primary"
-          coloringStyle="text"
-          className="relative z-10"
-          tooltip={translation('editWebsite')}
-          onClick={() => setIsEditOpen(true)}
+        <Link
+          href={`/website/${website.id}?mode=edit`}
+          className="icon-button relative z-10"
+          data-size="sm"
+          data-color="primary"
+          data-coloringstyle="text"
+          aria-label={translation('editWebsite')}
         >
           <PencilIcon className="size-5" />
-        </IconButton>
+        </Link>
       )}
     >
       <Link
@@ -47,13 +44,6 @@ export const WebsiteCard = ({
         <div className="relative z-10 flex-col-2 z-1">
           <WebsiteDomainChips websiteName={website.name} domains={website.domains} />
         </div>
-      )}
-      {isEditOpen && (
-        <AddWebsiteDialog
-          website={website}
-          isOpen
-          onClose={() => setIsEditOpen(false)}
-        />
       )}
     </Card>
   )

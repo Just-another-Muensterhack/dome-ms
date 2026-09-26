@@ -197,6 +197,7 @@
   "actions": "Aktionen",
   "editorPreviewFrame": "Vorschau der Website",
   "editorOpenFullscreen": "Im Vollbild öffnen",
+  "editorMinimize": "Vollbild verlassen",
   "editorEditPreview": "Bearbeiten",
   "editorDesktop": "Desktop",
   "editorMobile": "Handy",

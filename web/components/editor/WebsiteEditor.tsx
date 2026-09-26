@@ -1,4 +1,5 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useRouter } from 'next/router'
 import { useQueryClient } from '@tanstack/react-query'
 import { Button, Dialog, Drawer, IconButton, Input, LoadingSpinner, Textarea } from '@helpwave/hightide'
 import { PencilIcon } from 'lucide-react'
@@ -48,11 +49,13 @@ export const WebsiteEditor = ({
 }: WebsiteEditorProps) => {
   const translation = useDomeTranslation()
   const { locale } = useLocale()
+  const router = useRouter()
   const queryClient = useQueryClient()
   const contentsQuery = useWebsiteContents(websiteId)
-  const contents = contentsQuery.data ?? []
+  const contents = useMemo(() => contentsQuery.data ?? [], [contentsQuery.data])
   const activeContent = contents.find((content) => content.is_active)
-  const [selectedId, setSelectedId] = useState<string | undefined>()
+  const querySnapshotId = typeof router.query['snapshotId'] === 'string' ? router.query['snapshotId'] : undefined
+  const [chosenId, setChosenId] = useState<string | undefined>()
   const [prompt, setPrompt] = useState('')
   const [snapshotName, setSnapshotName] = useState('')
   const [isUpdateOpen, setIsUpdateOpen] = useState(false)
@@ -64,6 +67,27 @@ export const WebsiteEditor = ({
   const refreshContents = async () => {
     await queryClient.invalidateQueries({ queryKey: websiteContentsKey(websiteId) })
   }
+
+  const selectSnapshot = (contentId: string) => {
+    setChosenId(contentId)
+    if (!router.isReady) {
+      return
+    }
+    void router.replace({
+      pathname: router.pathname,
+      query: { ...router.query, snapshotId: contentId },
+    }, undefined, { shallow: true })
+  }
+
+  useEffect(() => {
+    if (!chosenId || querySnapshotId !== chosenId) {
+      return
+    }
+    if (!contents.some((content) => content.id === chosenId)) {
+      return
+    }
+    setChosenId(undefined)
+  }, [chosenId, contents, querySnapshotId])
 
   const activate = useActivateWebsiteContent({
     onSuccess: () => {
@@ -81,7 +105,9 @@ export const WebsiteEditor = ({
     onSuccess: (_result, contentId) => {
       const remaining = contents.filter((content) => content.id !== contentId)
       const next = remaining.find((content) => content.is_active) ?? remaining[0]
-      setSelectedId(next?.id)
+      if (next) {
+        selectSnapshot(next.id)
+      }
       setPrompt('')
       setIsUpdateOpen(false)
       void refreshContents()
@@ -89,7 +115,7 @@ export const WebsiteEditor = ({
   })
 
   const showCreatedSnapshot = async (content: WebsiteContent) => {
-    setSelectedId(content.id)
+    selectSnapshot(content.id)
     setPrompt('')
     setIsUpdateOpen(false)
     setIsCreateOpen(false)
@@ -102,14 +128,14 @@ export const WebsiteEditor = ({
     },
   })
 
-  const selectedContent = contents.find((content) => content.id === selectedId)
-    ?? activeContent
-    ?? contents[0]
-  const previewId = selectedId ?? selectedContent?.id
+  const requestedContent = contents.find((content) => content.id === querySnapshotId)
+  const fallbackContent = activeContent ?? contents[0]
+  const previewId = chosenId ?? (router.isReady ? (requestedContent?.id ?? fallbackContent?.id) : undefined)
+  const selectedContent = contents.find((content) => content.id === previewId) ?? fallbackContent
   const showInlineStepper = !fullscreen && contentsQuery.isSuccess && contents.length === 0
 
   const chooseSnapshot = (contentId: string) => {
-    setSelectedId(contentId)
+    selectSnapshot(contentId)
   }
 
   const closeUpdate = () => {
@@ -137,7 +163,7 @@ export const WebsiteEditor = ({
         setPrompt('')
         setSnapshotName(snapshotNameWithSuffix(
           current?.name ?? '',
-          translation('editorUpdatedSnapshotSuffix', { when: snapshotDateLabel(new Date(), locale) }),
+          translation('editorUpdatedSnapshotSuffix', { when: snapshotDateLabel(new Date(), locale) })
         ))
         setIsUpdateOpen(true)
       }}
@@ -252,41 +278,43 @@ export const WebsiteEditor = ({
         <Dialog
           isOpen
           isModal
-          className="confirm-dialog"
+          className="confirm-dialog update-dialog"
           titleElement={<span className="typography-title-md">{translation('editorUpdateSnapshot')}</span>}
           description={translation('editorUpdatePromptLabel')}
           onClose={closeUpdate}
         >
           {edit.isPending ? (
-            <div className="flex-col-2 items-start">
+            <div className="flex-col-2 grow items-center justify-center text-center">
               <LoadingSpinner />
               <p className="typography-title-md">{translation('editorUpdatingTitle')}</p>
               <p className="typography-body text-description">{translation('editorUpdatingWait')}</p>
             </div>
           ) : (
-            <div className="flex-col-3">
-              <Field label={translation('name')}>
-                <Input
-                  value={snapshotName}
-                  maxLength={255}
-                  onValueChange={setSnapshotName}
-                />
-              </Field>
-              <Field label={translation('editorUpdatePromptLabel')}>
-                <Textarea
-                  value={prompt}
-                  maxLength={maxPromptLength}
-                  rows={4}
-                  placeholder={translation('editorUpdatePromptPlaceholder')}
-                  onValueChange={setPrompt}
-                />
-              </Field>
-              {edit.isError && (
-                <p className="typography-body text-negative" role="alert">
-                  {edit.error.message || translation('editorUpdateFailed')}
-                </p>
-              )}
-              <div className="flex flex-wrap justify-end gap-3">
+            <div className="flex min-h-0 grow flex-col">
+              <div className="flex-col-3 min-h-0 grow overflow-y-auto">
+                <Field label={translation('name')}>
+                  <Input
+                    value={snapshotName}
+                    maxLength={255}
+                    onValueChange={setSnapshotName}
+                  />
+                </Field>
+                <Field label={translation('editorUpdatePromptLabel')}>
+                  <Textarea
+                    value={prompt}
+                    maxLength={maxPromptLength}
+                    rows={4}
+                    placeholder={translation('editorUpdatePromptPlaceholder')}
+                    onValueChange={setPrompt}
+                  />
+                </Field>
+                {edit.isError && (
+                  <p className="typography-body text-negative" role="alert">
+                    {edit.error.message || translation('editorUpdateFailed')}
+                  </p>
+                )}
+              </div>
+              <div className="mt-auto flex shrink-0 flex-wrap justify-end gap-3 pt-3">
                 <Button type="button" color="neutral" coloringStyle="outline" onClick={closeUpdate}>
                   {translation('cancel')}
                 </Button>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Klarwerk — Kontakt</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html">
+      <img src="logo.svg" alt="" width="36" height="36">
+      Klarwerk
+    </a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menü</button>
+    <nav id="site-nav" class="site-nav">
+      <a href="index.html">Start</a>
+      <a href="leistungen.html">Leistungen</a>
+      <a href="projekte.html">Projekte</a>
+      <a href="ueber-uns.html">Über uns</a>
+      <a href="kontakt.html" aria-current="page">Kontakt</a>
+    </nav>
+  </header>
+  <main>
+    <section class="page">
+      <p class="kicker">Kontakt</p>
+      <h1>Erzähl uns, was klemmt.</h1>
+      <p class="lead">Eine Nachricht reicht. Wir melden uns innerhalb von zwei Werktagen.</p>
+      <form class="contact-form" action="#nachricht" method="post">
+        <label>
+          Name
+          <input name="name" type="text" autocomplete="name" required>
+        </label>
+        <label>
+          Nachricht
+          <textarea name="message" rows="5" required></textarea>
+        </label>
+        <button class="button" type="submit">Nachricht vormerken</button>
+        <p class="form-note" hidden>Die Nachricht bleibt in diesem Beispiel nur in deinem Browser.</p>
+      </form>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <img src="favicon.svg" alt="" width="24" height="24">
+    <p>Klarwerk GmbH · Beispielseite</p>
+  </footer>
+  <script src="site.js"></script>
+</body>
+</html>
