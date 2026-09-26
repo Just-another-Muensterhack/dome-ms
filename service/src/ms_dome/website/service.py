@@ -32,6 +32,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import transaction
 from django.db.models import QuerySet
+from django.utils import timezone
 
 from website.models import WebsiteContent
 from website.sanitizer import sanitize_html
@@ -220,8 +221,12 @@ class WebsiteBuilderService:
             raise ValidationError({"prompt": f"Use at most {MAX_PROMPT_LENGTH} characters."})
 
         html = self._edit_html(source.read_html(), prompt)
+        updated_at = timezone.localtime().strftime("%d.%m.%Y, %H:%M")
+        suffix = f" (Update {updated_at})"
+        previous_name = source.name[: 255 - len(suffix)].rstrip()
         content = WebsiteContent(
             website_id=source.website_id,  # ty: ignore[unresolved-attribute]
+            name=f"{previous_name}{suffix}",
             source=source,
             prompt=prompt,
             description=source.description,
@@ -239,6 +244,17 @@ class WebsiteBuilderService:
         versions.filter(is_active=True).exclude(pk=content.pk).update(is_active=False)
         versions.filter(pk=content.pk).update(is_active=True)
         content.is_active = True  # ty: ignore[invalid-assignment]
+        return content
+
+    def rename_content(self, content_id: UUID, name: str) -> WebsiteContent:
+        content = self.get_content(content_id)
+        name = clean_user_text(name)
+        if not name:
+            raise ValidationError({"name": "The name must not be blank."})
+        if len(name) > 255:
+            raise ValidationError({"name": "Use at most 255 characters."})
+        content.name = name  # ty: ignore[invalid-assignment]
+        content.save(update_fields=["name", "updated_at"])
         return content
 
     @transaction.atomic
@@ -356,8 +372,10 @@ class WebsiteBuilderService:
     def _store(self, content: WebsiteContent, html: str) -> WebsiteContent:
         """Save `content` as a new version with `html` as its page, the first version of a website is activated."""
         self._lock_website(content.website_id)  # ty: ignore[unresolved-attribute]
-        active = WebsiteContent.objects.filter(website_id=content.website_id, is_active=True)  # ty: ignore[unresolved-attribute]
-        content.is_active = not active.exists()  # ty: ignore[invalid-assignment]
+        versions = WebsiteContent.objects.filter(website_id=content.website_id)  # ty: ignore[unresolved-attribute]
+        content.is_active = not versions.filter(is_active=True).exists()  # ty: ignore[invalid-assignment]
+        if not content.name:
+            content.name = f"Snapshot {versions.count() + 1}"  # ty: ignore[invalid-assignment]
         content.model = settings.MODEL_NAME
         # the name is derived from the website and content ids by `website_html_path`
         content.html.save("index.html", ContentFile(html.encode()), save=False)  # ty: ignore[unresolved-attribute]

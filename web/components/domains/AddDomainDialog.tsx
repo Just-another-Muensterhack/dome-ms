@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ConfirmDialog, Input, LabelledCheckbox, Select } from '@helpwave/hightide'
+import { ConfirmDialog, Input, LabelledCheckbox } from '@helpwave/hightide'
 import { createDomain } from '@/api/domain'
-import { useWebsites } from '@/api/website'
+import { DomainWebsiteField } from '@/components/domains/DomainWebsiteField'
 import { useDomeTranslation } from '@/i18n/useDomeTranslation'
 
 type AddDomainDialogProps = {
@@ -16,7 +16,6 @@ export const AddDomainDialog = ({
 }: AddDomainDialogProps) => {
   const translation = useDomeTranslation()
   const queryClient = useQueryClient()
-  const websites = useWebsites()
   const [name, setName] = useState('')
   const [wildcard, setWildcard] = useState(false)
   const [websiteId, setWebsiteId] = useState('')
@@ -93,23 +92,7 @@ export const AddDomainDialog = ({
           value={wildcard}
           onValueChange={setWildcard}
         />
-        <div className="flex-col-1">
-          <span className="typography-label-md">{translation('website')}</span>
-          <Select
-            value={websiteId.length > 0 ? websiteId : undefined}
-            onValueChange={(value) => setWebsiteId(value ?? '')}
-            placeholder={translation('selectWebsite')}
-          >
-            <Select.Option value="" label={translation('noWebsite')}>
-              {translation('noWebsite')}
-            </Select.Option>
-            {(websites.data ?? []).map((website) => (
-              <Select.Option key={website.id} value={website.id} label={website.name}>
-                {website.name}
-              </Select.Option>
-            ))}
-          </Select>
-        </div>
+        <DomainWebsiteField websiteId={websiteId} onWebsiteIdChange={setWebsiteId} />
         {create.isError && (
           <p className="typography-body text-negative">{create.error.message}</p>
         )}

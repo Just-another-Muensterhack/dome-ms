@@ -5,7 +5,7 @@ from django.http import HttpRequest
 from ninja import Router
 
 from ms_dome.api import api
-from website.schema import WebsiteContentEditIn, WebsiteContentIn, WebsiteContentOut
+from website.schema import WebsiteContentEditIn, WebsiteContentIn, WebsiteContentOut, WebsiteContentUpdate
 from website.service import WebsiteBuilderService, WebsiteGenerationError
 
 website_builder = Router(tags=["website builder"])
@@ -47,6 +47,12 @@ def generate_website(request: HttpRequest, payload: WebsiteContentIn):
 def edit_content(request: HttpRequest, content_id: UUID, payload: WebsiteContentEditIn):
     """Apply the change described by the prompt to a version, the result is stored as a new, inactive version."""
     return 201, WebsiteBuilderService(request.auth).edit_content(content_id, payload.prompt)  # ty: ignore[unresolved-attribute]
+
+
+@website_builder.patch("/{content_id}", response={200: WebsiteContentOut, 404: ErrorOut, 422: ErrorOut})
+def update_content(request: HttpRequest, content_id: UUID, payload: WebsiteContentUpdate):
+    """Rename a version."""
+    return WebsiteBuilderService(request.auth).rename_content(content_id, payload.name)  # ty: ignore[unresolved-attribute]
 
 
 @website_builder.post("/{content_id}/activate", response={200: WebsiteContentOut, 404: ErrorOut, 409: ErrorOut})

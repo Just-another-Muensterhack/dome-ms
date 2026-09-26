@@ -245,50 +245,54 @@ export const WebsiteSnapshotStepper = ({
         {step === 'about' && (
           <section className="flex-col-4 rounded-lg bg-surface-variant p-5 text-on-surface">
             <p className="typography-label text-primary">{translation('editorStep', { step: '1', total: '3' })}</p>
-            <h2 className="typography-title-md">{translation('editorWhoTitle')}</h2>
-            {websiteName.length > 0 && (
-              <p className="typography-body text-description">{translation('editorUsesName', { name: websiteName })}</p>
-            )}
-            <fieldset className="flex-col-2">
-              <legend className="typography-label-md">
-                {translation('editorCategoryLegend')}
-                <span className="typography-body text-description"> {translation('editorRequired')}</span>
-              </legend>
-              <div className="grid grid-cols-1 gap-2 desktop:grid-cols-3" role="radiogroup">
-                {categories.map((item) => (
-                  <Choice
-                    key={item.id}
-                    pressed={category === item.id}
-                    title={item.title}
-                    info={item.info}
-                    onSelect={() => {
-                      setCategory(item.id)
-                      setFieldError(undefined)
-                    }}
-                  />
-                ))}
+            <div className="flex-col-4">
+              <div className="flex-col-0">
+                <h2 className="typography-title-md">{translation('editorWhoTitle')}</h2>
+                {websiteName.length > 0 && (
+                  <p className="typography-body text-description">{translation('editorUsesName', { name: websiteName })}</p>
+                )}
               </div>
-            </fieldset>
-            <Field label={translation('editorDescriptionLabel')} hint={translation('editorRequired')}>
-              <Textarea
-                value={description}
-                maxLength={maxDescriptionLength}
-                rows={5}
-                placeholder={translation('editorDescriptionPlaceholder')}
-                onValueChange={(value) => {
-                  setDescription(value)
-                  setFieldError(undefined)
-                }}
-              />
-            </Field>
-            <Field label={translation('editorPlaceLabel')} hint={translation('editorOptional')}>
-              <Input
-                value={location}
-                maxLength={200}
-                placeholder={translation('editorPlacePlaceholder')}
-                onValueChange={setLocation}
-              />
-            </Field>
+              <fieldset className="flex-col-0">
+                <legend className="typography-label-md mb-1">
+                  {translation('editorCategoryLegend')}
+                  <span className="typography-body text-description"> {`${translation('editorRequired')}`}</span>
+                </legend>
+                <div className="grid grid-cols-1 gap-2 desktop:grid-cols-3" role="radiogroup">
+                  {categories.map((item) => (
+                    <Choice
+                      key={item.id}
+                      pressed={category === item.id}
+                      title={item.title}
+                      info={item.info}
+                      onSelect={() => {
+                        setCategory(item.id)
+                        setFieldError(undefined)
+                      }}
+                    />
+                  ))}
+                </div>
+              </fieldset>
+              <Field label={translation('editorDescriptionLabel')} hint={translation('editorRequired')}>
+                <Textarea
+                  value={description}
+                  maxLength={maxDescriptionLength}
+                  rows={5}
+                  placeholder={translation('editorDescriptionPlaceholder')}
+                  onValueChange={(value) => {
+                    setDescription(value)
+                    setFieldError(undefined)
+                  }}
+                />
+              </Field>
+              <Field label={translation('editorPlaceLabel')} hint={translation('editorOptional')}>
+                <Input
+                  value={location}
+                  maxLength={200}
+                  placeholder={translation('editorPlacePlaceholder')}
+                  onValueChange={setLocation}
+                />
+              </Field>
+            </div>
           </section>
         )}
         {step === 'sections' && (
@@ -342,8 +346,8 @@ export const WebsiteSnapshotStepper = ({
           <section className="flex-col-4 rounded-lg bg-surface-variant p-5 text-on-surface">
             <p className="typography-label text-primary">{translation('editorStep', { step: '3', total: '3' })}</p>
             <h2 className="typography-title-md">{translation('editorLookTitle')}</h2>
-            <fieldset className="flex-col-2">
-              <legend className="typography-label-md">{translation('editorColorLegend')}</legend>
+            <fieldset className="flex-col-0">
+              <legend className="typography-label-md mb-1">{translation('editorColorLegend')}</legend>
               <div className="flex flex-wrap gap-2" role="radiogroup">
                 {colors.map((item) => (
                   <button
@@ -351,10 +355,10 @@ export const WebsiteSnapshotStepper = ({
                     type="button"
                     aria-label={item}
                     aria-pressed={color === item}
-                    className="size-8 rounded-full border-2 border-transparent"
+                    className="size-8 rounded-full border-3 border-transparent"
                     style={{
                       backgroundColor: item,
-                      outline: color === item ? '2px solid var(--color-on-surface)' : undefined,
+                      outline: color === item ? '3px solid var(--color-on-surface)' : undefined,
                     }}
                     onClick={() => setColor(item)}
                   />
@@ -366,12 +370,16 @@ export const WebsiteSnapshotStepper = ({
                   type="color"
                   value={color}
                   aria-label={translation('editorCustomColor')}
+                  className="size-8 rounded-full border-3 border-transparent"
+                  style={{
+                    outline: '3px solid var(--color-on-surface)',
+                  }}
                   onChange={(event) => setColor(event.target.value)}
                 />
               </label>
             </fieldset>
-            <fieldset className="flex-col-2">
-              <legend className="typography-label-md">{translation('editorStyleLegend')}</legend>
+            <fieldset className="flex-col-0">
+              <legend className="typography-label-md mb-1">{translation('editorStyleLegend')}</legend>
               <div className="grid grid-cols-1 gap-2 desktop:grid-cols-3" role="radiogroup">
                 {styles.map((item) => (
                   <Choice
@@ -384,8 +392,8 @@ export const WebsiteSnapshotStepper = ({
                 ))}
               </div>
             </fieldset>
-            <fieldset className="flex-col-2">
-              <legend className="typography-label-md">{translation('editorAddressLegend')}</legend>
+            <fieldset className="flex-col-0">
+              <legend className="typography-label-md mb-1">{translation('editorAddressLegend')}</legend>
               <div className="flex flex-wrap gap-2" role="radiogroup">
                 <Choice
                   pressed={addressForm === 'sie'}
@@ -399,8 +407,8 @@ export const WebsiteSnapshotStepper = ({
                 />
               </div>
             </fieldset>
-            <fieldset className="flex-col-2">
-              <legend className="typography-label-md">{translation('editorLanguageLabel')}</legend>
+            <fieldset className="flex-col-0">
+              <legend className="typography-label-md mb-1">{translation('editorLanguageLabel')}</legend>
               <div className="flex flex-wrap gap-2" role="radiogroup">
                 <Choice
                   pressed={language === 'de'}
@@ -417,7 +425,10 @@ export const WebsiteSnapshotStepper = ({
           </section>
         )}
         {step === 'loading' && (
-          <section className="flex-col-3 items-center rounded-lg bg-surface-variant p-8 text-on-surface">
+          <section className={fixedHeight
+            ? 'flex-col-3 items-center rounded-lg bg-surface-variant p-8 text-on-surface'
+            : 'flex-col-3 min-h-full grow items-center rounded-lg bg-surface-variant p-8 text-on-surface'}
+          >
             <LoadingSpinner />
             <h2 className="typography-title-md">{translation('editorGeneratingTitle')}</h2>
             <p className="typography-body text-description">{translation('editorGeneratingWait')}</p>

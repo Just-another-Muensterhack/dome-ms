@@ -32,9 +32,22 @@ export const editWebsiteContent = (contentId: string, prompt: string): Promise<W
   })
 )
 
+export const updateWebsiteContent = (contentId: string, name: string): Promise<WebsiteContent> => (
+  apiRequest<WebsiteContent>(`${websiteBuilderPath}${contentId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ name }),
+  })
+)
+
 export const activateWebsiteContent = (contentId: string): Promise<WebsiteContent> => (
   apiRequest<WebsiteContent>(`${websiteBuilderPath}${contentId}/activate`, {
     method: 'POST',
+  })
+)
+
+export const deleteWebsiteContent = (contentId: string): Promise<void> => (
+  apiRequest<void>(`${websiteBuilderPath}${contentId}`, {
+    method: 'DELETE',
   })
 )
 
@@ -68,11 +81,29 @@ export const useEditWebsiteContent = (
   })
 )
 
+export const useUpdateWebsiteContent = (
+  options?: UseMutationOptions<WebsiteContent, Error, { contentId: string, name: string }>
+) => (
+  useMutation({
+    mutationFn: ({ contentId, name }) => updateWebsiteContent(contentId, name),
+    ...options,
+  })
+)
+
 export const useActivateWebsiteContent = (
   options?: UseMutationOptions<WebsiteContent, Error, string>
 ) => (
   useMutation({
     mutationFn: activateWebsiteContent,
+    ...options,
+  })
+)
+
+export const useDeleteWebsiteContent = (
+  options?: UseMutationOptions<void, Error, string>
+) => (
+  useMutation({
+    mutationFn: deleteWebsiteContent,
     ...options,
   })
 )

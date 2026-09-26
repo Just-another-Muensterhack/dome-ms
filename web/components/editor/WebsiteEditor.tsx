@@ -4,7 +4,9 @@ import { Button, Dialog, Drawer, IconButton, LoadingSpinner, Textarea } from '@h
 import { PencilIcon } from 'lucide-react'
 import {
   useActivateWebsiteContent,
+  useDeleteWebsiteContent,
   useEditWebsiteContent,
+  useUpdateWebsiteContent,
   useWebsiteContents,
   websiteContentsKey
 } from '@/api/websiteBuilder'
@@ -65,15 +67,29 @@ export const WebsiteEditor = ({
     },
   })
 
+  const rename = useUpdateWebsiteContent({
+    onSuccess: () => {
+      void refreshContents()
+    },
+  })
+
+  const remove = useDeleteWebsiteContent({
+    onSuccess: (_result, contentId) => {
+      const remaining = contents.filter((content) => content.id !== contentId)
+      const next = remaining.find((content) => content.is_active) ?? remaining[0]
+      setSelectedId(next?.id)
+      setPrompt('')
+      setPanel('preview')
+      void refreshContents()
+    },
+  })
+
   const showCreatedSnapshot = async (content: WebsiteContent) => {
     setSelectedId(content.id)
     setPrompt('')
     setPanel('preview')
     setIsCreateOpen(false)
     await refreshContents()
-    if (!content.is_active) {
-      activate.mutate(content.id)
-    }
   }
 
   const edit = useEditWebsiteContent({
@@ -90,10 +106,6 @@ export const WebsiteEditor = ({
 
   const chooseSnapshot = (contentId: string) => {
     setSelectedId(contentId)
-    const next = contents.find((content) => content.id === contentId)
-    if (next && !next.is_active) {
-      activate.mutate(contentId)
-    }
   }
 
   const updateForm = panel === 'update' && selectedContent ? (
@@ -137,6 +149,11 @@ export const WebsiteEditor = ({
       contents={contents}
       selectedId={previewId}
       onSelect={chooseSnapshot}
+      onActivate={(contentId) => activate.mutate(contentId)}
+      onRename={(contentId, name) => rename.mutate({ contentId, name })}
+      renameError={rename.isError ? rename.error.message : undefined}
+      onDelete={(contentId) => remove.mutateAsync(contentId)}
+      isDeleting={remove.isPending}
       onUpdate={() => {
         setPrompt('')
         setPanel('update')

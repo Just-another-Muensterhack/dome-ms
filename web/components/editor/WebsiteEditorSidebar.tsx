@@ -1,9 +1,9 @@
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import Link from 'next/link'
-import { Button, Select } from '@helpwave/hightide'
-import type { WebsiteContent } from '@/api/types/websiteContent'
-import { useDomeTranslation, useLocale } from '@/i18n/useDomeTranslation'
+import { Button, ConfirmDialog, Input, LabelledCheckbox, Select } from '@helpwave/hightide'
 import { ExternalLink } from 'lucide-react'
+import type { WebsiteContent } from '@/api/types/websiteContent'
+import { useDomeTranslation } from '@/i18n/useDomeTranslation'
 
 type WebsiteEditorSidebarProps = {
   websiteId: string,
@@ -11,6 +11,11 @@ type WebsiteEditorSidebarProps = {
   contents: WebsiteContent[],
   selectedId?: string,
   onSelect: (contentId: string) => void,
+  onActivate: (contentId: string) => void,
+  onRename: (contentId: string, name: string) => void,
+  renameError?: string,
+  onDelete: (contentId: string) => Promise<void>,
+  isDeleting: boolean,
   onUpdate: () => void,
   onCreate: () => void,
   isActivating: boolean,
@@ -27,6 +32,11 @@ export const WebsiteEditorSidebar = ({
   contents,
   selectedId,
   onSelect,
+  onActivate,
+  onRename,
+  renameError,
+  onDelete,
+  isDeleting,
   onUpdate,
   onCreate,
   isActivating,
@@ -37,15 +47,49 @@ export const WebsiteEditorSidebar = ({
   children,
 }: WebsiteEditorSidebarProps) => {
   const translation = useDomeTranslation()
-  const { locale } = useLocale()
   const hasActiveSnapshot = contents.some((content) => content.is_active)
+  const selected = contents.find((content) => content.id === selectedId)
+  const [name, setName] = useState(selected?.name ?? '')
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | undefined>()
+  const isOnlySnapshot = contents.length === 1
 
-  const optionLabel = (content: WebsiteContent) => {
-    const date = new Date(content.created_at).toLocaleString(locale)
-    if (!content.is_active) {
-      return date
+  useEffect(() => {
+    setName(selected?.name ?? '')
+  }, [selected?.id, selected?.name])
+
+  const commitName = () => {
+    if (!selected) {
+      return
     }
-    return `${date} (${translation('editorSnapshotActive')})`
+    const trimmed = name.trim()
+    if (trimmed.length === 0 || trimmed === selected.name) {
+      setName(selected.name)
+      return
+    }
+    onRename(selected.id, trimmed)
+  }
+
+  const openDelete = () => {
+    setDeleteError(undefined)
+    setIsDeleteOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!selected || isDeleting) {
+      return
+    }
+    if (selected.is_active && contents.length > 1) {
+      setDeleteError(translation('editorDeleteActiveSnapshot'))
+      return
+    }
+    try {
+      await onDelete(selected.id)
+      setIsDeleteOpen(false)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : ''
+      setDeleteError(message.length > 0 ? message : translation('editorDeleteFailed'))
+    }
   }
 
   return (
@@ -71,29 +115,59 @@ export const WebsiteEditorSidebar = ({
           </Link>
         )}
       </div>
-      {contents.length > 0 && selectedId && (
-        <label className="flex-col-1">
-          <span className="typography-label-md">{translation('editorActiveSnapshot')}</span>
-          <Select
-            value={selectedId}
+      {contents.length > 0 && selected && (
+        <>
+          <label className="flex-col-1">
+            <span className="typography-label-md">{translation('editorShownSnapshot')}</span>
+            <Select
+              value={selected.id}
+              onValueChange={(value) => {
+                if (value) {
+                  onSelect(value)
+                }
+              }}
+            >
+              {contents.map((content) => (
+                <Select.Option key={content.id} value={content.id} label={content.name}>
+                  {content.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </label>
+          <label className="flex-col-1" htmlFor={`snapshot-name-${selected.id}`}>
+            <span className="typography-label-md">{translation('name')}</span>
+            <Input
+              id={`snapshot-name-${selected.id}`}
+              value={name}
+              maxLength={255}
+              onValueChange={setName}
+              onBlur={commitName}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault()
+                  commitName()
+                }
+              }}
+            />
+          </label>
+          {renameError && (
+            <p className="typography-body text-negative">{renameError}</p>
+          )}
+          <LabelledCheckbox
+            label={translation('editorMakeActiveSnapshot')}
+            value={selected.is_active}
             disabled={isActivating}
-            onValueChange={(value) => {
-              if (value) {
-                onSelect(value)
+            onValueChange={(checked) => {
+              if (checked && !selected.is_active) {
+                onActivate(selected.id)
               }
             }}
-          >
-            {contents.map((content) => (
-              <Select.Option key={content.id} value={content.id} label={optionLabel(content)}>
-                {optionLabel(content)}
-              </Select.Option>
-            ))}
-          </Select>
-        </label>
+          />
+        </>
       )}
       <div className="flex-col-1">
-        <span className="typography-label-md">{translation('editorActiveSnapshot')}</span>
-        <div className="flex flex-wrap gap-2" role="group" aria-label={translation('editorPreviewTitle')}>
+        <span className="typography-body text-description">{websiteName}</span>
+        <div className="flex flex-wrap gap-2" role="group" aria-label={translation('previewMode')}>
           <Button
             type="button"
             size="sm"
@@ -116,16 +190,55 @@ export const WebsiteEditorSidebar = ({
           </Button>
         </div>
       </div>
-      {showActions && hasActiveSnapshot && (
+
+      <div className="flex-col-0">
+        <span className="typography-body text-description">{translation('actions')}</span>
+
         <div className="flex-col-2">
-          <Button type="button" onClick={onUpdate}>
-            {translation('editorUpdateSnapshot')}
-          </Button>
           <Button type="button" color="neutral" coloringStyle="outline" onClick={onCreate}>
             {translation('editorNewSnapshot')}
           </Button>
+          {showActions && hasActiveSnapshot && (
+            <>
+              <Button type="button" onClick={onUpdate}>
+                {translation('editorUpdateSnapshot')}
+              </Button>
+              <Button
+                type="button"
+                color="negative"
+                coloringStyle="text"
+                onClick={openDelete}
+              >
+                {translation('delete')}
+              </Button>
+              <ConfirmDialog
+                isOpen={isDeleteOpen}
+                isModal
+                className="confirm-dialog"
+                titleElement={<span className="typography-title-md">{translation('editorDeleteSnapshotTitle')}</span>}
+                description={translation('editorDeleteSnapshotDescription')}
+                confirmType="negative"
+                onCancel={() => setIsDeleteOpen(false)}
+                onConfirm={() => {
+                  void confirmDelete()
+                }}
+                buttonOverwrites={[
+                  { text: translation('cancel') },
+                  {},
+                  { text: translation('delete'), disabled: isDeleting },
+                ]}
+              >
+                {isOnlySnapshot && (
+                  <p className="typography-body text-warning">{translation('editorDeleteOnlySnapshotWarning')}</p>
+                )}
+                {deleteError && (
+                  <p className="typography-body text-negative" role="alert">{deleteError}</p>
+                )}
+              </ConfirmDialog>
+            </>
+          )}
         </div>
-      )}
+      </div>
       {showActions && contents.length === 0 && (
         <Button type="button" onClick={onCreate}>
           {translation('editorNewSnapshot')}

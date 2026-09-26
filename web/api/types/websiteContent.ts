@@ -17,6 +17,7 @@ export type WebsiteContentIn = {
 export type WebsiteContent = {
   id: string,
   website_id: string,
+  name: string,
   is_active: boolean,
   source_id: string | null,
   prompt: string,

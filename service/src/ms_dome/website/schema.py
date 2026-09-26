@@ -32,11 +32,16 @@ class WebsiteContentEditIn(Schema):
     prompt: str = Field(..., min_length=1, max_length=MAX_PROMPT_LENGTH, examples=["Make the header dark blue"])
 
 
+class WebsiteContentUpdate(Schema):
+    name: str = Field(..., min_length=1, max_length=255)
+
+
 class WebsiteContentOut(Schema):
     """A version of a website's page, without the HTML."""
 
     id: UUID
     website_id: UUID
+    name: str
     is_active: bool
     source_id: UUID | None
     prompt: str

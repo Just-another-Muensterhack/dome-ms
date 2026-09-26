@@ -21,8 +21,13 @@
     @apply desktop:min-w-160 min-w-[90vw];
   }
 
+  [data-name="dialog-content"].snapshot-dialog,
+  [data-name="dialog-content"].confirm-dialog {
+    @apply w-[min(48rem,calc(100vw-2rem))] min-w-[min(48rem,calc(100vw-2rem))] max-w-[min(48rem,calc(100vw-2rem))];
+  }
+
   [data-name="dialog-content"].snapshot-dialog {
-    @apply h-[min(40rem,calc(100dvh-2rem))] w-[min(48rem,calc(100vw-2rem))] overflow-hidden;
+    @apply h-[min(40rem,calc(100dvh-2rem))] overflow-hidden;
   }
 
   .app-page-main-spacer {

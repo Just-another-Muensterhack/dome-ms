@@ -62,13 +62,16 @@ export const LandingPage = () => {
         {loginFailed && (
           <p className="typography-body text-negative">{translation('loginFailed')}</p>
         )}
-        <div className="grid grid-cols-1 gap-4 desktop:grid-cols-3">
-          {features.map((feature) => (
-            <section key={feature.title} className="flex flex-col gap-2 rounded-xl bg-surface p-5 text-on-surface">
-              <h2 className="typography-title-sm">{feature.title}</h2>
-              <p className="typography-body text-description">{feature.body}</p>
-            </section>
-          ))}
+        <div className="flex flex-col gap-4">
+          <h2 className="typography-title-md">{translation('landingFeaturesTitle')}</h2>
+          <div className="grid grid-cols-1 gap-4 desktop:grid-cols-3">
+            {features.map((feature) => (
+              <section key={feature.title} className="flex flex-col gap-2 rounded-xl bg-surface p-5 text-on-surface">
+                <h3 className="typography-title-sm">{feature.title}</h3>
+                <p className="typography-body text-description">{feature.body}</p>
+              </section>
+            ))}
+          </div>
         </div>
       </div>
     </div>

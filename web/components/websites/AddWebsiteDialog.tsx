@@ -1,10 +1,11 @@
 import { useRef, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ConfirmDialog, Input, Textarea } from '@helpwave/hightide'
+import { Button, ConfirmDialog, Input, Textarea } from '@helpwave/hightide'
 import { updateDomain, useDomainsQuery } from '@/api/domain'
 import type { Domain } from '@/api/types/domain'
 import { createWebsite, updateWebsite } from '@/api/website'
 import type { Website, WebsiteIn } from '@/api/types/website'
+import { DeleteWebsiteDialog } from '@/components/websites/DeleteWebsiteDialog'
 import { WebsiteDomainSelect } from '@/components/websites/WebsiteDomainSelect'
 import { useDomeTranslation } from '@/i18n/useDomeTranslation'
 import { invalidateHostQueries } from '@/utils/hostQueries'
@@ -12,6 +13,7 @@ import { invalidateHostQueries } from '@/utils/hostQueries'
 type AddWebsiteDialogProps = {
   isOpen: boolean,
   onClose: () => void,
+  onCreated?: (website: Website) => void,
   website?: Website,
 }
 
@@ -43,6 +45,7 @@ const syncWebsiteDomains = async (
 export const AddWebsiteDialog = ({
   isOpen,
   onClose,
+  onCreated,
   website,
 }: AddWebsiteDialogProps) => {
   const translation = useDomeTranslation()
@@ -53,6 +56,7 @@ export const AddWebsiteDialog = ({
   const [description, setDescription] = useState(website?.description ?? '')
   const [tags, setTags] = useState(website?.tags.join(', ') ?? '')
   const [domainIds, setDomainIds] = useState(website?.domains.map((domain) => domain.id) ?? [])
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const isEdit = website !== undefined
 
   const clearForm = () => {
@@ -76,8 +80,11 @@ export const AddWebsiteDialog = ({
       await syncWebsiteDomains(saved.id, input.nextDomainIds, domains)
       return saved
     },
-    onSuccess: async () => {
+    onSuccess: async (saved) => {
       await invalidateHostQueries(queryClient)
+      if (!isEdit) {
+        onCreated?.(saved)
+      }
       clearForm()
       onClose()
     },
@@ -162,6 +169,25 @@ export const AddWebsiteDialog = ({
         <WebsiteDomainSelect value={domainIds} onValueChange={setDomainIds} />
         {save.isError && (
           <p className="typography-body text-negative">{save.error.message}</p>
+        )}
+        {isEdit && website && (
+          <Button
+            type="button"
+            color="negative"
+            coloringStyle="text"
+            className="self-start"
+            onClick={() => setIsDeleteOpen(true)}
+          >
+            {translation('deleteWebsite')}
+          </Button>
+        )}
+        {isEdit && website && (
+          <DeleteWebsiteDialog
+            website={website}
+            isOpen={isDeleteOpen}
+            onClose={() => setIsDeleteOpen(false)}
+            onDeleted={close}
+          />
         )}
       </div>
     </ConfirmDialog>
