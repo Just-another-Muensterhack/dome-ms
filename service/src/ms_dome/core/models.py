@@ -141,17 +141,12 @@ class Domain(models.Model):
 
         if self.website is not None and self.webserver is not None:
             errors["webserver"] = "A domain can belong to either a website or a webserver, not both."
+        # an unverified domain may be attached, it is only served once verified
         for field in ("website", "webserver"):
             host = getattr(self, field)
             if host is None:
                 continue
-            if not self.verified:
-                errors[field] = (
-                    "Verify the domain before attaching it, a renamed domain has to be verified again."
-                    if stored_name is not None and self.name != stored_name
-                    else "Verify the domain before attaching it."
-                )
-            elif host.deleted:
+            if host.deleted:
                 errors[field] = f"The {field} has been deleted."
             elif host.owner_id != self.owner_id:  # ty: ignore[unresolved-attribute]
                 errors[field] = f"The {field} must belong to the same owner as the domain."
