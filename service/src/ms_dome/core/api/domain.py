@@ -33,6 +33,12 @@ def update_domain(request: HttpRequest, domain_id: UUID, payload: DomainUpdate):
     return service.update_domain(domain_id, payload.dict(exclude_unset=True))
 
 
+@domains.post("/{domain_id}/verify", response={200: DomainOut, 404: ErrorOut})
+def verify_domain(request: HttpRequest, domain_id: UUID):
+    """Look up the domain's `record_name` TXT record, `verified_at` is set if it holds `record_value`."""
+    return HostManagementService(request.auth).verify_domain(domain_id)  # ty: ignore[unresolved-attribute]
+
+
 @domains.delete("/{domain_id}", response={204: None, 404: ErrorOut})
 def delete_domain(request: HttpRequest, domain_id: UUID):
     HostManagementService(request.auth).delete_domain(domain_id)  # ty: ignore[unresolved-attribute]

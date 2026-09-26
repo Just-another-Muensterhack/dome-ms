@@ -14,10 +14,12 @@ The service knows nothing about HTTP, it signals failures with `NotFoundError` a
 from typing import Any
 from uuid import UUID
 
+from core.dns_check import check_txt
 from core.models import Domain, Host, Webserver, Website
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db.models import Model, QuerySet
+from django.utils import timezone
 
 
 class NotFoundError(Exception):
@@ -129,6 +131,14 @@ class HostManagementService:
 
     def delete_domain(self, domain_id: UUID) -> None:
         self.get_domain(domain_id).delete()
+
+    def verify_domain(self, domain_id: UUID) -> Domain:
+        """Check the domain's TXT record and mark it verified if it matches. A verified domain stays verified."""
+        domain = self.get_domain(domain_id)
+        if not domain.verified and check_txt(domain.record_name, domain.record_value):
+            domain.verified_at = timezone.now()
+            domain.save(update_fields=["verified_at", "updated_at"])
+        return domain
 
     # Internals
 

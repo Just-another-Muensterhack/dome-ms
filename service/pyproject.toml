@@ -20,6 +20,7 @@ requires-python = ">=3.14"
 dependencies = [
     "django>=6.1.1",
     "django-ninja>=1.7.0",
+    "dnspython>=2.8.0",
     "gunicorn>=26.2.0",
     "mozilla-django-oidc>=5.0.2",
     "nh3>=0.3.7",
