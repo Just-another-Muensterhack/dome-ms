@@ -177,7 +177,7 @@
               uv sync --all-groups
               uv run python src/ms_dome/manage.py migrate --noinput
               uv run python src/ms_dome/manage.py sync_nginx
-              exec uv run gunicorn ms_dome.wsgi:application --bind "0.0.0.0:${PORT:-8000}" --workers "${GUNICORN_WORKERS:-4}" --timeout "${GUNICORN_TIMEOUT:-330}"
+              exec uv run gunicorn ms_dome.wsgi:application --bind "0.0.0.0:${"PORT:-8000"}" --workers "${GUNICORN_WORKERS: -4}" --timeout "${GUNICORN_TIMEOUT: -330}"
             '';
           };
 
@@ -295,7 +295,7 @@
             pname = "ms-dome-web";
             version = "0.1.0";
             src = webSrc;
-            npmDepsHash = "sha256-7Kq6jIzTJLd+pgPE7wnbb8y05WpCLyfhhexqPyqg4dY=";
+            npmDepsHash = "sha256-h0yOtZXTt5lPbBE3nGhHaS5MD0FD+UqsKd1czmLDBoM=";
             env = {
               NEXT_TELEMETRY_DISABLED = "1";
               NEXT_PUBLIC_API_ORIGIN = "http://localhost:8000";
@@ -355,7 +355,11 @@
                 server_name _;
                 root ${ms-dome-web}/share/ms-dome-web;
                 index index.html;
+                location /_next/ {
+                  try_files $uri =404;
+                }
                 location / {
+                  add_header Cache-Control "no-cache";
                   try_files $uri $uri.html $uri/ /index.html;
                 }
               }
