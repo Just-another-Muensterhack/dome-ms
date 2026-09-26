@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Button, ConfirmDialog, Input, LabelledCheckbox, Select } from '@helpwave/hightide'
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink, Maximize2, Minimize2 } from 'lucide-react'
+import Link from 'next/link'
 import type { WebsiteContent } from '@/api/types/websiteContent'
 import { useDomeTranslation } from '@/i18n/useDomeTranslation'
 import { websiteContentPreviewUrl } from '@/utils/websiteContent'
@@ -99,19 +100,50 @@ export const WebsiteEditorSidebar = ({
             <p className="typography-body text-description">{websiteName}</p>
           )}
         </div>
-        {showFullscreenLink && selected && (
-          <a
-            href={websiteContentPreviewUrl(websiteId, selected.id)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="icon-button"
-            data-size="sm"
-            data-color="primary"
-            data-coloringstyle="text"
-          >
-            <ExternalLink size={16}/>
-          </a>
-        )}
+        <div className="flex-row-1 items-center">
+          {showFullscreenLink ? (
+            <Link
+              href={selected
+                ? `/website/preview/${websiteId}?snapshotId=${encodeURIComponent(selected.id)}`
+                : `/website/preview/${websiteId}`}
+              className="icon-button"
+              data-size="sm"
+              data-color="primary"
+              data-coloringstyle="text"
+              aria-label={translation('editorOpenFullscreen')}
+              title={translation('editorOpenFullscreen')}
+            >
+              <Maximize2 size={16} />
+            </Link>
+          ) : (
+            <Link
+              href={selected
+                ? `/website/${websiteId}?tab=editor&snapshotId=${encodeURIComponent(selected.id)}`
+                : `/website/${websiteId}?tab=editor`}
+              className="icon-button"
+              data-size="sm"
+              data-color="primary"
+              data-coloringstyle="text"
+              aria-label={translation('editorMinimize')}
+              title={translation('editorMinimize')}
+            >
+              <Minimize2 size={16} />
+            </Link>
+          )}
+          {selected && (
+            <a
+              href={websiteContentPreviewUrl(websiteId, selected.id)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="icon-button"
+              data-size="sm"
+              data-color="primary"
+              data-coloringstyle="text"
+            >
+              <ExternalLink size={16} />
+            </a>
+          )}
+        </div>
       </div>
       {contents.length > 0 && selected && (
         <>

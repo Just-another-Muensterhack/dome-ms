@@ -4,6 +4,14 @@
 @import "./style/index.css";
 @source "./node_modules/@helpwave/hightide";
 
+@theme {
+  --font-space: "Trebuchet MS", sans-serif;
+}
+
+:root {
+  --font-space: "Trebuchet MS", sans-serif;
+}
+
 @layer components {
   body {
     @apply w-screen max-w-screen min-h-dvh h-dvh max-h-dvh overflow-hidden;
@@ -28,6 +36,10 @@
 
   [data-name="dialog-content"].snapshot-dialog {
     @apply h-[min(40rem,calc(100dvh-2rem))] overflow-hidden;
+  }
+
+  [data-name="dialog-content"].update-dialog {
+    @apply h-[min(32rem,calc(100dvh-2rem))] overflow-hidden;
   }
 
   .app-page-main-spacer {

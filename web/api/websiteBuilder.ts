@@ -19,7 +19,7 @@ export const fetchWebsiteContents = (websiteId: string): Promise<WebsiteContent[
 }
 
 export const generateWebsite = (payload: WebsiteContentIn): Promise<WebsiteContent> => (
-  apiRequest<WebsiteContent>(websiteBuilderPath, {
+  apiRequest<WebsiteContent>(`${websiteBuilderPath}generate`, {
     method: 'POST',
     body: JSON.stringify(payload),
   })

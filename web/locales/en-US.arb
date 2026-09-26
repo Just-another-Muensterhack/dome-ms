@@ -197,6 +197,7 @@
   "actions": "Actions",
   "editorPreviewFrame": "Website preview",
   "editorOpenFullscreen": "Open in full screen",
+  "editorMinimize": "Leave full screen",
   "editorEditPreview": "Edit",
   "editorDesktop": "Desktop",
   "editorMobile": "Phone",
