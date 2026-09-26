@@ -203,6 +203,39 @@ MODEL_TIMEOUT = float(os.environ.get("MODEL_TIMEOUT", "300"))
 # Hosting
 # every host is served at `<host id>.<base>`, every website version at `<content id>.<base>`
 DOME_BASE_DOMAIN = os.environ.get("DOME_BASE_DOMAIN", "dome.ms").strip().lower().rstrip(".")
+# websites may register `<label>.<this>` without verification, the only names below the base domain users can register
+DOME_WEBSITE_DOMAIN = f"website.{DOME_BASE_DOMAIN}"
+# labels that can not be registered below `DOME_WEBSITE_DOMAIN`
+DOME_RESERVED_LABELS = frozenset(
+    {
+        "admin",
+        "api",
+        "app",
+        "auth",
+        "blog",
+        "cdn",
+        "dashboard",
+        "docs",
+        "dome",
+        "ftp",
+        "help",
+        "imap",
+        "login",
+        "mail",
+        "ns",
+        "ns1",
+        "ns2",
+        "pop",
+        "smtp",
+        "static",
+        "status",
+        "support",
+        "test",
+        "webmail",
+        "website",
+        "www",
+    }
+)
 
 # nginx
 # one server config per served domain is written to this directory, nginx includes it with `include <dir>/*.conf;`

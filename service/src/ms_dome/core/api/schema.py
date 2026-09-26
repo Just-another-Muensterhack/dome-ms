@@ -30,11 +30,13 @@ class DomainOut(Schema):
     wildcard: bool
     website_id: UUID | None
     webserver_id: UUID | None
+    # `<name>.website.<base domain>`, verified on registration and only for websites
+    managed: bool
     # the domain is only served by its host once verified, until then it is pending
     verified_at: datetime | None
-    # publish `record_value` as TXT record at `record_name`, then call the verify endpoint
-    record_name: str
-    record_value: str
+    # publish `record_value` as TXT record at `record_name`, then call the verify endpoint; `null` for managed domains
+    record_name: str | None
+    record_value: str | None
     created_at: datetime
     updated_at: datetime
 
