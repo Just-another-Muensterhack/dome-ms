@@ -133,10 +133,14 @@ class HostManagementService:
         self.get_domain(domain_id).delete()
 
     def verify_domain(self, domain_id: UUID) -> Domain:
-        """Check the domain's TXT record and mark it verified if it matches. A verified domain stays verified."""
+        """Check the domain's TXT record and mark it verified if it matches. A verified domain stays verified.
+
+        Managed domains are verified on registration. A name another owner has verified is rejected.
+        """
         domain = self.get_domain(domain_id)
-        if not domain.verified and check_txt(domain.record_name, domain.record_value):
+        if not domain.verified and check_txt(domain.record_name, domain.record_value):  # ty: ignore[invalid-argument-type]
             domain.verified_at = timezone.now()
+            domain.validate_constraints()
             domain.save(update_fields=["verified_at", "updated_at"])
         return domain
 

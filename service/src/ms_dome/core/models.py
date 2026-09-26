@@ -49,6 +49,12 @@ def is_managed_domain_name(name: str) -> bool:
     return name == base or name.endswith(f".{base}")
 
 
+def website_domain_label(name: str) -> str | None:
+    """The label of a `<label>.<website domain>` name, `None` for every other name, including deeper subdomains."""
+    label, _, parent = name.partition(".")
+    return label if parent == settings.DOME_WEBSITE_DOMAIN else None
+
+
 class DomainQuerySet(models.QuerySet):
     def visible_to(self, user: User) -> "DomainQuerySet":
         """Domains the user may access: superusers see all, everybody else only their own."""
@@ -74,7 +80,9 @@ class Domain(models.Model):
     wildcard = models.BooleanField(default=False)
     website = models.ForeignKey("Website", on_delete=models.CASCADE, related_name="domains", null=True, blank=True)
     webserver = models.ForeignKey("Webserver", on_delete=models.CASCADE, related_name="domains", null=True, blank=True)
-    # ownership is proven by publishing `record_value` as TXT record at `record_name`
+    # a `<label>.<website domain>` name, we own it, so it is verified on registration; derived from the name in `clean`
+    managed = models.BooleanField(default=False, editable=False)
+    # ownership of every other name is proven by publishing `record_value` as TXT record at `record_name`
     token = models.CharField(max_length=64, default=new_verification_token, editable=False)
     verified_at = models.DateTimeField(null=True, blank=True, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -86,6 +94,18 @@ class Domain(models.Model):
                 fields=["owner", "name"],
                 name="unique_domain_name_per_owner",
                 violation_error_message="You already have a domain with this name.",
+            ),
+            # a name is served for a single owner, whoever verifies it first keeps it
+            models.UniqueConstraint(
+                fields=["name"],
+                condition=Q(verified_at__isnull=False),
+                name="unique_verified_domain_name",
+                violation_error_message="This domain is already in use.",
+            ),
+            models.CheckConstraint(
+                condition=Q(managed=False) | Q(verified_at__isnull=False, wildcard=False, webserver__isnull=True),
+                name="managed_domain_verified_website",
+                violation_error_message="A managed domain is always verified, no wildcard and only for websites.",
             ),
             # a domain points to at most one host, either a website or a webserver
             models.CheckConstraint(
@@ -114,12 +134,12 @@ class Domain(models.Model):
         return self.verified_at is not None
 
     @property
-    def record_name(self) -> str:
-        return f"_dome-ms-challenge.{self.name}"
+    def record_name(self) -> str | None:
+        return None if self.managed else f"_dome-ms-challenge.{self.name}"
 
     @property
-    def record_value(self) -> str:
-        return f"dome-ms-verification={self.token}"
+    def record_value(self) -> str | None:
+        return None if self.managed else f"dome-ms-verification={self.token}"
 
     def clean(self):
         errors = {}
@@ -129,15 +149,16 @@ class Domain(models.Model):
             except ValidationError as exc:
                 errors["name"] = exc.messages
             else:
-                # covers the base domain itself, its wildcard and every subdomain
-                if is_managed_domain_name(self.name):
-                    errors["name"] = f"{settings.DOME_BASE_DOMAIN} and its subdomains can not be registered."
+                errors.update(self._clean_managed())
 
         stored_name = getattr(self, "_stored_name", None)
         if stored_name is not None and self.name != stored_name:
             # the proof was for the old name, a fresh token keeps an old TXT record from verifying the new one
             self.verified_at = None  # ty: ignore[invalid-assignment]
             self.token = new_verification_token()  # ty: ignore[invalid-assignment]
+        if self.managed:
+            # we own the name, nothing to prove
+            self.verified_at = self.verified_at or timezone.now()
 
         if self.website is not None and self.webserver is not None:
             errors["webserver"] = "A domain can belong to either a website or a webserver, not both."
@@ -153,6 +174,32 @@ class Domain(models.Model):
 
         if errors:
             raise ValidationError(errors)
+
+    def _clean_managed(self) -> dict[str, str]:
+        """Set `managed` from the normalized name and check the rules of managed names."""
+        website_domain = settings.DOME_WEBSITE_DOMAIN
+        label = website_domain_label(self.name)  # ty: ignore[invalid-argument-type]
+        self.managed = label is not None  # ty: ignore[invalid-assignment]
+        if label is None:
+            # covers the base domain itself, its wildcard and every other subdomain
+            if is_managed_domain_name(self.name):  # ty: ignore[invalid-argument-type]
+                return {
+                    "name": f"{settings.DOME_BASE_DOMAIN} and its subdomains can not be registered, "
+                    f"except for '<name>.{website_domain}'."
+                }
+            return {}
+
+        errors = {}
+        # `xn--` and every other `??--` prefix is reserved for encodings, this keeps out look-alike names
+        if label[2:4] == "--":
+            errors["name"] = f"Internationalized names are not allowed below {website_domain}."
+        elif label in settings.DOME_RESERVED_LABELS:
+            errors["name"] = "This name is reserved."
+        if self.wildcard:
+            errors["wildcard"] = f"Names below {website_domain} can not be wildcards."
+        if self.webserver is not None:
+            errors["webserver"] = f"Names below {website_domain} can only be used by websites."
+        return errors
 
 
 def _unique_active_name_per_owner(model_name: str) -> models.UniqueConstraint:

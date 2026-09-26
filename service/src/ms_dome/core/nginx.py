@@ -105,11 +105,11 @@ def render_configs() -> dict[str, str]:
     for content in contents:
         add(content.managed_domain, f"website content {content.pk}", _static(content))
 
-    # owners may verify the same name independently, the latest verification wins
+    # a verified name is unique, so no domain overwrites another's config; managed ones are verified on registration
     domains = (
         Domain.objects.filter(verified_at__isnull=False)
         .filter(Q(website__deleted=False) | Q(webserver__deleted=False))
-        .order_by("verified_at")
+        .order_by("name")
     )
     for domain in domains:
         server_name = f"*.{domain.name}" if domain.wildcard else domain.name
