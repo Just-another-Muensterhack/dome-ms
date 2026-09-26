@@ -158,7 +158,7 @@ export const WebsiteEditor = ({
       isModal
       titleElement={<span className="typography-title-md">{translation('editorNewSnapshot')}</span>}
       description={translation('editorLead')}
-      containerClassName="w-[min(48rem,calc(100vw-2rem))] max-h-[90vh] overflow-y-auto"
+      className="snapshot-dialog"
       onClose={() => setIsCreateOpen(false)}
     >
       <WebsiteSnapshotStepper
@@ -167,6 +167,7 @@ export const WebsiteEditor = ({
         websiteName={websiteName}
         initialDescription={initialDescription}
         source={selectedContent}
+        fixedHeight
         onCancel={() => setIsCreateOpen(false)}
         onCreated={(content) => {
           void showCreatedSnapshot(content)

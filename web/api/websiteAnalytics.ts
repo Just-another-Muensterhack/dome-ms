@@ -18,6 +18,17 @@ type WebsiteAnalyticsSource = {
 }
 
 const hourMs = 60 * 60 * 1000
+const dayMs = 24 * hourMs
+
+const dailyCounts = (now: number, scale: number): WebsiteAnalyticsCountSource[] => (
+  Array.from({ length: 28 }, (_, index) => {
+    const day = 30 - index
+    return {
+      count: scale * (8 + (day % 5) * 3),
+      date: new Date(now - day * dayMs).toISOString(),
+    }
+  })
+)
 
 const websiteAnalyticsSource = (): WebsiteAnalyticsSource => {
   const now = Date.now()
@@ -33,6 +44,7 @@ const websiteAnalyticsSource = (): WebsiteAnalyticsSource => {
       IND: 55,
     },
     requests: [
+      ...dailyCounts(now, 4),
       { count: 8, date: new Date(now - 26 * hourMs).toISOString() },
       { count: 14, date: new Date(now - 22 * hourMs).toISOString() },
       { count: 21, date: new Date(now - 18 * hourMs).toISOString() },
@@ -42,6 +54,7 @@ const websiteAnalyticsSource = (): WebsiteAnalyticsSource => {
       { count: 24, date: new Date(now - 2 * hourMs).toISOString() },
     ],
     blockedRequests: [
+      ...dailyCounts(now, 1),
       { count: 2, date: new Date(now - 26 * hourMs).toISOString() },
       { count: 3, date: new Date(now - 22 * hourMs).toISOString() },
       { count: 5, date: new Date(now - 18 * hourMs).toISOString() },
