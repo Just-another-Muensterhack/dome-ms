@@ -80,6 +80,10 @@ _URL_IGNORED_RE = re.compile(r"[\x00-\x20\x7f]+")
 _STYLE_RE = re.compile(r"<style\b[^>]*>(.*?)(?:</style\s*>|$)", re.IGNORECASE | re.DOTALL)
 _TITLE_RE = re.compile(r"<title\b[^>]*>(.*?)</title\s*>", re.IGNORECASE | re.DOTALL)
 _LANG_RE = re.compile(r"<html\b[^>]*?\slang\s*=\s*[\"']?([a-zA-Z]{2,8}(?:-[a-zA-Z0-9]{1,8})*)[\"'\s>]", re.IGNORECASE)
+_META_RE = re.compile(r"<meta\b([^>]*?)>", re.IGNORECASE)
+_ATTR_RE = re.compile(r"""([\w:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')""")
+_ORIGIN_RE = re.compile(r"\Ahttps://(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}\Z")
+MAX_DESCRIPTION_LENGTH = 300
 
 _CSS_ESCAPE_RE = re.compile(r"\\([0-9a-fA-F]{1,6})\s?|\\(.)", re.DOTALL)
 _CSS_COMMENT_RE = re.compile(r"/\*.*?(\*/|$)", re.DOTALL)
@@ -136,10 +140,48 @@ def _filter_attribute(tag: str, name: str, value: str) -> str | None:
     return value
 
 
+def _meta_content(document: str, name: str) -> str:
+    wanted = name.lower()
+    for match in _META_RE.finditer(document):
+        attrs = {key.lower(): quoted or apostrophe for key, quoted, apostrophe in _ATTR_RE.findall(match.group(1))}
+        if attrs.get("name", "").lower() == wanted:
+            return " ".join(unescape(attrs.get("content", "")).split())[:MAX_DESCRIPTION_LENGTH]
+    return ""
+
+
+def _og_locale(lang: str) -> str:
+    normalized = lang.lower()
+    if normalized == "de":
+        return "de_DE"
+    if normalized == "en":
+        return "en_US"
+    return lang.replace("-", "_")
+
+
+def _social_tags(title: str, description: str, lang: str) -> str:
+    """Open Graph and Twitter card tags, text only, so a share preview has a title and a description."""
+    lines = [
+        '<meta property="og:type" content="website">',
+        f'<meta property="og:locale" content="{escape(_og_locale(lang))}">',
+    ]
+    if title:
+        lines.append(f'<meta property="og:title" content="{escape(title)}">')
+        lines.append(f'<meta name="twitter:title" content="{escape(title)}">')
+    if description:
+        lines.append(f'<meta name="description" content="{escape(description)}">')
+        lines.append(f'<meta property="og:description" content="{escape(description)}">')
+        lines.append(f'<meta name="twitter:description" content="{escape(description)}">')
+    lines.append('<meta name="twitter:card" content="summary">')
+    return "\n".join(lines)
+
+
 def sanitize_html(document: str) -> str:
     """Return `document` reduced to static HTML and CSS."""
     lang = _LANG_RE.search(document)
-    title = _TITLE_RE.search(document)
+    language = lang.group(1) if lang else "de"
+    title_match = _TITLE_RE.search(document)
+    title = unescape(title_match.group(1)).strip() if title_match else ""
+    description = _meta_content(document, "description")
     css = "\n".join(sanitize_css(match.group(1)).strip() for match in _STYLE_RE.finditer(document))
     body = nh3.clean(
         document,
@@ -154,13 +196,47 @@ def sanitize_html(document: str) -> str:
     )
     return (
         "<!DOCTYPE html>\n"
-        f'<html lang="{lang.group(1) if lang else "de"}">\n'
+        f'<html lang="{language}">\n'
         "<head>\n"
         '<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
-        f"<title>{escape(unescape(title.group(1)).strip()) if title else ''}</title>\n"
+        f"<title>{escape(title)}</title>\n"
+        f"{_social_tags(title, description, language)}\n"
         f"<style>\n{css}\n</style>\n"
         "</head>\n"
         f"<body>\n{body.strip()}\n</body>\n"
         "</html>\n"
     )
+
+
+def bind_origin(html: str, origin: str) -> str:
+    """Point the canonical URL and Open Graph URL at `origin`, for example `https://verein.dome.ms`."""
+    origin = origin.rstrip("/")
+    if not _ORIGIN_RE.fullmatch(origin):
+        return html
+    page = escape(f"{origin}/")
+    tags = f'<link rel="canonical" href="{page}">\n<meta property="og:url" content="{page}">\n'
+    return html.replace("</head>", f"{tags}</head>", 1)
+
+
+def sitemap_xml(origin: str) -> str:
+    """A sitemap with the ground page of `origin`."""
+    origin = origin.rstrip("/")
+    if not _ORIGIN_RE.fullmatch(origin):
+        raise ValueError(f"Unsafe site origin {origin!r}.")
+    page = escape(f"{origin}/")
+    return (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        "  <url>\n"
+        f"    <loc>{page}</loc>\n"
+        "  </url>\n"
+        "</urlset>\n"
+    )
+
+
+def robots_txt(origin: str) -> str:
+    origin = origin.rstrip("/")
+    if not _ORIGIN_RE.fullmatch(origin):
+        raise ValueError(f"Unsafe site origin {origin!r}.")
+    return f"User-agent: *\nAllow: /\n\nSitemap: {origin}/sitemap.xml\n"

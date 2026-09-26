@@ -204,6 +204,7 @@ GATUS_STATUSES_URL = os.environ.get(
     "GATUS_STATUSES_URL",
     "https://status.dome.ms/api/v1/endpoints/statuses",
 )
+PROMETHEUS_URL = os.environ.get("PROMETHEUS_URL", "").strip().rstrip("/")
 
 # Hosting
 # every host is served at `<host id>.<base>`, every website version at `<content id>.<base>`

@@ -26,7 +26,7 @@ export const OperationalStatusLink = ({
   }
 
   return (
-    <a href={statusPageUrl} className={classNameFor[appearance]}>
+    <a href={statusPageUrl} target="_blank" rel="noopener noreferrer" className={classNameFor[appearance]}>
       <span className={dotClassNameFor[appearance]} aria-hidden="true" />
       {label}
     </a>

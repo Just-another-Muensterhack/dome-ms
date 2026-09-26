@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /websites
+Disallow: /website/
+Disallow: /domains
+Disallow: /settings
+Disallow: /auth/
+Disallow: /login
+
+Sitemap: https://dome.ms/sitemap.xml

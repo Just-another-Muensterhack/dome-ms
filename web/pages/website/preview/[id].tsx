@@ -3,6 +3,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { useWebsite } from '@/api/website'
 import { WebsiteEditor } from '@/components/editor/WebsiteEditor'
+import { NoIndex } from '@/components/seo/SiteGraph'
 import { useDomeTranslation } from '@/i18n/useDomeTranslation'
 import titleWrapper from '@/utils/titleWrapper'
 
@@ -19,6 +20,7 @@ const WebsitePreviewPage: NextPage = () => {
       <Head>
         <title>{titleWrapper(title)}</title>
       </Head>
+      <NoIndex />
       {websiteId && (
         <WebsiteEditor
           fullscreen

@@ -1,14 +1,12 @@
-from datetime import datetime
-from uuid import UUID
-
 from ninja import Schema
 
 
-class Metric(Schema):
-    name: str
-    value: int
+class WebsiteAnalyticsCountOut(Schema):
+    count: int
+    date: str
 
-class MetricSet(Schema):
-    domain_id: UUID
-    timestamp: datetime
-    metric: list[Metric]
+
+class WebsiteAnalyticsOut(Schema):
+    visitors: dict[str, int]
+    requests: list[WebsiteAnalyticsCountOut]
+    blockedRequests: list[WebsiteAnalyticsCountOut]

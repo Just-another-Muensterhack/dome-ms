@@ -17,7 +17,9 @@ type WebsiteAnalyticsProps = {
 
 type AnalyticsRange = 'day' | 'week' | 'month'
 
-const latestCount = (points: { count: number }[]) => points.at(-1)?.count ?? 0
+const sumCounts = (points: { count: number }[]) => (
+  points.reduce((total, point) => total + point.count, 0)
+)
 
 const rangeSpanMs: Record<AnalyticsRange, number> = {
   day: dayMs,
@@ -42,9 +44,9 @@ export const WebsiteAnalytics = ({
     }))
     : []
   const recentRequests = data ? requestsInRange(data.requests, now, spanMs) : []
-  const requestsInSpan = latestCount(recentRequests)
+  const requestsInSpan = sumCounts(recentRequests)
   const recentBlockedRequests = data ? requestsInRange(data.blockedRequests, now, spanMs) : []
-  const blockedInSpan = latestCount(recentBlockedRequests)
+  const blockedInSpan = sumCounts(recentBlockedRequests)
   const ranges: { id: AnalyticsRange, label: string }[] = [
     { id: 'day', label: translation('analyticsRangeDay') },
     { id: 'week', label: translation('analyticsRangeWeek') },

@@ -7,6 +7,7 @@ import { AppPage, IconButton, type AppPageNavigationItem } from '@helpwave/hight
 import { GlobeIcon, Grid2X2PlusIcon, Link2Icon, SettingsIcon } from 'lucide-react'
 import { useDomainsQuery } from '@/api/domain'
 import { useWebsites } from '@/api/website'
+import { NoIndex } from '@/components/seo/SiteGraph'
 import { useDomeTranslation } from '@/i18n/useDomeTranslation'
 import { domainLabel } from '@/utils/domains'
 import titleWrapper from '@/utils/titleWrapper'
@@ -98,6 +99,7 @@ export const Page = ({
       <Head>
         <title>{titleWrapper(pageTitle)}</title>
       </Head>
+      <NoIndex />
       {children}
     </AppPage>
   )

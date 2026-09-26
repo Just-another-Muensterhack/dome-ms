@@ -42,7 +42,7 @@ from django.db.models import QuerySet
 from django.utils import timezone
 
 from website.models import WebsiteContent, website_content_dir, website_html_path, website_storage
-from website.sanitizer import sanitize_html
+from website.sanitizer import bind_origin, robots_txt, sanitize_html, sitemap_xml
 
 MAX_NAME_LENGTH = 255
 MAX_DESCRIPTION_LENGTH = 4000
@@ -79,6 +79,7 @@ PAGE_RULES = """\
 - Put all CSS in a single <style> element in the <head>. Do not use inline JavaScript, <script> elements, \
 event handler attributes, forms, iframes or external stylesheets, fonts or scripts.
 - Use semantic HTML, a responsive layout (mobile first, flexbox or grid), accessible contrast and alt texts.
+- The document is the ground page. Set <title> and one <meta name="description" content="...">. The description is one or two sentences for a search result and a social preview, with no HTML.
 - Use system font stacks. For images and icons use CSS gradients, shapes, inline SVG or emoji.
 - Links may only point to sections of the page (#id), https:// URLs, mailto: or tel:."""
 
@@ -92,7 +93,7 @@ SYSTEM_PROMPT = f"""\
 You are a web designer that builds single page websites.
 
 # Task
-Create one complete, self-contained HTML5 document for the website described in the user message.
+Create one complete, self-contained HTML5 document, the ground page of the website described in the user message.
 {PAGE_RULES}
 
 # Attributes
@@ -263,7 +264,7 @@ class WebsiteBuilderService:
 
         html = self._generate_html(clean_user_text(website.name), description, attributes)  # ty: ignore[invalid-argument-type]
         content = WebsiteContent(website=website, name=name, description=description, attributes=attributes)
-        return self._store(content, self._html_files(html))
+        return self._store(content, self._html_files(website, html))
 
     def upload_website(
         self, website_id: UUID, files: Sequence[tuple[str, File]], name: str | None = None
@@ -321,7 +322,7 @@ class WebsiteBuilderService:
             description=source.description,
             attributes=source.attributes,
         )
-        return self._store(content, self._html_files(html))
+        return self._store(content, self._html_files(source.website, html))
 
     def rename_content(self, content_id: UUID, name: str) -> WebsiteContent:
         content = self.get_content(content_id)
@@ -477,10 +478,24 @@ class WebsiteBuilderService:
             lines.append(f"{key}: {cls._neutralize(text, tag)}")
         return "\n".join(lines) or "(none)"
 
+    def _html_files(self, website: Website, html: str) -> dict[str, File]:
+        """The files of a generated version: the ground page, its sitemap and robots.txt."""
+        origin = self._public_origin(website)
+        return {
+            "index.html": ContentFile(bind_origin(html, origin).encode()),
+            "sitemap.xml": ContentFile(sitemap_xml(origin).encode()),
+            "robots.txt": ContentFile(robots_txt(origin).encode()),
+        }
+
     @staticmethod
-    def _html_files(html: str) -> dict[str, File]:
-        """The files of a generated version, its page only."""
-        return {"index.html": ContentFile(html.encode())}
+    def _public_origin(website: Website) -> str:
+        name = (
+            website.domains.filter(verified_at__isnull=False, wildcard=False)
+            .order_by("name")
+            .values_list("name", flat=True)
+            .first()
+        )
+        return f"https://{name or website.managed_domain}"
 
     def _store(self, content: WebsiteContent, files: Mapping[str, File]) -> WebsiteContent:
         """Save `content` as a new version with `files` in its directory, keyed by their validated relative paths. The
