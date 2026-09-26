@@ -55,7 +55,8 @@ export const VisitorTimeline = ({
           />
           <YAxis
             allowDecimals={false}
-            width={36}
+            domain={['dataMin', 'dataMax']}
+            width={48}
             tick={{ fill: 'currentColor', fontSize: 12 }}
             axisLine={false}
             tickLine={false}

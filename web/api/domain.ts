@@ -13,33 +13,44 @@ const managedEligibilityDelayMs = 1000
 
 export const managedWebsiteDomain = 'website.dome.ms'
 
-const managedDomainLabelPattern = /^(?!-)[a-z0-9-]{1,63}(?<!-)$/
-
-export const isManagedDomainLabel = (name: string) => managedDomainLabelPattern.test(name.trim().toLowerCase())
-
 export const managedDomainHostname = (label: string) => (
   `${label.trim().toLowerCase()}.${managedWebsiteDomain}`
 )
 
+export type DomainAvailability = {
+  name: string,
+  available: boolean,
+  reason: string | null,
+}
+
+export const fetchManagedDomainAvailability = (name: string): Promise<DomainAvailability> => (
+  apiRequest<DomainAvailability>(`${domainsPath}available?name=${encodeURIComponent(name)}`)
+)
+
 export const useManagedDomainEligibility = (name: string, enabled: boolean) => {
   const trimmed = name.trim().toLowerCase()
-  const [checkedName, setCheckedName] = useState<string | null>(null)
+  const [debouncedName, setDebouncedName] = useState(trimmed)
 
   useEffect(() => {
-    if (!enabled || trimmed.length === 0) {
-      setCheckedName(null)
-      return
-    }
-    const timeout = window.setTimeout(() => setCheckedName(trimmed), managedEligibilityDelayMs)
+    const timeout = window.setTimeout(() => setDebouncedName(trimmed), managedEligibilityDelayMs)
     return () => window.clearTimeout(timeout)
-  }, [enabled, trimmed])
+  }, [trimmed])
 
-  const settled = enabled && trimmed.length > 0 && checkedName === trimmed
+  const query = useQuery({
+    queryKey: ['managed-domain-availability', debouncedName],
+    enabled: enabled && debouncedName.length > 0,
+    queryFn: () => fetchManagedDomainAvailability(debouncedName),
+  })
+
+  const current = enabled && trimmed.length > 0 && trimmed === debouncedName
+  const settled = current && query.isSuccess && !query.isFetching
+  const passed = settled && query.data.available
 
   return {
-    passed: settled,
-    checking: enabled && trimmed.length > 0 && !settled,
-    failed: false,
+    passed,
+    checking: enabled && trimmed.length > 0 && !passed && !query.isError && !settled,
+    failed: (settled && !query.data.available) || (current && query.isError),
+    reason: settled && !query.data.available ? query.data.reason : null,
   }
 }
 

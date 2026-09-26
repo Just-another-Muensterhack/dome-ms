@@ -6,7 +6,6 @@ import { VisitorTimeline } from '@/components/dashboard/VisitorTimeline'
 import { useDomeTranslation, useLocale } from '@/i18n/useDomeTranslation'
 import { countryName } from '@/utils/countryName'
 import {
-  countInRange,
   dayMs,
   requestsInRange,
   visitorCountrySegments
@@ -17,6 +16,8 @@ type WebsiteAnalyticsProps = {
 }
 
 type AnalyticsRange = 'day' | 'week' | 'month'
+
+const latestCount = (points: { count: number }[]) => points.at(-1)?.count ?? 0
 
 const rangeSpanMs: Record<AnalyticsRange, number> = {
   day: dayMs,
@@ -41,9 +42,9 @@ export const WebsiteAnalytics = ({
     }))
     : []
   const recentRequests = data ? requestsInRange(data.requests, now, spanMs) : []
-  const visitorsInRange = data ? countInRange(data.requests, now, spanMs) : 0
+  const requestsInSpan = latestCount(recentRequests)
   const recentBlockedRequests = data ? requestsInRange(data.blockedRequests, now, spanMs) : []
-  const blockedInRange = data ? countInRange(data.blockedRequests, now, spanMs) : 0
+  const blockedInSpan = latestCount(recentBlockedRequests)
   const ranges: { id: AnalyticsRange, label: string }[] = [
     { id: 'day', label: translation('analyticsRangeDay') },
     { id: 'week', label: translation('analyticsRangeWeek') },
@@ -92,7 +93,7 @@ export const WebsiteAnalytics = ({
             <section className="rounded-lg bg-surface-variant p-4 flex-col-4 text-on-surface">
               <div className="flex-row-2 items-center">
                 <h2 className="typography-title-md">{translation('totalRequests')}</h2>
-                <Chip color="primary" coloringStyle="tonal" size="sm">{visitorsInRange}</Chip>
+                <Chip color="primary" coloringStyle="tonal" size="sm">{requestsInSpan}</Chip>
               </div>
               <VisitorTimeline
                 points={recentRequests}
@@ -104,7 +105,7 @@ export const WebsiteAnalytics = ({
             <section className="rounded-lg bg-surface-variant p-4 flex-col-4 text-on-surface">
               <div className="flex-row-2 items-center">
                 <h2 className="typography-title-md">{translation('blockedRequestsLastDay')}</h2>
-                <Chip color="primary" coloringStyle="tonal" size="sm">{blockedInRange}</Chip>
+                <Chip color="primary" coloringStyle="tonal" size="sm">{blockedInSpan}</Chip>
               </div>
               <VisitorTimeline
                 points={recentBlockedRequests}

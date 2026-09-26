@@ -19,50 +19,45 @@ type WebsiteAnalyticsSource = {
 
 const hourMs = 60 * 60 * 1000
 const dayMs = 24 * hourMs
+const epochMs = Date.UTC(2026, 0, 1)
 
-const dailyCounts = (now: number, scale: number): WebsiteAnalyticsCountSource[] => (
-  Array.from({ length: 28 }, (_, index) => {
-    const day = 30 - index
-    return {
-      count: scale * (8 + (day % 5) * 3),
-      date: new Date(now - day * dayMs).toISOString(),
-    }
-  })
-)
+const requestsAt = (time: number) => {
+  const hours = Math.floor(Math.max(0, time - epochMs) / hourMs)
+  return Math.min(10000, Math.max(1, hours))
+}
+
+const blockedAt = (time: number) => Math.min(10000, Math.max(1, Math.round(requestsAt(time) * 0.05)))
+
+const sampleTimes = (now: number) => {
+  const hourEnd = Math.floor(now / hourMs) * hourMs
+  const times = new Set<number>()
+  for (let day = 30; day >= 2; day -= 1) {
+    times.add(hourEnd - day * dayMs)
+  }
+  for (let hour = 24; hour >= 0; hour -= 1) {
+    times.add(hourEnd - hour * hourMs)
+  }
+  return [...times].sort((left, right) => left - right)
+}
 
 const websiteAnalyticsSource = (): WebsiteAnalyticsSource => {
-  const now = Date.now()
+  const times = sampleTimes(Date.now())
   return {
     visitors: {
-      all: 1265,
-      DEU: 420,
-      USA: 310,
-      FRA: 180,
-      GBR: 140,
-      JPN: 90,
-      BRA: 70,
-      IND: 55,
+      all: 1000,
+      DEU: 900,
+      AUT: 70,
+      CHE: 20,
+      ITA: 10,
     },
-    requests: [
-      ...dailyCounts(now, 4),
-      { count: 8, date: new Date(now - 26 * hourMs).toISOString() },
-      { count: 14, date: new Date(now - 22 * hourMs).toISOString() },
-      { count: 21, date: new Date(now - 18 * hourMs).toISOString() },
-      { count: 17, date: new Date(now - 14 * hourMs).toISOString() },
-      { count: 28, date: new Date(now - 10 * hourMs).toISOString() },
-      { count: 19, date: new Date(now - 6 * hourMs).toISOString() },
-      { count: 24, date: new Date(now - 2 * hourMs).toISOString() },
-    ],
-    blockedRequests: [
-      ...dailyCounts(now, 1),
-      { count: 2, date: new Date(now - 26 * hourMs).toISOString() },
-      { count: 3, date: new Date(now - 22 * hourMs).toISOString() },
-      { count: 5, date: new Date(now - 18 * hourMs).toISOString() },
-      { count: 4, date: new Date(now - 14 * hourMs).toISOString() },
-      { count: 9, date: new Date(now - 10 * hourMs).toISOString() },
-      { count: 6, date: new Date(now - 6 * hourMs).toISOString() },
-      { count: 7, date: new Date(now - 2 * hourMs).toISOString() },
-    ],
+    requests: times.map((time) => ({
+      count: requestsAt(time),
+      date: new Date(time).toISOString(),
+    })),
+    blockedRequests: times.map((time) => ({
+      count: blockedAt(time),
+      date: new Date(time).toISOString(),
+    })),
   }
 }
 

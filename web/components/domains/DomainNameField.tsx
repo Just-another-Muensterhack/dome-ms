@@ -10,6 +10,7 @@ type DomainNameFieldProps = {
   locked: boolean,
   checking: boolean,
   failed: boolean,
+  reason: string | null,
   onNameChange: (name: string) => void,
   onManagedChange: (managed: boolean) => void,
   onEnter: () => void,
@@ -22,6 +23,7 @@ export const DomainNameField = ({
   locked,
   checking,
   failed,
+  reason,
   onNameChange,
   onManagedChange,
   onEnter,
@@ -75,7 +77,7 @@ export const DomainNameField = ({
         <p className="typography-body text-description">{translation('managedDomainChecking')}</p>
       )}
       {failed && (
-        <p className="typography-body text-negative">{translation('managedDomainUnavailable')}</p>
+        <p className="typography-body text-negative">{reason ?? translation('managedDomainUnavailable')}</p>
       )}
     </div>
   )

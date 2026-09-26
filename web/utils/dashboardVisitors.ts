@@ -50,9 +50,3 @@ export const requestsInRange = (
     })
     .sort((left, right) => left.date.getTime() - right.date.getTime())
 }
-
-export const countInRange = (
-  requests: { count: number, date: Date }[],
-  now: Date,
-  spanMs: number
-) => requestsInRange(requests, now, spanMs).reduce((sum, request) => sum + request.count, 0)

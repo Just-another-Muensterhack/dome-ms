@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   createDomain,
-  isManagedDomainLabel,
   managedDomainHostname,
   managedWebsiteDomain,
   updateDomain,
@@ -35,8 +34,7 @@ export const OnboardingDomainStep = ({
   const [name, setName] = useState(initialName)
   const [managed, setManaged] = useState(locked)
   const eligibility = useManagedDomainEligibility(name, managed && !locked)
-  const labelValid = isManagedDomainLabel(name)
-  const canContinue = locked || (managed ? eligibility.passed && labelValid : name.trim().length > 0)
+  const canContinue = locked || (managed ? eligibility.passed : name.trim().length > 0)
 
   const save = useMutation({
     mutationFn: async (domainName: string) => {
@@ -73,7 +71,8 @@ export const OnboardingDomainStep = ({
         managed={managed}
         locked={locked}
         checking={eligibility.checking}
-        failed={eligibility.passed && !labelValid}
+        failed={eligibility.failed}
+        reason={eligibility.reason}
         onNameChange={setName}
         onManagedChange={setManaged}
         onEnter={submit}

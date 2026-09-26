@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ConfirmDialog, LabelledCheckbox } from '@helpwave/hightide'
-import { createDomain, isManagedDomainLabel, managedDomainHostname, useManagedDomainEligibility } from '@/api/domain'
+import { createDomain, managedDomainHostname, useManagedDomainEligibility } from '@/api/domain'
 import { DomainNameField } from '@/components/domains/DomainNameField'
 import { DomainWebsiteField } from '@/components/domains/DomainWebsiteField'
 import { useDomeTranslation } from '@/i18n/useDomeTranslation'
@@ -22,8 +22,7 @@ export const AddDomainDialog = ({
   const [wildcard, setWildcard] = useState(false)
   const [websiteId, setWebsiteId] = useState('')
   const eligibility = useManagedDomainEligibility(name, managed)
-  const labelValid = isManagedDomainLabel(name)
-  const canSubmit = managed ? eligibility.passed && labelValid : name.trim().length > 0
+  const canSubmit = managed ? eligibility.passed : name.trim().length > 0
 
   const clearForm = () => {
     setName('')
@@ -83,7 +82,8 @@ export const AddDomainDialog = ({
           managed={managed}
           locked={false}
           checking={eligibility.checking}
-          failed={eligibility.passed && !labelValid}
+          failed={eligibility.failed}
+          reason={eligibility.reason}
           onNameChange={setName}
           onManagedChange={setManaged}
           onEnter={submit}
