@@ -11,6 +11,10 @@ export const domainLabel = (domain: Pick<Domain, 'name' | 'wildcard'>): string =
   domain.wildcard ? `*.${domain.name}` : domain.name
 )
 
+export const isDomainVerified = (domain: Pick<Domain, 'verified_at'>): boolean => (
+  domain.verified_at !== null
+)
+
 export const domainChipPreview = (domains: Domain[]): DomainChipPreview => {
   if (domains.length <= maxDomainChips) {
     return {

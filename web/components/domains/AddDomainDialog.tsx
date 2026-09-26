@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ConfirmDialog, Input, LabelledCheckbox, Select } from '@helpwave/hightide'
-import { createDomain } from '@/api/domain'
-import { useWebsites } from '@/api/website'
+import { ConfirmDialog, LabelledCheckbox } from '@helpwave/hightide'
+import { createDomain, managedDomainHostname, useManagedDomainEligibility } from '@/api/domain'
+import { DomainNameField } from '@/components/domains/DomainNameField'
+import { DomainWebsiteField } from '@/components/domains/DomainWebsiteField'
 import { useDomeTranslation } from '@/i18n/useDomeTranslation'
 
 type AddDomainDialogProps = {
@@ -16,13 +17,16 @@ export const AddDomainDialog = ({
 }: AddDomainDialogProps) => {
   const translation = useDomeTranslation()
   const queryClient = useQueryClient()
-  const websites = useWebsites()
   const [name, setName] = useState('')
+  const [managed, setManaged] = useState(false)
   const [wildcard, setWildcard] = useState(false)
   const [websiteId, setWebsiteId] = useState('')
+  const eligibility = useManagedDomainEligibility(name, managed)
+  const canSubmit = managed ? eligibility.passed : name.trim().length > 0
 
   const clearForm = () => {
     setName('')
+    setManaged(false)
     setWildcard(false)
     setWebsiteId('')
   }
@@ -45,14 +49,13 @@ export const AddDomainDialog = ({
   }
 
   const submit = () => {
-    const trimmedName = name.trim()
-    if (trimmedName.length === 0 || create.isPending) {
+    if (!canSubmit || create.isPending) {
       return
     }
 
     create.mutate({
-      name: trimmedName,
-      wildcard,
+      name: managed ? managedDomainHostname(name) : name.trim(),
+      wildcard: managed ? false : wildcard,
       website_id: websiteId.length > 0 ? websiteId : null,
     })
   }
@@ -69,47 +72,30 @@ export const AddDomainDialog = ({
       buttonOverwrites={[
         { text: translation('cancel') },
         {},
-        { text: translation('add'), disabled: name.trim().length === 0 || create.isPending },
+        { text: translation('add'), disabled: !canSubmit || create.isPending },
       ]}
     >
       <div className="flex-col-3">
-        <label className="flex-col-1" htmlFor="domain-name">
-          <span className="typography-label-md">{translation('name')}</span>
-          <Input
-            id="domain-name"
-            value={name}
-            onValueChange={setName}
-            placeholder="example.com"
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                event.preventDefault()
-                submit()
-              }
-            }}
-          />
-        </label>
-        <LabelledCheckbox
-          label={translation('wildcard')}
-          value={wildcard}
-          onValueChange={setWildcard}
+        <DomainNameField
+          id="domain-name"
+          name={name}
+          managed={managed}
+          locked={false}
+          checking={eligibility.checking}
+          failed={eligibility.failed}
+          reason={eligibility.reason}
+          onNameChange={setName}
+          onManagedChange={setManaged}
+          onEnter={submit}
         />
-        <div className="flex-col-1">
-          <span className="typography-label-md">{translation('website')}</span>
-          <Select
-            value={websiteId}
-            onValueChange={(value) => setWebsiteId(value ?? '')}
-            placeholder={translation('noWebsite')}
-          >
-            <Select.Option value="" label={translation('noWebsite')}>
-              {translation('noWebsite')}
-            </Select.Option>
-            {(websites.data ?? []).map((website) => (
-              <Select.Option key={website.id} value={website.id} label={website.name}>
-                {website.name}
-              </Select.Option>
-            ))}
-          </Select>
-        </div>
+        {!managed && (
+          <LabelledCheckbox
+            label={translation('wildcard')}
+            value={wildcard}
+            onValueChange={setWildcard}
+          />
+        )}
+        <DomainWebsiteField websiteId={websiteId} onWebsiteIdChange={setWebsiteId} />
         {create.isError && (
           <p className="typography-body text-negative">{create.error.message}</p>
         )}

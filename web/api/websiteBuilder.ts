@@ -25,10 +25,24 @@ export const generateWebsite = (payload: WebsiteContentIn): Promise<WebsiteConte
   })
 )
 
-export const editWebsiteContent = (contentId: string, prompt: string): Promise<WebsiteContent> => (
+export const editWebsiteContent = (
+  contentId: string,
+  prompt: string,
+  name: string,
+): Promise<WebsiteContent> => (
   apiRequest<WebsiteContent>(`${websiteBuilderPath}${contentId}/edit`, {
     method: 'POST',
-    body: JSON.stringify({ prompt }),
+    body: JSON.stringify({
+      prompt,
+      ...(name.length > 0 ? { name } : {}),
+    }),
+  })
+)
+
+export const updateWebsiteContent = (contentId: string, name: string): Promise<WebsiteContent> => (
+  apiRequest<WebsiteContent>(`${websiteBuilderPath}${contentId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ name }),
   })
 )
 
@@ -37,6 +51,37 @@ export const activateWebsiteContent = (contentId: string): Promise<WebsiteConten
     method: 'POST',
   })
 )
+
+export const deleteWebsiteContent = (contentId: string): Promise<void> => (
+  apiRequest<void>(`${websiteBuilderPath}${contentId}`, {
+    method: 'DELETE',
+  })
+)
+
+export type WebsiteUploadFile = {
+  path: string,
+  file: File,
+}
+
+export const uploadWebsite = (
+  websiteId: string,
+  files: WebsiteUploadFile[],
+  name: string,
+): Promise<WebsiteContent> => {
+  const body = new FormData()
+  body.set('website_id', websiteId)
+  if (name.length > 0) {
+    body.set('name', name)
+  }
+  for (const item of files) {
+    body.append('paths', item.path)
+    body.append('files', item.file, item.file.name)
+  }
+  return apiRequest<WebsiteContent>(`${websiteBuilderPath}upload`, {
+    method: 'POST',
+    body,
+  })
+}
 
 export const useWebsiteContents = (
   websiteId: string,
@@ -60,10 +105,19 @@ export const useGenerateWebsite = (
 )
 
 export const useEditWebsiteContent = (
-  options?: UseMutationOptions<WebsiteContent, Error, { contentId: string, prompt: string }>
+  options?: UseMutationOptions<WebsiteContent, Error, { contentId: string, prompt: string, name: string }>
 ) => (
   useMutation({
-    mutationFn: ({ contentId, prompt }) => editWebsiteContent(contentId, prompt),
+    mutationFn: ({ contentId, prompt, name }) => editWebsiteContent(contentId, prompt, name),
+    ...options,
+  })
+)
+
+export const useUpdateWebsiteContent = (
+  options?: UseMutationOptions<WebsiteContent, Error, { contentId: string, name: string }>
+) => (
+  useMutation({
+    mutationFn: ({ contentId, name }) => updateWebsiteContent(contentId, name),
     ...options,
   })
 )
@@ -73,6 +127,24 @@ export const useActivateWebsiteContent = (
 ) => (
   useMutation({
     mutationFn: activateWebsiteContent,
+    ...options,
+  })
+)
+
+export const useDeleteWebsiteContent = (
+  options?: UseMutationOptions<void, Error, string>
+) => (
+  useMutation({
+    mutationFn: deleteWebsiteContent,
+    ...options,
+  })
+)
+
+export const useUploadWebsite = (
+  options?: UseMutationOptions<WebsiteContent, Error, { websiteId: string, files: WebsiteUploadFile[], name: string }>
+) => (
+  useMutation({
+    mutationFn: ({ websiteId, files, name }) => uploadWebsite(websiteId, files, name),
     ...options,
   })
 )

@@ -28,6 +28,7 @@ from core.models import (
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.db.models import Model, QuerySet
 from django.utils import timezone
 
@@ -78,7 +79,10 @@ class HostManagementService:
         return self._save(website)
 
     def delete_website(self, website_id: UUID) -> None:
-        self.get_website(website_id).soft_delete()
+        website = self.get_website(website_id)
+        with transaction.atomic():
+            website.domains.update(website=None)
+            website.soft_delete()
 
     # Webservers
 

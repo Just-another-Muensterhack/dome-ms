@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import Link from 'next/link'
-import { Button, Expandable, LoadingAndErrorComponent } from '@helpwave/hightide'
+import { Button, Chip, Expandable, LoadingAndErrorComponent } from '@helpwave/hightide'
+import { ChevronRight } from 'lucide-react'
 import { useDomainsQuery } from '@/api/domain'
 import { useWebsites } from '@/api/website'
 import type { Domain } from '@/api/types/domain'
@@ -8,12 +9,32 @@ import type { Website } from '@/api/types/website'
 import { AddDomainDialog } from '@/components/domains/AddDomainDialog'
 import { AddWebsiteDialog } from '@/components/websites/AddWebsiteDialog'
 import { useDomeTranslation } from '@/i18n/useDomeTranslation'
-import { domainLabel } from '@/utils/domains'
+import { domainLabel, isDomainVerified } from '@/utils/domains'
 
 type NamedEntry = {
   id: string,
   name: string,
   href: string,
+  verified?: boolean,
+}
+
+const DomainStatusBadge = ({
+  verified,
+}: {
+  verified: boolean,
+}) => {
+  const translation = useDomeTranslation()
+
+  return (
+    <Chip
+      color={verified ? 'positive' : 'neutral'}
+      coloringStyle="tonal"
+      size="sm"
+      className="shrink-0"
+    >
+      {verified ? translation('verified') : translation('unverified')}
+    </Chip>
+  )
 }
 
 const domainName = (domain: Domain) => domainLabel(domain)
@@ -39,9 +60,16 @@ const NameList = ({
   return (
     <ul className="flex-col-2">
       {entries.map((entry) => (
-        <li key={entry.id}>
-          <Link href={entry.href} className="typography-body hover:underline">
-            {entry.name}
+        <li key={entry.id} className="w-full">
+          <Link
+            href={entry.href}
+            className="group flex w-full items-center justify-between gap-3 rounded-md px-2 py-2 typography-body transition-colors hover:bg-surface-variant"
+          >
+            <span className="flex-row-2 items-center min-w-0">
+              <span className="min-w-0 truncate">{entry.name}</span>
+              {entry.verified !== undefined && <DomainStatusBadge verified={entry.verified} />}
+            </span>
+            <ChevronRight className="size-4 shrink-0 transition-transform group-hover:translate-x-1" />
           </Link>
         </li>
       ))}
@@ -83,6 +111,7 @@ const domainEntries = (domains: Domain[]): NamedEntry[] => (
     id: domain.id,
     name: domainName(domain),
     href: `/domains#${domain.id}`,
+    verified: isDomainVerified(domain),
   }))
 )
 

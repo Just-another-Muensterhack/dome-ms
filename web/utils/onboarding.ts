@@ -15,3 +15,11 @@ export const writeOnboardingTimestamp = (timestamp: string): void => {
     return
   }
 }
+
+export const clearOnboardingTimestamp = (): void => {
+  try {
+    localStorage.removeItem(onboardingTimestampKey)
+  } catch {
+    return
+  }
+}

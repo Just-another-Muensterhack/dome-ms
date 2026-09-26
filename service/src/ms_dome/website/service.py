@@ -39,6 +39,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile, File
 from django.db import transaction
 from django.db.models import QuerySet
+from django.utils import timezone
 
 from website.models import WebsiteContent, website_content_dir, website_html_path, website_storage
 from website.sanitizer import sanitize_html
@@ -309,9 +310,12 @@ class WebsiteBuilderService:
             raise ValidationError({"prompt": f"Use at most {MAX_PROMPT_LENGTH} characters."})
 
         html = self._edit_html(source.read_html(), prompt)
+        updated_at = timezone.localtime().strftime("%d.%m.%Y, %H:%M")
+        suffix = f" (Update {updated_at})"
+        previous_name = source.name[: 255 - len(suffix)].rstrip()
         content = WebsiteContent(
             website_id=source.website_id,  # ty: ignore[unresolved-attribute]
-            name=name,
+            name=name or f"{previous_name}{suffix}",
             source=source,
             prompt=prompt,
             description=source.description,
@@ -341,6 +345,17 @@ class WebsiteBuilderService:
         content.is_active = True  # ty: ignore[invalid-assignment]
         # `update` sends no signals, the website's domains now serve this version
         nginx.schedule_sync()
+        return content
+
+    def rename_content(self, content_id: UUID, name: str) -> WebsiteContent:
+        content = self.get_content(content_id)
+        name = clean_user_text(name)
+        if not name:
+            raise ValidationError({"name": "The name must not be blank."})
+        if len(name) > 255:
+            raise ValidationError({"name": "Use at most 255 characters."})
+        content.name = name  # ty: ignore[invalid-assignment]
+        content.save(update_fields=["name", "updated_at"])
         return content
 
     @transaction.atomic

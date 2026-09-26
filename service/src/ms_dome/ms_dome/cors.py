@@ -3,12 +3,14 @@ import os
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse
 
-# generated websites are static HTML and CSS, the sanitizer only lets http(s) and data images through
+# generated and uploaded websites are static files served from this origin
 MEDIA_CONTENT_SECURITY_POLICY = (
     "default-src 'none'",
+    "script-src 'self' 'unsafe-inline' https: http:",
     "img-src 'self' https: http: data:",
     "style-src 'self' 'unsafe-inline' https: http:",
     "font-src 'self' https: http: data:",
+    "connect-src 'self' https: http:",
     "base-uri 'none'",
     "form-action 'none'",
 )

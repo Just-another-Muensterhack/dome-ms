@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import {
   useQuery,
   type QueryKey,
@@ -8,6 +9,50 @@ import { apiRequest } from '@/api/client'
 import type { Domain, DomainIn, DomainUpdate } from '@/api/types/domain'
 
 const domainsPath = '/api/v1/domains/'
+const managedEligibilityDelayMs = 1000
+
+export const managedWebsiteDomain = 'website.dome.ms'
+
+export const managedDomainHostname = (label: string) => (
+  `${label.trim().toLowerCase()}.${managedWebsiteDomain}`
+)
+
+export type DomainAvailability = {
+  name: string,
+  available: boolean,
+  reason: string | null,
+}
+
+export const fetchManagedDomainAvailability = (name: string): Promise<DomainAvailability> => (
+  apiRequest<DomainAvailability>(`${domainsPath}available?name=${encodeURIComponent(name)}`)
+)
+
+export const useManagedDomainEligibility = (name: string, enabled: boolean) => {
+  const trimmed = name.trim().toLowerCase()
+  const [debouncedName, setDebouncedName] = useState(trimmed)
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setDebouncedName(trimmed), managedEligibilityDelayMs)
+    return () => window.clearTimeout(timeout)
+  }, [trimmed])
+
+  const query = useQuery({
+    queryKey: ['managed-domain-availability', debouncedName],
+    enabled: enabled && debouncedName.length > 0,
+    queryFn: () => fetchManagedDomainAvailability(debouncedName),
+  })
+
+  const current = enabled && trimmed.length > 0 && trimmed === debouncedName
+  const settled = current && query.isSuccess && !query.isFetching
+  const passed = settled && query.data.available
+
+  return {
+    passed,
+    checking: enabled && trimmed.length > 0 && !passed && !query.isError && !settled,
+    failed: (settled && !query.data.available) || (current && query.isError),
+    reason: settled && !query.data.available ? query.data.reason : null,
+  }
+}
 
 export const fetchDomains = (websiteId?: string): Promise<Domain[]> => {
   const query = websiteId ? `?website_id=${encodeURIComponent(websiteId)}` : ''
@@ -35,6 +80,12 @@ export const updateDomain = (domainId: string, payload: DomainUpdate): Promise<D
 export const deleteDomain = (domainId: string): Promise<void> => (
   apiRequest<void>(`${domainsPath}${domainId}`, {
     method: 'DELETE',
+  })
+)
+
+export const verifyDomain = (domainId: string): Promise<Domain> => (
+  apiRequest<Domain>(`${domainsPath}${domainId}/verify`, {
+    method: 'POST',
   })
 )
 

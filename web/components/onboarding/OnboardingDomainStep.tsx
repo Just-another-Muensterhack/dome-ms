@@ -1,8 +1,14 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Input } from '@helpwave/hightide'
-import { createDomain, updateDomain } from '@/api/domain'
+import {
+  createDomain,
+  managedDomainHostname,
+  managedWebsiteDomain,
+  updateDomain,
+  useManagedDomainEligibility
+} from '@/api/domain'
 import type { Domain } from '@/api/types/domain'
+import { DomainNameField } from '@/components/domains/DomainNameField'
 import { OnboardingActions } from '@/components/onboarding/OnboardingActions'
 import { OnboardingFrame } from '@/components/onboarding/OnboardingFrame'
 import { useDomeTranslation } from '@/i18n/useDomeTranslation'
@@ -21,7 +27,14 @@ export const OnboardingDomainStep = ({
 }: OnboardingDomainStepProps) => {
   const translation = useDomeTranslation()
   const queryClient = useQueryClient()
-  const [name, setName] = useState(domain?.name ?? '')
+  const locked = domain?.managed === true
+  const initialName = locked && domain !== null
+    ? domain.name.slice(0, -(managedWebsiteDomain.length + 1))
+    : domain?.name ?? ''
+  const [name, setName] = useState(initialName)
+  const [managed, setManaged] = useState(locked)
+  const eligibility = useManagedDomainEligibility(name, managed && !locked)
+  const canContinue = locked || (managed ? eligibility.passed : name.trim().length > 0)
 
   const save = useMutation({
     mutationFn: async (domainName: string) => {
@@ -40,11 +53,11 @@ export const OnboardingDomainStep = ({
   })
 
   const submit = () => {
-    const trimmedName = name.trim()
-    if (trimmedName.length === 0 || save.isPending) {
+    if (!canContinue || save.isPending) {
       return
     }
-    save.mutate(trimmedName)
+    const domainName = managed ? managedDomainHostname(name) : name.trim()
+    save.mutate(domainName)
   }
 
   return (
@@ -52,28 +65,25 @@ export const OnboardingDomainStep = ({
       title={translation('onboardingDomainTitle')}
       description={translation('onboardingDomainDescription')}
     >
-      <label className="flex-col-1" htmlFor="onboarding-domain-name">
-        <span className="typography-label-md">{translation('name')}</span>
-        <Input
-          id="onboarding-domain-name"
-          value={name}
-          onValueChange={setName}
-          placeholder="example.com"
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              event.preventDefault()
-              submit()
-            }
-          }}
-        />
-      </label>
+      <DomainNameField
+        id="onboarding-domain-name"
+        name={name}
+        managed={managed}
+        locked={locked}
+        checking={eligibility.checking}
+        failed={eligibility.failed}
+        reason={eligibility.reason}
+        onNameChange={setName}
+        onManagedChange={setManaged}
+        onEnter={submit}
+      />
       {save.isError && (
         <p className="typography-body text-negative">{save.error.message}</p>
       )}
       <OnboardingActions
         onBack={onBack}
         onContinue={submit}
-        continueDisabled={name.trim().length === 0}
+        continueDisabled={!canContinue}
         pending={save.isPending}
       />
     </OnboardingFrame>

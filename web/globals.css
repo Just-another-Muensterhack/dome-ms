@@ -16,4 +16,27 @@
   [data-name="app-sidebar-container"] {
     @apply desktop:min-w-68 desktop:max-w-68;
   }
+
+  [data-name="dialog-content"] {
+    @apply desktop:min-w-160 min-w-[90vw];
+  }
+
+  [data-name="dialog-content"].snapshot-dialog,
+  [data-name="dialog-content"].confirm-dialog {
+    @apply w-[min(48rem,calc(100vw-2rem))] min-w-[min(48rem,calc(100vw-2rem))] max-w-[min(48rem,calc(100vw-2rem))];
+  }
+
+  [data-name="dialog-content"].snapshot-dialog {
+    @apply h-[min(40rem,calc(100dvh-2rem))] overflow-hidden;
+  }
+
+  .app-page-main-spacer {
+    @apply min-h-4;
+  }
+
+  [data-name="app-page-main-content"],
+  [data-name="tab-panel"],
+  .tab-view {
+    @apply grow flex;
+  }
 }

@@ -37,11 +37,12 @@ export const visitorCountrySegments = (
   ]
 }
 
-export const requestsInLastDay = (
+export const requestsInRange = (
   requests: { count: number, date: Date }[],
-  now: Date
+  now: Date,
+  spanMs: number
 ) => {
-  const start = now.getTime() - dayMs
+  const start = now.getTime() - spanMs
   return requests
     .filter((request) => {
       const time = request.date.getTime()
@@ -49,8 +50,3 @@ export const requestsInLastDay = (
     })
     .sort((left, right) => left.date.getTime() - right.date.getTime())
 }
-
-export const countInLastDay = (
-  requests: { count: number, date: Date }[],
-  now: Date
-) => requestsInLastDay(requests, now).reduce((sum, request) => sum + request.count, 0)

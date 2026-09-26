@@ -21,9 +21,21 @@ export const WebsiteDetail = ({
   const [isEditOpen, setIsEditOpen] = useState(false)
 
   return (
-    <div className="flex-col-4">
-      <div className="flex-row-4 items-center justify-between">
-        <h1 className="typography-title-lg">{website?.name ?? translation('navWebsites')}</h1>
+    <div className="flex-col-2 grow">
+      <div className="flex-row-4 items-start justify-between">
+        <div className="flex-col-0">
+          <h1 className="typography-title-lg">{website?.name ?? translation('navWebsites')}</h1>
+          {website && isEditOpen && (
+            <AddWebsiteDialog
+              website={website}
+              isOpen
+              onClose={() => setIsEditOpen(false)}
+            />
+          )}
+          {website && (
+            <WebsiteDomainChips websiteName={website.name} domains={website.domains} />
+          )}
+        </div>
         {website && (
           <IconButton
             color="primary"
@@ -35,31 +47,22 @@ export const WebsiteDetail = ({
           </IconButton>
         )}
       </div>
-      {website && isEditOpen && (
-        <AddWebsiteDialog
-          website={website}
-          isOpen
-          onClose={() => setIsEditOpen(false)}
-        />
-      )}
-      {website && (
-        <WebsiteDomainChips websiteName={website.name} domains={website.domains} />
-      )}
-      <TabSwitcher>
-        <TabList />
-        <TabView />
-        <TabPanel id="analytics" label={translation('analytics')} initiallyActive>
-          <WebsiteAnalytics websiteId={websiteId} />
-        </TabPanel>
-        <TabPanel id="dns" label={translation('dns')} />
-        <TabPanel id="editor" label={translation('editor')}>
-          <WebsiteEditor
-            websiteId={websiteId}
-            websiteName={website?.name ?? ''}
-            initialDescription={website?.description ?? ''}
-          />
-        </TabPanel>
-      </TabSwitcher>
+      <div className="flex-col-2 grow">
+        <TabSwitcher>
+          <TabList />
+          <TabView />
+          <TabPanel id="analytics" label={translation('analytics')} initiallyActive>
+            <WebsiteAnalytics websiteId={websiteId} />
+          </TabPanel>
+          <TabPanel id="editor" label={translation('editor')}>
+            <WebsiteEditor
+              websiteId={websiteId}
+              websiteName={website?.name ?? ''}
+              initialDescription={website?.description ?? ''}
+            />
+          </TabPanel>
+        </TabSwitcher>
+      </div>
     </div>
   )
 }
