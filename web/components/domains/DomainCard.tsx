@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { Card, Chip, IconButton } from '@helpwave/hightide'
-import { Check, PencilIcon, Verified } from 'lucide-react'
+import { BadgeX, ExternalLink, PencilIcon, Verified } from 'lucide-react'
 import { useWebsites } from '@/api/website'
 import type { Domain } from '@/api/types/domain'
 import { EditDomainDialog } from '@/components/domains/EditDomainDialog'
 import { useDomeTranslation } from '@/i18n/useDomeTranslation'
-import { domainLabel } from '@/utils/domains'
+import { domainLabel, isDomainVerified } from '@/utils/domains'
 import Link from 'next/link'
 
 type DomainCardProps = {
@@ -28,25 +28,37 @@ export const DomainCard = ({
       title={(
         <span className="truncate flex-row-1 items-center">
           {domainLabel(domain)}
-          {true ?
-            // todo update the above to read domain.verified
-            (<Verified size={16} className="text-positive"/>)
-            : undefined
-          }
+          {isDomainVerified(domain) ? (
+            <Verified size={16} className="text-positive" aria-label={translation('verified')} />
+          ): (
+            <BadgeX size={16} className="text-warning" aria-label={translation('notVerified')} />
+          )}
         </span>
       )}
       className="relative [&_.card-header]:z-1"
       trailing={(
-        <IconButton
-          size="sm"
-          color="primary"
-          coloringStyle="text"
-          className="relative z-10"
-          tooltip={translation('editDomain')}
-          onClick={() => setIsEditOpen(true)}
-        >
-          <PencilIcon className="size-5" />
-        </IconButton>
+        <div className="flex-row-1 z-10">
+          <Link
+            href={`https://${website?.name}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="icon-button"
+            data-size="sm"
+            data-color="primary"
+            data-coloringstyle="text"
+          >
+            <ExternalLink size={16}/>
+          </Link>
+          <IconButton
+            size="sm"
+            color="primary"
+            coloringStyle="text"
+            tooltip={translation('editDomain')}
+            onClick={() => setIsEditOpen(true)}
+          >
+            <PencilIcon className="size-5" />
+          </IconButton>
+        </div>
       )}
     >
       <button

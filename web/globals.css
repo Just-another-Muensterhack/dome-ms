@@ -20,4 +20,14 @@
   [data-name="dialog-content"] {
     @apply desktop:min-w-160 min-w-[90vw];
   }
+
+  .app-page-main-spacer {
+    @apply min-h-4;
+  }
+
+  [data-name="app-page-main-content"],
+  [data-name="tab-panel"],
+  .tab-view {
+    @apply grow flex;
+  }
 }

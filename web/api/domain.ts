@@ -38,6 +38,12 @@ export const deleteDomain = (domainId: string): Promise<void> => (
   })
 )
 
+export const verifyDomain = (domainId: string): Promise<Domain> => (
+  apiRequest<Domain>(`${domainsPath}${domainId}/verify`, {
+    method: 'POST',
+  })
+)
+
 export type UseDomainsQueryOptions = Omit<
   UseQueryOptions<Domain[], Error, Domain[], QueryKey>,
   'queryFn' | 'queryKey'

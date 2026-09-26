@@ -4,6 +4,7 @@ import { ConfirmDialog, Input, LabelledCheckbox, Select } from '@helpwave/highti
 import { updateDomain } from '@/api/domain'
 import type { Domain } from '@/api/types/domain'
 import { useWebsites } from '@/api/website'
+import { DomainVerification } from '@/components/domains/DomainVerification'
 import { useDomeTranslation } from '@/i18n/useDomeTranslation'
 import { invalidateHostQueries } from '@/utils/hostQueries'
 
@@ -111,6 +112,7 @@ export const EditDomainDialog = ({
             ))}
           </Select>
         </div>
+        <DomainVerification domain={domain} />
         {update.isError && (
           <p className="typography-body text-negative">{update.error.message}</p>
         )}
