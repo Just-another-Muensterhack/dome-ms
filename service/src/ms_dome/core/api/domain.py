@@ -1,9 +1,9 @@
 from uuid import UUID
 
-from core.api.schema import DomainIn, DomainOut, DomainUpdate, ErrorOut
+from core.api.schema import DomainAvailabilityOut, DomainIn, DomainOut, DomainUpdate, ErrorOut
 from core.service import HostManagementService
 from django.http import HttpRequest
-from ninja import Router
+from ninja import Query, Router
 
 from ms_dome.api import api
 
@@ -15,6 +15,12 @@ api.add_router("/domains", domains)
 def list_domains(request: HttpRequest, website_id: UUID | None = None, webserver_id: UUID | None = None):
     service = HostManagementService(request.auth)  # ty: ignore[unresolved-attribute]
     return service.list_domains(website_id, webserver_id)
+
+
+@domains.get("/available", response=DomainAvailabilityOut)
+def check_managed_domain(request: HttpRequest, name: str = Query(..., max_length=255)):  # ty: ignore[call-non-callable]
+    """Whether `<name>.website.<base domain>` can be registered, `name` may also be the full domain name."""
+    return HostManagementService(request.auth).check_managed_domain(name)  # ty: ignore[unresolved-attribute]
 
 
 @domains.get("/{domain_id}", response={200: DomainOut, 404: ErrorOut})

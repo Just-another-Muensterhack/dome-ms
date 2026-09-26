@@ -41,6 +41,14 @@ class DomainOut(Schema):
     updated_at: datetime
 
 
+class DomainAvailabilityOut(Schema):
+    # the full name the query was checked as, e.g. `my-site.website.<base domain>`
+    name: str
+    available: bool
+    # why the name can not be registered, `null` if it is available
+    reason: str | None
+
+
 class WebsiteIn(Schema):
     name: str = Field(..., max_length=255)
     description: str = ""

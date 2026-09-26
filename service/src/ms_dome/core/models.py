@@ -55,6 +55,16 @@ def website_domain_label(name: str) -> str | None:
     return label if parent == settings.DOME_WEBSITE_DOMAIN else None
 
 
+def managed_label_error(label: str) -> str | None:
+    """Why `label` can not be registered below the website domain, `None` if it can."""
+    # `xn--` and every other `??--` prefix is reserved for encodings, this keeps out look-alike names
+    if label[2:4] == "--":
+        return f"Internationalized names are not allowed below {settings.DOME_WEBSITE_DOMAIN}."
+    if label in settings.DOME_RESERVED_LABELS:
+        return "This name is reserved."
+    return None
+
+
 class DomainQuerySet(models.QuerySet):
     def visible_to(self, user: User) -> "DomainQuerySet":
         """Domains the user may access: superusers see all, everybody else only their own."""
@@ -190,11 +200,8 @@ class Domain(models.Model):
             return {}
 
         errors = {}
-        # `xn--` and every other `??--` prefix is reserved for encodings, this keeps out look-alike names
-        if label[2:4] == "--":
-            errors["name"] = f"Internationalized names are not allowed below {website_domain}."
-        elif label in settings.DOME_RESERVED_LABELS:
-            errors["name"] = "This name is reserved."
+        if label_error := managed_label_error(label):
+            errors["name"] = label_error
         if self.wildcard:
             errors["wildcard"] = f"Names below {website_domain} can not be wildcards."
         if self.webserver is not None:
