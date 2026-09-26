@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useRouter } from 'next/router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ConfirmDialog, IconButton } from '@helpwave/hightide'
 import { PencilIcon } from 'lucide-react'
@@ -26,7 +25,6 @@ export const DeleteWebsiteDialog = ({
   onDeleted,
 }: DeleteWebsiteDialogProps) => {
   const translation = useDomeTranslation()
-  const router = useRouter()
   const queryClient = useQueryClient()
   const domainsQuery = useDomainsQuery()
   const [editingDomain, setEditingDomain] = useState<Domain | undefined>()
@@ -37,9 +35,6 @@ export const DeleteWebsiteDialog = ({
     mutationFn: () => deleteWebsite(website.id),
     onSuccess: async () => {
       await invalidateHostQueries(queryClient)
-      if (router.query['id'] === website.id && router.pathname.startsWith('/website/')) {
-        await router.push('/websites')
-      }
       onDeleted()
     },
   })

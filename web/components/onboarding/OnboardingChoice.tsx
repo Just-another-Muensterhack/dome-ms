@@ -21,7 +21,7 @@ export const OnboardingChoice = ({
     >
       <div className="grid grid-cols-1 gap-4 desktop:grid-cols-2">
         <ActionCard
-          className="h-full"
+          className="h-full bg-surface text-on-surface hover:bg-surface-hover [&_.card-description]:text-on-surface"
           title={(
             <span className="flex flex-col items-start gap-2">
               <span>{translation('onboardingCreateWebsite')}</span>
@@ -34,7 +34,7 @@ export const OnboardingChoice = ({
           onClick={onCreateWebsite}
         />
         <ActionCard
-          className="h-full"
+          className="h-full bg-surface text-on-surface hover:bg-surface-hover [&_.card-description]:text-on-surface"
           title={(
             <span className="flex flex-col items-start gap-2">
               <span>{translation('onboardingExistingDomain')}</span>

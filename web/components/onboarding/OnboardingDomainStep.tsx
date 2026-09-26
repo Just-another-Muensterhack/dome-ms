@@ -32,7 +32,7 @@ export const OnboardingDomainStep = ({
     ? domain.name.slice(0, -(managedWebsiteDomain.length + 1))
     : domain?.name ?? ''
   const [name, setName] = useState(initialName)
-  const [managed, setManaged] = useState(locked)
+  const [managed, setManaged] = useState(domain === null || locked)
   const eligibility = useManagedDomainEligibility(name, managed && !locked)
   const canContinue = locked || (managed ? eligibility.passed : name.trim().length > 0)
 
