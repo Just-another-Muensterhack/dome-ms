@@ -30,6 +30,10 @@ class DomainOut(Schema):
     wildcard: bool
     website_id: UUID | None
     webserver_id: UUID | None
+    verified_at: datetime | None
+    # publish `record_value` as TXT record at `record_name`, then call the verify endpoint
+    record_name: str
+    record_value: str
     created_at: datetime
     updated_at: datetime
 

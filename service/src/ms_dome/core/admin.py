@@ -19,8 +19,8 @@ class DomainInlineFormSet(BaseInlineFormSet):
 class DomainInline(admin.TabularInline):
     model = Domain
     formset = DomainInlineFormSet
-    fields = ("name", "wildcard", "created_at", "updated_at")
-    readonly_fields = ("created_at", "updated_at")
+    fields = ("name", "wildcard", "verified_at", "created_at", "updated_at")
+    readonly_fields = ("verified_at", "created_at", "updated_at")
     extra = 0
     show_change_link = True
 
@@ -61,12 +61,24 @@ class WebserverAdmin(HostAdmin):
 
 @admin.register(Domain)
 class DomainAdmin(admin.ModelAdmin):
-    list_display = ("__str__", "owner", "website", "webserver", "wildcard", "created_at", "updated_at")
-    list_filter = ("wildcard", "created_at")
+    list_display = ("__str__", "owner", "website", "webserver", "wildcard", "verified_at", "created_at", "updated_at")
+    list_filter = ("wildcard", ("verified_at", admin.EmptyFieldListFilter), "created_at")
     search_fields = ("name", "website__name", "webserver__name", "owner__username", "owner__email")
     autocomplete_fields = ("owner", "website", "webserver")
-    readonly_fields = ("id", "created_at", "updated_at")
-    fields = ("id", "name", "wildcard", "owner", "website", "webserver", "created_at", "updated_at")
+    readonly_fields = ("id", "verified_at", "record_name", "record_value", "created_at", "updated_at")
+    fields = (
+        "id",
+        "name",
+        "wildcard",
+        "owner",
+        "website",
+        "webserver",
+        "verified_at",
+        "record_name",
+        "record_value",
+        "created_at",
+        "updated_at",
+    )
     list_select_related = ("owner", "website", "webserver")
 
     def get_readonly_fields(self, request, obj=None):

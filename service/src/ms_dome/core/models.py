@@ -1,4 +1,5 @@
 import re
+import secrets
 from uuid import uuid4
 
 from django.contrib.auth.models import User
@@ -32,6 +33,10 @@ def normalize_domain_name(name: str) -> str:
     return name
 
 
+def new_verification_token() -> str:
+    return secrets.token_urlsafe(32)
+
+
 class DomainQuerySet(models.QuerySet):
     def visible_to(self, user: User) -> "DomainQuerySet":
         """Domains the user may access: superusers see all, everybody else only their own."""
@@ -53,15 +58,23 @@ class Domain(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="domains")
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
     wildcard = models.BooleanField(default=False)
     website = models.ForeignKey("Website", on_delete=models.CASCADE, related_name="domains", null=True, blank=True)
     webserver = models.ForeignKey("Webserver", on_delete=models.CASCADE, related_name="domains", null=True, blank=True)
+    # ownership is proven by publishing `record_value` as TXT record at `record_name`
+    token = models.CharField(max_length=64, default=new_verification_token, editable=False)
+    verified_at = models.DateTimeField(null=True, blank=True, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         constraints = [
+            models.UniqueConstraint(
+                fields=["owner", "name"],
+                name="unique_domain_name_per_owner",
+                violation_error_message="You already have a domain with this name.",
+            ),
             # a domain points to at most one host, either a website or a webserver
             models.CheckConstraint(
                 condition=Q(website__isnull=True) | Q(webserver__isnull=True),
@@ -73,6 +86,29 @@ class Domain(models.Model):
     def __str__(self):
         return f"*.{self.name}" if self.wildcard else self.name
 
+    @classmethod
+    def from_db(cls, db, field_names, values, *, fetch_mode=None):
+        instance = super().from_db(db, field_names, values, fetch_mode=fetch_mode)
+        # remember the stored name, a rename has to be verified again
+        instance._stored_name = instance.__dict__.get("name")
+        return instance
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self._stored_name = self.name
+
+    @property
+    def verified(self) -> bool:
+        return self.verified_at is not None
+
+    @property
+    def record_name(self) -> str:
+        return f"_dome-ms-challenge.{self.name}"
+
+    @property
+    def record_value(self) -> str:
+        return f"dome-ms-verification={self.token}"
+
     def clean(self):
         errors = {}
         if self.name:
@@ -81,13 +117,25 @@ class Domain(models.Model):
             except ValidationError as exc:
                 errors["name"] = exc.messages
 
+        stored_name = getattr(self, "_stored_name", None)
+        if stored_name is not None and self.name != stored_name:
+            # the proof was for the old name, a fresh token keeps an old TXT record from verifying the new one
+            self.verified_at = None  # ty: ignore[invalid-assignment]
+            self.token = new_verification_token()  # ty: ignore[invalid-assignment]
+
         if self.website is not None and self.webserver is not None:
             errors["webserver"] = "A domain can belong to either a website or a webserver, not both."
         for field in ("website", "webserver"):
             host = getattr(self, field)
             if host is None:
                 continue
-            if host.deleted:
+            if not self.verified:
+                errors[field] = (
+                    "Verify the domain before attaching it, a renamed domain has to be verified again."
+                    if stored_name is not None and self.name != stored_name
+                    else "Verify the domain before attaching it."
+                )
+            elif host.deleted:
                 errors[field] = f"The {field} has been deleted."
             elif host.owner_id != self.owner_id:  # ty: ignore[unresolved-attribute]
                 errors[field] = f"The {field} must belong to the same owner as the domain."
